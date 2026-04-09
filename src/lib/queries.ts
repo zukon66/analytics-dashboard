@@ -1,15 +1,46 @@
 import { supabase } from "./supabase";
 
+// ─── HELPERS ──────────────────────────────────────────────
+
+function getPeriodRange(period: string): { from: string; to: string } {
+  const now = new Date();
+  // Belirli bir tarih (YYYY-MM-DD)
+  if (/^\d{4}-\d{2}-\d{2}$/.test(period)) {
+    return {
+      from: `${period}T00:00:00`,
+      to: `${period}T23:59:59`,
+    };
+  }
+  if (period === "7d") {
+    return {
+      from: new Date(Date.now() - 7 * 86400000).toISOString(),
+      to: now.toISOString(),
+    };
+  }
+  if (period === "30d") {
+    return {
+      from: new Date(Date.now() - 30 * 86400000).toISOString(),
+      to: now.toISOString(),
+    };
+  }
+  // today (default)
+  const today = now.toISOString().split("T")[0];
+  return {
+    from: `${today}T00:00:00`,
+    to: `${today}T23:59:59`,
+  };
+}
+
 // ─── SCANS ────────────────────────────────────────────────
 
-export async function getScansByHour(date?: string) {
-  const targetDate = date ?? new Date().toISOString().split("T")[0];
+export async function getScansByHour(period: string = "today") {
+  const { from, to } = getPeriodRange(period);
   try {
     const { data, error } = await supabase
       .from("scans")
       .select("scanned_at")
-      .gte("scanned_at", `${targetDate}T00:00:00`)
-      .lt("scanned_at", `${targetDate}T23:59:59`);
+      .gte("scanned_at", from)
+      .lte("scanned_at", to);
 
     if (error) throw error;
 
@@ -32,12 +63,14 @@ export async function getScansByHour(date?: string) {
   }
 }
 
-export async function getScansByCity() {
+export async function getScansByCity(period: string = "7d") {
+  const { from, to } = getPeriodRange(period);
   try {
     const { data, error } = await supabase
       .from("scans")
       .select("city")
-      .gte("scanned_at", new Date(Date.now() - 7 * 86400000).toISOString());
+      .gte("scanned_at", from)
+      .lte("scanned_at", to);
 
     if (error) throw error;
 
@@ -55,13 +88,14 @@ export async function getScansByCity() {
   }
 }
 
-export async function getScansByZone() {
-  const today = new Date().toISOString().split("T")[0];
+export async function getScansByZone(period: string = "today") {
+  const { from, to } = getPeriodRange(period);
   try {
     const { data, error } = await supabase
       .from("scans")
       .select("zone")
-      .gte("scanned_at", `${today}T00:00:00`);
+      .gte("scanned_at", from)
+      .lte("scanned_at", to);
 
     if (error) throw error;
 
@@ -76,13 +110,14 @@ export async function getScansByZone() {
   }
 }
 
-export async function getTopTables(limit = 10) {
-  const today = new Date().toISOString().split("T")[0];
+export async function getTopTables(limit = 10, period: string = "today") {
+  const { from, to } = getPeriodRange(period);
   try {
     const { data, error } = await supabase
       .from("scans")
       .select("table_id, zone, duration_minutes")
-      .gte("scanned_at", `${today}T00:00:00`);
+      .gte("scanned_at", from)
+      .lte("scanned_at", to);
 
     if (error) throw error;
 
@@ -113,6 +148,42 @@ export async function getTopTables(limit = 10) {
   }
 }
 
+export async function getPeriodKPIs(period: string = "today") {
+  const { from, to } = getPeriodRange(period);
+  try {
+    const { data, error } = await supabase
+      .from("scans")
+      .select("scanned_at, city, zone")
+      .gte("scanned_at", from)
+      .lte("scanned_at", to);
+
+    if (error) throw error;
+
+    const totalScans = data?.length ?? 0;
+
+    // Peak hour
+    const hourMap: Record<number, number> = {};
+    data?.forEach((row) => {
+      const h = new Date(row.scanned_at).getHours();
+      hourMap[h] = (hourMap[h] || 0) + 1;
+    });
+    const peakEntry = Object.entries(hourMap).reduce(
+      (max, [h, c]) => (c > max[1] ? [h, c] : max),
+      ["0", 0] as [string, number]
+    );
+    const peakHour =
+      totalScans > 0 ? `${String(peakEntry[0]).padStart(2, "0")}:00` : "--";
+
+    // Active cities & zones
+    const activeCities = new Set(data?.map((r) => r.city)).size;
+    const activeZones = new Set(data?.map((r) => r.zone)).size;
+
+    return { totalScans, peakHour, activeCities, activeZones };
+  } catch {
+    return { totalScans: 0, peakHour: "--", activeCities: 0, activeZones: 0 };
+  }
+}
+
 // Haftalık toplam tarama + günlük ortalama (Analytics sayfası)
 export async function getWeeklyStats() {
   const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
@@ -126,7 +197,6 @@ export async function getWeeklyStats() {
 
     const total = data?.length ?? 0;
 
-    // Gün bazında dağılım
     const dayMap: Record<string, number> = {};
     data?.forEach((row) => {
       const day = new Date(row.scanned_at).toLocaleDateString("tr-TR", {
@@ -157,8 +227,6 @@ export async function getWeeklyStats() {
 }
 
 // ─── ORDERS ───────────────────────────────────────────────
-// Varsayılan tablo: public.orders
-// Şema: id, table_id, zone, total_amount (numeric), status ('completed'|'pending'|'cancelled'), created_at
 
 export type Order = {
   id: number;
@@ -169,12 +237,22 @@ export type Order = {
   created_at: string;
 };
 
-export async function getOrders(limit = 50): Promise<Order[]> {
+const VALID_ORDER_SORT_COLS = ["id", "table_id", "total_amount", "created_at", "zone", "status"] as const;
+type OrderSortCol = (typeof VALID_ORDER_SORT_COLS)[number];
+
+export async function getOrders(
+  limit = 50,
+  sortBy: string = "created_at",
+  sortDir: "asc" | "desc" = "desc"
+): Promise<Order[]> {
+  const col: OrderSortCol = (VALID_ORDER_SORT_COLS as readonly string[]).includes(sortBy)
+    ? (sortBy as OrderSortCol)
+    : "created_at";
   try {
     const { data, error } = await supabase
       .from("orders")
       .select("id, table_id, zone, total_amount, status, created_at")
-      .order("created_at", { ascending: false })
+      .order(col, { ascending: sortDir === "asc" })
       .limit(limit);
 
     if (error) throw error;
@@ -203,8 +281,6 @@ export async function getOrderStats() {
 }
 
 // ─── CUSTOMERS ────────────────────────────────────────────
-// Varsayılan tablo: public.customers
-// Şema: id, name (text), city (text), visit_count (int), last_visit (timestamptz)
 
 export type Customer = {
   id: number;

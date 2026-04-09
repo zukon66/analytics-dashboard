@@ -16,12 +16,12 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="h-screen w-64 fixed left-0 top-0 bg-[#f2f4f5] flex flex-col p-6 space-y-8 z-50">
+    <aside className="h-screen w-64 fixed left-0 top-0 bg-[#F6F6FB] flex flex-col p-6 space-y-8 z-50">
       <div className="flex flex-col gap-1">
-        <span className="text-xl font-bold tracking-tighter text-[#2e3335]">
+        <span className="text-xl font-bold tracking-tighter text-[#1F2430]">
           {t.app.name}
         </span>
-        <span className="text-xs uppercase tracking-widest text-[#5a6062] font-semibold">
+        <span className="text-xs uppercase tracking-widest text-[#9AA3B2] font-semibold">
           {t.app.tagline}
         </span>
       </div>
@@ -35,17 +35,13 @@ export default function Sidebar() {
               href={item.href}
               className={`flex items-center gap-3 px-4 py-3 transition-colors rounded-lg ${
                 isActive
-                  ? "bg-[#aef764]/50 text-[#3c6b00] font-semibold"
-                  : "text-[#5a6062] hover:bg-slate-200/50"
+                  ? "bg-[#EEEAFE] text-[#7C6CF6] font-semibold"
+                  : "text-[#5B6472] hover:bg-[#EEEAFE]/50 hover:text-[#7C6CF6]"
               }`}
             >
               <span
                 className="material-symbols-outlined"
-                style={
-                  isActive
-                    ? { fontVariationSettings: "'FILL' 1" }
-                    : undefined
-                }
+                style={isActive ? { fontVariationSettings: "'FILL' 1" } : undefined}
               >
                 {item.icon}
               </span>
@@ -55,12 +51,21 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <div className="mt-auto bg-[#aef764] p-5 rounded-xl flex flex-col gap-3">
-        <span className="text-sm font-bold text-[#335c00]">{t.upgrade.title}</span>
-        <p className="text-xs text-[#335c00]/80">{t.upgrade.description}</p>
-        <button className="bg-[#3c6b00] text-[#eeffd6] py-2 px-4 rounded-full text-xs font-bold w-fit">
-          {t.upgrade.button}
-        </button>
+      {/* Durum Kartı */}
+      <div className="mt-auto bg-[#EEEAFE] p-5 rounded-xl flex flex-col gap-3">
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse"></span>
+          <span className="text-sm font-bold text-[#5D4EE0]">Canlı Veri</span>
+        </div>
+        <p className="text-xs text-[#6B7280] leading-relaxed">
+          QR menünüz aktif. Taramalar anlık olarak izleniyor.
+        </p>
+        <Link
+          href="/analytics"
+          className="bg-[#7C6CF6] text-white py-2 px-4 rounded-full text-xs font-bold w-fit hover:bg-[#6D5DF0] transition-colors"
+        >
+          Analitiğe Git
+        </Link>
       </div>
     </aside>
   );

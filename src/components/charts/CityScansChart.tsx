@@ -17,25 +17,25 @@ interface Props {
 }
 
 const COLORS = [
-  "#3c6b00",
-  "#aef764",
-  "#a1d1fe",
-  "#ebdcff",
-  "#a0e857",
-  "#93c3ef",
-  "#dfccfe",
-  "#e5e9eb",
+  "#7C6CF6",
+  "#60A5FA",
+  "#A78BFA",
+  "#34D399",
+  "#F59E0B",
+  "#C4B5FD",
+  "#DBEAFE",
+  "#D1D5DB",
 ];
 
 export default function CityScansChart({ data }: Props) {
   return (
-    <div className="bg-[#f2f4f5] rounded-xl p-8 flex flex-col justify-between">
+    <div className="bg-[#F6F6FB] rounded-xl p-8 flex flex-col justify-between">
       <div className="mb-6">
-        <span className="px-3 py-1 bg-[#a1d1fe] text-[#0a476d] rounded-sm text-[10px] font-bold tracking-widest uppercase mb-3 inline-block">
-          Geo Analysis
+        <span className="px-3 py-1 bg-[#DBEAFE] text-[#1E40AF] rounded-sm text-[10px] font-bold tracking-widest uppercase mb-3 inline-block">
+          Coğrafi Analiz
         </span>
-        <h3 className="text-lg font-bold text-[#2e3335]">Scans by City</h3>
-        <p className="text-[#5a6062] text-sm mt-1">Last 7 days</p>
+        <h3 className="text-lg font-bold text-[#1F2430]">Şehire Göre Tarama</h3>
+        <p className="text-[#6B7280] text-sm mt-1">Son 7 gün</p>
       </div>
 
       <ResponsiveContainer width="100%" height={220}>
@@ -44,20 +44,20 @@ export default function CityScansChart({ data }: Props) {
           <YAxis
             type="category"
             dataKey="city"
-            tick={{ fontSize: 11, fill: "#5a6062", fontWeight: 600 }}
+            tick={{ fontSize: 11, fill: "#6B7280", fontWeight: 600 }}
             axisLine={false}
             tickLine={false}
             width={80}
           />
           <Tooltip
             contentStyle={{
-              background: "#ffffff",
-              border: "none",
+              background: "#FFFFFF",
+              border: "1px solid #E9E9F2",
               borderRadius: "12px",
-              boxShadow: "0 8px 32px rgba(46,51,53,0.08)",
+              boxShadow: "0 8px 32px rgba(124,108,246,0.08)",
               fontSize: 12,
             }}
-            cursor={{ fill: "#ebeef0" }}
+            cursor={{ fill: "#EEEAFE" }}
           />
           <Bar dataKey="scans" radius={[0, 4, 4, 0]}>
             {data.map((_, index) => (

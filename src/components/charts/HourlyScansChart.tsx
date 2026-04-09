@@ -20,23 +20,23 @@ export default function HourlyScansChart({ data }: Props) {
   const maxScans = Math.max(...data.map((d) => d.scans), 1);
 
   return (
-    <div className="bg-[#ffffff] rounded-xl p-8">
+    <div className="bg-[#FFFFFF] rounded-xl p-8">
       <div className="flex justify-between items-start mb-6">
         <div>
-          <span className="px-3 py-1 bg-[#ebdcff] text-[#594a74] rounded-sm text-[10px] font-bold tracking-widest uppercase mb-3 inline-block">
-            Time Analysis
+          <span className="px-3 py-1 bg-[#EEEAFE] text-[#7C6CF6] rounded-sm text-[10px] font-bold tracking-widest uppercase mb-3 inline-block">
+            Saat Analizi
           </span>
-          <h2 className="text-2xl font-bold text-[#2e3335]">Hourly Scans</h2>
-          <p className="text-[#5a6062] text-sm mt-1">
-            QR scan distribution throughout the day
+          <h2 className="text-2xl font-bold text-[#1F2430]">Saatlik Taramalar</h2>
+          <p className="text-[#6B7280] text-sm mt-1">
+            Gün boyunca QR kod tarama dağılımı
           </p>
         </div>
         <div className="text-right">
-          <p className="text-4xl font-extrabold text-[#3c6b00]">
-            {data.reduce((s, d) => s + d.scans, 0).toLocaleString()}
+          <p className="text-4xl font-extrabold text-[#7C6CF6]">
+            {data.reduce((s, d) => s + d.scans, 0).toLocaleString("tr-TR")}
           </p>
-          <p className="text-[10px] font-bold text-[#5a6062] uppercase tracking-tighter">
-            Total Scans Today
+          <p className="text-[10px] font-bold text-[#9AA3B2] uppercase tracking-tighter">
+            Bugünkü Toplam Tarama
           </p>
         </div>
       </div>
@@ -45,7 +45,7 @@ export default function HourlyScansChart({ data }: Props) {
         <BarChart data={data} barSize={18}>
           <XAxis
             dataKey="hour"
-            tick={{ fontSize: 10, fill: "#5a6062", fontWeight: 700 }}
+            tick={{ fontSize: 10, fill: "#9AA3B2", fontWeight: 700 }}
             tickFormatter={(v: string) => v.slice(0, 5)}
             interval={2}
             axisLine={false}
@@ -54,13 +54,13 @@ export default function HourlyScansChart({ data }: Props) {
           <YAxis hide />
           <Tooltip
             contentStyle={{
-              background: "#ffffff",
-              border: "none",
+              background: "#FFFFFF",
+              border: "1px solid #E9E9F2",
               borderRadius: "12px",
-              boxShadow: "0 8px 32px rgba(46,51,53,0.08)",
+              boxShadow: "0 8px 32px rgba(124,108,246,0.08)",
               fontSize: 12,
             }}
-            cursor={{ fill: "#ebeef0" }}
+            cursor={{ fill: "#F6F6FB" }}
           />
           <Bar dataKey="scans" radius={[4, 4, 0, 0]}>
             {data.map((entry, index) => (
@@ -68,10 +68,10 @@ export default function HourlyScansChart({ data }: Props) {
                 key={index}
                 fill={
                   entry.scans === maxScans
-                    ? "#3c6b00"
+                    ? "#7C6CF6"
                     : entry.scans > maxScans * 0.6
-                    ? "#aef764"
-                    : "#e5e9eb"
+                    ? "#A78BFA"
+                    : "#E9E9F2"
                 }
               />
             ))}
@@ -80,15 +80,14 @@ export default function HourlyScansChart({ data }: Props) {
       </ResponsiveContainer>
 
       <div className="flex gap-4 mt-4">
-        <div className="flex items-center gap-2 text-xs font-semibold text-[#5a6062]">
-          <span className="w-3 h-3 rounded-full bg-[#3c6b00]"></span> Peak Hour
+        <div className="flex items-center gap-2 text-xs font-semibold text-[#6B7280]">
+          <span className="w-3 h-3 rounded-full bg-[#7C6CF6]"></span> Zirve Saati
         </div>
-        <div className="flex items-center gap-2 text-xs font-semibold text-[#5a6062]">
-          <span className="w-3 h-3 rounded-full bg-[#aef764]"></span> High
-          Traffic
+        <div className="flex items-center gap-2 text-xs font-semibold text-[#6B7280]">
+          <span className="w-3 h-3 rounded-full bg-[#A78BFA]"></span> Yoğun Trafik
         </div>
-        <div className="flex items-center gap-2 text-xs font-semibold text-[#5a6062]">
-          <span className="w-3 h-3 rounded-full bg-[#e5e9eb]"></span> Normal
+        <div className="flex items-center gap-2 text-xs font-semibold text-[#6B7280]">
+          <span className="w-3 h-3 rounded-full bg-[#E9E9F2]"></span> Normal
         </div>
       </div>
     </div>
