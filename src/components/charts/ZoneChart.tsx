@@ -49,14 +49,15 @@ export default function ZoneChart({ data }: Props) {
   const ACTIVE_INNER = 46;
   const ACTIVE_OUTER = 94;
 
-  let cursor = 0;
-  const slices = data.map((item, i) => {
+  const slices = data.reduce<
+    Array<{ zone: string; scans: number; start: number; end: number; index: number }>
+  >((acc, item, i) => {
+    const cursorPos = i === 0 ? 0 : acc[i - 1].end + GAP / 2;
     const sweep = total > 0 ? (item.scans / total) * (360 - GAP * data.length) : 0;
-    const start = cursor + GAP / 2;
-    const end = cursor + sweep + GAP / 2;
-    cursor += sweep + GAP;
-    return { ...item, start, end, index: i };
-  });
+    const start = cursorPos + GAP / 2;
+    const end = cursorPos + sweep + GAP / 2;
+    return [...acc, { ...item, start, end, index: i }];
+  }, []);
 
   return (
     <div className="bg-[#FFFFFF] rounded-xl p-8">

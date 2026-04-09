@@ -8,21 +8,46 @@ import HourlyScansChart from "@/components/charts/HourlyScansChart";
 import CityScansChart from "@/components/charts/CityScansChart";
 import ZoneChart from "@/components/charts/ZoneChart";
 import AnalyticsExportButton from "@/components/AnalyticsExportButton";
+import DateFilterBar from "@/components/DateFilterBar";
 import t from "@/lib/i18n";
 
 export const revalidate = 60;
 
-export default async function AnalyticsPage() {
-  const [hourlyData, cityData, zoneData, weekly] = await Promise.all([
-    getScansByHour(),
-    getScansByCity(),
-    getScansByZone(),
+const VALID_PERIODS = ["today", "7d", "30d"];
+
+function ErrorBanner({ message }: { message: string }) {
+  return (
+    <div className="mb-4 flex items-center gap-3 bg-[#FEF3C7] border border-[#FDE68A] rounded-xl px-5 py-3 text-sm text-[#92400E]">
+      <span className="material-symbols-outlined text-base">warning</span>
+      <span>Veri yüklenirken sorun oluştu. Lütfen sayfayı yenileyin.</span>
+      <span className="ml-auto text-[10px] font-mono opacity-50">{message.slice(0, 60)}</span>
+    </div>
+  );
+}
+
+export default async function AnalyticsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ period?: string; date?: string }>;
+}) {
+  const { period = "7d", date } = await searchParams;
+  const isValidDate = date && /^\d{4}-\d{2}-\d{2}$/.test(date);
+  const activePeriod = VALID_PERIODS.includes(period) ? period : "7d";
+  const queryKey = isValidDate ? date : activePeriod;
+
+  const [hourlyRes, cityRes, zoneRes, weeklyRes] = await Promise.all([
+    getScansByHour(queryKey),
+    getScansByCity(queryKey),
+    getScansByZone(queryKey),
     getWeeklyStats(),
   ]);
 
-  const peakHour = hourlyData.reduce(
+  const weekly = weeklyRes.data;
+  const hasError = [hourlyRes, cityRes, zoneRes, weeklyRes].some((r) => r.error);
+
+  const peakHour = hourlyRes.data.reduce(
     (max, d) => (d.scans > max.scans ? d : max),
-    hourlyData[0] ?? { hour: "--", scans: 0 }
+    hourlyRes.data[0] ?? { hour: "--", scans: 0 }
   );
 
   const summaryCards = [
@@ -42,19 +67,22 @@ export default async function AnalyticsPage() {
           <span className="px-3 py-1 bg-[#EEEAFE] text-[#7C6CF6] rounded-sm text-[10px] font-bold tracking-widest uppercase mb-3 inline-block">
             {t.analytics.badge.trend}
           </span>
-          <h1 className="text-3xl font-extrabold tracking-tight text-[#1F2430] mb-1">
-            {t.analytics.title}
-          </h1>
+          <h1 className="text-3xl font-extrabold tracking-tight text-[#1F2430] mb-1">{t.analytics.title}</h1>
           <p className="text-[#6B7280] text-sm font-medium">{t.analytics.subtitle}</p>
         </div>
-        <AnalyticsExportButton
-          hourlyData={hourlyData}
-          cityData={cityData}
-          zoneData={zoneData}
-          weekly={{ total: weekly.total, avgPerDay: weekly.avgPerDay, bestDay: weekly.bestDay }}
-          peakHour={peakHour.hour}
-        />
+        <div className="flex items-center gap-3">
+          <DateFilterBar activePeriod={activePeriod} activeDate={isValidDate ? date : undefined} />
+          <AnalyticsExportButton
+            hourlyData={hourlyRes.data}
+            cityData={cityRes.data}
+            zoneData={zoneRes.data}
+            weekly={{ total: weekly.total, avgPerDay: weekly.avgPerDay, bestDay: weekly.bestDay }}
+            peakHour={peakHour.hour}
+          />
+        </div>
       </div>
+
+      {hasError && <ErrorBanner message={[hourlyRes, cityRes, zoneRes, weeklyRes].find((r) => r.error)?.error ?? ""} />}
 
       {/* KPI Şeridi */}
       <div className="grid grid-cols-4 gap-4 mb-8">
@@ -71,32 +99,21 @@ export default async function AnalyticsPage() {
         ))}
       </div>
 
-      {/* Boş durum */}
       {!hasData && (
         <div className="bg-[#FFFFFF] rounded-xl p-16 flex flex-col items-center justify-center text-center mb-8 border border-[#E9E9F2]">
           <div className="p-4 bg-[#F6F6FB] rounded-full mb-4">
             <span className="material-symbols-outlined text-4xl text-[#9AA3B2]">analytics</span>
           </div>
-          <h3 className="text-lg font-bold text-[#1F2430] mb-2">Bu hafta henüz tarama yok</h3>
-          <p className="text-sm text-[#6B7280] max-w-sm">
-            Müşterileriniz QR menünüzü taramaya başladığında trendler burada görünecek.
-          </p>
+          <h3 className="text-lg font-bold text-[#1F2430] mb-2">Bu dönem için henüz tarama yok</h3>
+          <p className="text-sm text-[#6B7280] max-w-sm">Müşterileriniz QR menünüzü taramaya başladığında trendler burada görünecek.</p>
         </div>
       )}
 
-      {/* Saatlik Grafik */}
-      <div className="mb-8">
-        <HourlyScansChart data={hourlyData} />
-      </div>
+      <div className="mb-8"><HourlyScansChart data={hourlyRes.data} /></div>
 
-      {/* Şehir + Bölge */}
       <div className="grid grid-cols-12 gap-6">
-        <div className="col-span-12 lg:col-span-7">
-          <CityScansChart data={cityData} />
-        </div>
-        <div className="col-span-12 lg:col-span-5">
-          <ZoneChart data={zoneData} />
-        </div>
+        <div className="col-span-12 lg:col-span-7"><CityScansChart data={cityRes.data} /></div>
+        <div className="col-span-12 lg:col-span-5"><ZoneChart data={zoneRes.data} /></div>
       </div>
     </main>
   );

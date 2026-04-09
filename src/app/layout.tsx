@@ -18,6 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="tr" className="h-full">
+      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <head>
         <link
           rel="stylesheet"

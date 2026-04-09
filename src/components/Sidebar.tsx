@@ -54,11 +54,11 @@ export default function Sidebar() {
       {/* Durum Kartı */}
       <div className="mt-auto bg-[#EEEAFE] p-5 rounded-xl flex flex-col gap-3">
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse"></span>
-          <span className="text-sm font-bold text-[#5D4EE0]">Canlı Veri</span>
+          <span className="w-2 h-2 rounded-full bg-[#F59E0B]"></span>
+          <span className="text-sm font-bold text-[#5D4EE0]">Örnek Veri</span>
         </div>
         <p className="text-xs text-[#6B7280] leading-relaxed">
-          QR menünüz aktif. Taramalar anlık olarak izleniyor.
+          Şu an demo verileri gösteriliyor. QR menü bağlandığında gerçek veriler yansıyacak.
         </p>
         <Link
           href="/analytics"

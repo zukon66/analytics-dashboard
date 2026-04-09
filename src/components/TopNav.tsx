@@ -1,32 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import t from "@/lib/i18n";
 
 const STORAGE_KEY = "kok_settings";
 
+function loadFromStorage() {
+  if (typeof window === "undefined") return { restaurantName: "KÖK Restoran", userName: "Restoran Sahibi" };
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const s = JSON.parse(stored);
+      return {
+        restaurantName: s.restaurantName ?? "KÖK Restoran",
+        userName: s.name ?? "Restoran Sahibi",
+      };
+    }
+  } catch {}
+  return { restaurantName: "KÖK Restoran", userName: "Restoran Sahibi" };
+}
+
 export default function TopNav() {
-  const [restaurantName, setRestaurantName] = useState("KÖK Restoran");
-  const [userName, setUserName] = useState("Restoran Sahibi");
+  const [{ restaurantName, userName }] = useState(loadFromStorage);
   const initials = userName
     .split(" ")
-    .map((w) => w[0])
+    .map((w: string) => w[0])
     .join("")
     .slice(0, 2)
     .toUpperCase();
-
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const s = JSON.parse(stored);
-        if (s.restaurantName) setRestaurantName(s.restaurantName);
-        if (s.name) setUserName(s.name);
-      }
-    } catch {
-      // ignore
-    }
-  }, []);
 
   return (
     <header className="fixed top-0 right-0 w-[calc(100%-16rem)] z-40 bg-white/80 backdrop-blur-xl flex justify-between items-center px-8 h-16 border-b border-[#E9E9F2]">
