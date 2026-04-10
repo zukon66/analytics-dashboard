@@ -12,18 +12,33 @@ const navItems = [
   { href: "/settings", icon: "settings", label: t.nav.settings },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const pathname = usePathname();
 
   return (
-    <aside className="h-screen w-64 fixed left-0 top-0 bg-[#F6F6FB] flex flex-col p-6 space-y-8 z-50">
-      <div className="flex flex-col gap-1">
-        <span className="text-xl font-bold tracking-tighter text-[#1F2430]">
-          {t.app.name}
-        </span>
-        <span className="text-xs uppercase tracking-widest text-[#9AA3B2] font-semibold">
-          {t.app.tagline}
-        </span>
+    <aside
+      className={`h-screen w-64 fixed left-0 top-0 bg-[#F6F6FB] flex flex-col p-6 space-y-8 z-50
+        transform transition-transform duration-300
+        ${isOpen ? "translate-x-0" : "-translate-x-full"}
+        md:translate-x-0`}
+    >
+      <div className="flex items-start justify-between">
+        <div className="flex flex-col gap-1">
+          <span className="text-xl font-bold tracking-tighter text-[#1F2430]">
+            {t.app.name}
+          </span>
+          <span className="text-xs uppercase tracking-widest text-[#9AA3B2] font-semibold">
+            {t.app.tagline}
+          </span>
+        </div>
+        {/* Mobil kapat butonu */}
+        <button
+          onClick={onClose}
+          className="md:hidden p-1 rounded-lg text-[#9AA3B2] hover:text-[#1F2430] hover:bg-[#EEEAFE] transition-colors"
+          aria-label="Menüyü kapat"
+        >
+          <span className="material-symbols-outlined text-xl">close</span>
+        </button>
       </div>
 
       <nav className="flex flex-col space-y-1">

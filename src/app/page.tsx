@@ -78,7 +78,7 @@ export default async function DashboardPage({
   ];
 
   return (
-    <main className="ml-64 pt-24 pb-12 px-8 min-h-screen bg-[#FAFAFD]">
+    <main className="pt-24 pb-12 px-4 md:px-8 min-h-screen bg-[#FAFAFD]">
       <div className="mb-8 flex justify-between items-end">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-[#1F2430] mb-1">{t.dashboard.title}</h1>

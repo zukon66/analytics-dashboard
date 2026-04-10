@@ -70,7 +70,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <main className="ml-64 pt-24 pb-12 px-8 min-h-screen bg-[#FAFAFD]">
+    <main className="pt-24 pb-12 px-4 md:px-8 min-h-screen bg-[#FAFAFD]">
       {/* Başlık */}
       <div className="mb-8 flex justify-between items-end">
         <div>

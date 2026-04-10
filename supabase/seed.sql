@@ -1,0 +1,88 @@
+-- ============================================================
+-- KÖK-OS Analytics Dashboard — Demo Seed Data
+-- Türkçe örnek veri: İstanbul, Ankara, İzmir, Bursa, Antalya
+-- ============================================================
+
+-- ── scans ────────────────────────────────────────────────────
+INSERT INTO scans (table_id, zone, city, scanned_at, duration_minutes) VALUES
+  ('T-01', 'Teras',    'İstanbul', NOW() - INTERVAL '2 hours',   12),
+  ('T-02', 'Teras',    'İstanbul', NOW() - INTERVAL '2.5 hours', 8),
+  ('T-03', 'İç Mekan', 'Ankara',   NOW() - INTERVAL '3 hours',   15),
+  ('T-04', 'İç Mekan', 'İstanbul', NOW() - INTERVAL '1 hour',    5),
+  ('T-05', 'Bar',      'İzmir',    NOW() - INTERVAL '4 hours',   20),
+  ('T-06', 'Bahçe',    'İstanbul', NOW() - INTERVAL '30 mins',   7),
+  ('T-07', 'Teras',    'Bursa',    NOW() - INTERVAL '5 hours',   10),
+  ('T-08', 'İç Mekan', 'Antalya',  NOW() - INTERVAL '6 hours',   18),
+  ('T-09', 'Bahçe',    'İstanbul', NOW() - INTERVAL '7 hours',   9),
+  ('T-10', 'Bar',      'İzmir',    NOW() - INTERVAL '8 hours',   14),
+  ('T-01', 'Teras',    'İstanbul', NOW() - INTERVAL '1 day',     11),
+  ('T-02', 'Teras',    'Ankara',   NOW() - INTERVAL '1 day 2 hours', 6),
+  ('T-03', 'İç Mekan', 'İstanbul', NOW() - INTERVAL '1 day 4 hours', 22),
+  ('T-11', 'Bahçe',    'Bursa',    NOW() - INTERVAL '2 days',    13),
+  ('T-12', 'Bar',      'İstanbul', NOW() - INTERVAL '2 days 3 hours', 4),
+  ('T-05', 'Bar',      'Antalya',  NOW() - INTERVAL '3 days',    16),
+  ('T-08', 'İç Mekan', 'İzmir',    NOW() - INTERVAL '3 days 1 hour', 19),
+  ('T-04', 'İç Mekan', 'İstanbul', NOW() - INTERVAL '4 days',    8),
+  ('T-13', 'Teras',    'Ankara',   NOW() - INTERVAL '4 days 5 hours', 21),
+  ('T-06', 'Bahçe',    'İstanbul', NOW() - INTERVAL '5 days',    7),
+  ('T-14', 'Bar',      'İzmir',    NOW() - INTERVAL '5 days 2 hours', 12),
+  ('T-15', 'İç Mekan', 'Bursa',    NOW() - INTERVAL '6 days',    10),
+  ('T-01', 'Teras',    'İstanbul', NOW() - INTERVAL '6 days 3 hours', 15),
+  ('T-07', 'Teras',    'Antalya',  NOW() - INTERVAL '7 days',    9),
+  ('T-09', 'Bahçe',    'İstanbul', NOW() - INTERVAL '10 days',   6),
+  ('T-16', 'İç Mekan', 'Ankara',   NOW() - INTERVAL '12 days',   17),
+  ('T-17', 'Bar',      'İstanbul', NOW() - INTERVAL '15 days',   11),
+  ('T-18', 'Teras',    'İzmir',    NOW() - INTERVAL '20 days',   8),
+  ('T-02', 'Teras',    'İstanbul', NOW() - INTERVAL '25 days',   14),
+  ('T-19', 'Bahçe',    'Bursa',    NOW() - INTERVAL '28 days',   20);
+
+-- ── orders ───────────────────────────────────────────────────
+INSERT INTO orders (table_id, zone, total_amount, status, created_at) VALUES
+  ('T-01', 'Teras',    285.00, 'completed', NOW() - INTERVAL '2 hours'),
+  ('T-02', 'Teras',    120.50, 'completed', NOW() - INTERVAL '3 hours'),
+  ('T-03', 'İç Mekan', 450.00, 'pending',   NOW() - INTERVAL '1 hour'),
+  ('T-04', 'İç Mekan', 75.00,  'cancelled', NOW() - INTERVAL '4 hours'),
+  ('T-05', 'Bar',      310.75, 'completed', NOW() - INTERVAL '5 hours'),
+  ('T-06', 'Bahçe',    190.00, 'completed', NOW() - INTERVAL '30 mins'),
+  ('T-07', 'Teras',    525.50, 'completed', NOW() - INTERVAL '1 day'),
+  ('T-08', 'İç Mekan', 88.00,  'pending',   NOW() - INTERVAL '1 day 2 hours'),
+  ('T-09', 'Bahçe',    215.25, 'completed', NOW() - INTERVAL '2 days'),
+  ('T-10', 'Bar',      340.00, 'completed', NOW() - INTERVAL '2 days 4 hours'),
+  ('T-11', 'Bahçe',    95.50,  'cancelled', NOW() - INTERVAL '3 days'),
+  ('T-12', 'Bar',      480.00, 'completed', NOW() - INTERVAL '3 days 3 hours'),
+  ('T-13', 'Teras',    165.00, 'completed', NOW() - INTERVAL '4 days'),
+  ('T-14', 'Bar',      720.00, 'completed', NOW() - INTERVAL '4 days 5 hours'),
+  ('T-15', 'İç Mekan', 55.00,  'cancelled', NOW() - INTERVAL '5 days'),
+  ('T-01', 'Teras',    390.75, 'completed', NOW() - INTERVAL '5 days 2 hours'),
+  ('T-02', 'Teras',    142.00, 'completed', NOW() - INTERVAL '6 days'),
+  ('T-16', 'İç Mekan', 620.00, 'completed', NOW() - INTERVAL '7 days'),
+  ('T-17', 'Bar',      275.50, 'pending',   NOW() - INTERVAL '10 days'),
+  ('T-18', 'Teras',    830.00, 'completed', NOW() - INTERVAL '15 days');
+
+-- ── customers ─────────────────────────────────────────────────
+INSERT INTO customers (name, city, visit_count, last_visit) VALUES
+  ('Ahmet Yılmaz',    'İstanbul', 5,  NOW() - INTERVAL '2 hours'),
+  ('Fatma Demir',     'Ankara',   3,  NOW() - INTERVAL '1 day'),
+  ('Mehmet Kaya',     'İzmir',    1,  NOW() - INTERVAL '3 days'),
+  ('Ayşe Çelik',     'İstanbul', 8,  NOW() - INTERVAL '30 mins'),
+  ('Ali Şahin',       'Bursa',    2,  NOW() - INTERVAL '5 days'),
+  ('Zeynep Arslan',   'İstanbul', 12, NOW() - INTERVAL '4 hours'),
+  ('Mustafa Erdoğan', 'Antalya',  1,  NOW() - INTERVAL '7 days'),
+  ('Elif Güneş',      'İstanbul', 4,  NOW() - INTERVAL '2 days'),
+  ('Hasan Polat',     'İzmir',    6,  NOW() - INTERVAL '1 day 3 hours'),
+  ('Merve Aydın',     'Ankara',   2,  NOW() - INTERVAL '4 days'),
+  ('Burak Yıldız',   'İstanbul', 9,  NOW() - INTERVAL '6 hours'),
+  ('Selin Koç',       'Bursa',    1,  NOW() - INTERVAL '10 days'),
+  ('Emre Öztürk',    'İstanbul', 3,  NOW() - INTERVAL '3 days 2 hours'),
+  ('Deniz Avcı',     'İzmir',    7,  NOW() - INTERVAL '8 hours'),
+  ('Ceren Yüksel',   'İstanbul', 15, NOW() - INTERVAL '20 mins'),
+  ('Tolga Aksoy',     'Antalya',  2,  NOW() - INTERVAL '6 days'),
+  ('Pınar Güler',    'İstanbul', 4,  NOW() - INTERVAL '1 day 6 hours'),
+  ('Sercan Doğan',   'Ankara',   1,  NOW() - INTERVAL '12 days'),
+  ('Gizem Aslan',     'İstanbul', 6,  NOW() - INTERVAL '5 hours'),
+  ('Oğuz Çetin',     'İzmir',    3,  NOW() - INTERVAL '9 days'),
+  ('Tuğba Kılıç',   'İstanbul', 11, NOW() - INTERVAL '2 days 4 hours'),
+  ('Berk Güven',      'Bursa',    2,  NOW() - INTERVAL '15 days'),
+  ('İrem Özkan',     'İstanbul', 7,  NOW() - INTERVAL '3 hours'),
+  ('Cem Taş',         'Ankara',   1,  NOW() - INTERVAL '20 days'),
+  ('Nur Yaman',       'İstanbul', 5,  NOW() - INTERVAL '1 day 2 hours');
