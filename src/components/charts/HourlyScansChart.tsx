@@ -12,12 +12,28 @@ import {
 
 type HourlyData = { hour: string; scans: number };
 
+const PERIOD_DAYS: Record<string, number> = { today: 1, "7d": 7, "30d": 30 };
+const PERIOD_LABEL: Record<string, string> = {
+  today: "Bugünkü Toplam",
+  "7d":  "7 Günlük Toplam",
+  "30d": "30 Günlük Toplam",
+};
+const PERIOD_SUB: Record<string, string> = {
+  today: "Gün boyunca QR kod tarama dağılımı",
+  "7d":  "Son 7 günün saatlik dağılımı",
+  "30d": "Son 30 günün saatlik dağılımı",
+};
+
 interface Props {
   data: HourlyData[];
+  period?: string;
 }
 
-export default function HourlyScansChart({ data }: Props) {
+export default function HourlyScansChart({ data, period = "today" }: Props) {
   const maxScans = Math.max(...data.map((d) => d.scans), 1);
+  const total = data.reduce((s, d) => s + d.scans, 0);
+  const days = PERIOD_DAYS[period] ?? 1;
+  const avgPerDay = days > 1 ? Math.round(total / days) : null;
 
   return (
     <div className="bg-[#FFFFFF] rounded-xl p-8">
@@ -28,16 +44,21 @@ export default function HourlyScansChart({ data }: Props) {
           </span>
           <h2 className="text-2xl font-bold text-[#1F2430]">Saatlik Taramalar</h2>
           <p className="text-[#6B7280] text-sm mt-1">
-            Gün boyunca QR kod tarama dağılımı
+            {PERIOD_SUB[period] ?? "Gün boyunca QR kod tarama dağılımı"}
           </p>
         </div>
         <div className="text-right">
           <p className="text-4xl font-extrabold text-[#7C6CF6]">
-            {data.reduce((s, d) => s + d.scans, 0).toLocaleString("tr-TR")}
+            {total.toLocaleString("tr-TR")}
           </p>
           <p className="text-[10px] font-bold text-[#9AA3B2] uppercase tracking-tighter">
-            Bugünkü Toplam Tarama
+            {PERIOD_LABEL[period] ?? "Toplam Tarama"}
           </p>
+          {avgPerDay !== null && (
+            <p className="text-xs text-[#9AA3B2] mt-0.5">
+              ≈ {avgPerDay.toLocaleString("tr-TR")} / gün ortalama
+            </p>
+          )}
         </div>
       </div>
 

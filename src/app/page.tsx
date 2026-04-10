@@ -112,7 +112,7 @@ export default async function DashboardPage({
       {/* Grafikler Sıra 1 */}
       <div className="grid grid-cols-12 gap-6 mb-8">
         <div className="col-span-12 lg:col-span-8">
-          <HourlyScansChart data={hourlyRes.data} />
+          <HourlyScansChart data={hourlyRes.data} period={queryKey} />
         </div>
         <div className="col-span-12 lg:col-span-4">
           <CityScansChart data={cityRes.data} />

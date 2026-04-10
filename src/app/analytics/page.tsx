@@ -109,7 +109,7 @@ export default async function AnalyticsPage({
         </div>
       )}
 
-      <div className="mb-8"><HourlyScansChart data={hourlyRes.data} /></div>
+      <div className="mb-8"><HourlyScansChart data={hourlyRes.data} period={queryKey} /></div>
 
       <div className="grid grid-cols-12 gap-6">
         <div className="col-span-12 lg:col-span-7"><CityScansChart data={cityRes.data} /></div>
