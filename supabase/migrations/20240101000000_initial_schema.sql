@@ -19,6 +19,7 @@ CREATE INDEX IF NOT EXISTS idx_scans_table_id    ON scans (table_id);
 
 ALTER TABLE scans ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "anon_read_scans" ON scans;
 CREATE POLICY "anon_read_scans"
   ON scans FOR SELECT
   TO anon
@@ -42,6 +43,7 @@ CREATE INDEX IF NOT EXISTS idx_orders_zone       ON orders (zone);
 
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "anon_read_orders" ON orders;
 CREATE POLICY "anon_read_orders"
   ON orders FOR SELECT
   TO anon
@@ -62,6 +64,7 @@ CREATE INDEX IF NOT EXISTS idx_customers_last_visit  ON customers (last_visit);
 
 ALTER TABLE customers ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "anon_read_customers" ON customers;
 CREATE POLICY "anon_read_customers"
   ON customers FOR SELECT
   TO anon
