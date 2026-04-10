@@ -1,27 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import t from "@/lib/i18n";
 
 const STORAGE_KEY = "kok_settings";
-
-function loadFromStorage() {
-  if (typeof window === "undefined") return { restaurantName: "KÖK Restoran", userName: "Restoran Sahibi" };
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const s = JSON.parse(stored);
-      return {
-        restaurantName: s.restaurantName ?? "KÖK Restoran",
-        userName: s.name ?? "Restoran Sahibi",
-      };
-    }
-  } catch {}
-  return { restaurantName: "KÖK Restoran", userName: "Restoran Sahibi" };
-}
+const DEFAULTS = { restaurantName: "KÖK Restoran", userName: "Restoran Sahibi" };
 
 export default function TopNav({ onMenuClick }: { onMenuClick: () => void }) {
-  const [{ restaurantName, userName }] = useState(loadFromStorage);
+  const [{ restaurantName, userName }, setSettings] = useState(DEFAULTS);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const s = JSON.parse(stored);
+        setSettings({
+          restaurantName: s.restaurantName ?? DEFAULTS.restaurantName,
+          userName: s.name ?? DEFAULTS.userName,
+        });
+      }
+    } catch {}
+  }, []);
   const initials = userName
     .split(" ")
     .map((w: string) => w[0])

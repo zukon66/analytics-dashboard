@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import t from "@/lib/i18n";
 
 const STORAGE_KEY = "kok_settings";
@@ -34,14 +34,14 @@ const DEFAULT_SETTINGS: Settings = {
 export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [settings, setSettings] = useState<Settings>(() => {
-    if (typeof window === "undefined") return DEFAULT_SETTINGS;
+  const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
+
+  useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) return JSON.parse(stored) as Settings;
+      if (stored) setSettings(JSON.parse(stored) as Settings);
     } catch {}
-    return DEFAULT_SETTINGS;
-  });
+  }, []);
 
   function handleSave() {
     setSaving(true);
