@@ -216,7 +216,7 @@ export async function getScansByPlan(
       enterprise: 0, pro: 0, starter: 0, trial: 0,
     };
     data?.forEach((row) => {
-      const plan = (row.businesses as { plan: string } | null)?.plan ?? "trial";
+      const plan = (row.businesses as unknown as { plan: string } | null)?.plan ?? "trial";
       planMap[plan] = (planMap[plan] || 0) + 1;
     });
 
