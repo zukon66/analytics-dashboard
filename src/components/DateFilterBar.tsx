@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 const PERIODS = [
   { key: "today", label: "Bugün" },
@@ -17,13 +17,14 @@ type Props = {
 
 export default function DateFilterBar({ activePeriod, activeDate }: Props) {
   const router = useRouter();
+  const pathname = usePathname();
   const inputRef = useRef<HTMLInputElement>(null);
   const isCustomDate = !!activeDate;
   const today = new Date().toISOString().split("T")[0];
 
   function handleDateChange(e: React.ChangeEvent<HTMLInputElement>) {
     const val = e.target.value;
-    if (val) router.push(`/?date=${val}`);
+    if (val) router.push(`${pathname}?date=${val}`);
   }
 
   function openPicker() {
@@ -41,7 +42,7 @@ export default function DateFilterBar({ activePeriod, activeDate }: Props) {
         {PERIODS.map((p) => (
           <Link
             key={p.key}
-            href={`/?period=${p.key}`}
+            href={`${pathname}?period=${p.key}`}
             className={`px-4 py-1.5 rounded-full text-xs font-bold transition-colors ${
               !isCustomDate && activePeriod === p.key
                 ? "bg-[#7C6CF6] text-white shadow-sm"

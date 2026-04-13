@@ -1,0 +1,73 @@
+import Link from "next/link";
+import {
+  getMrrTrend,
+  getCurrentMrr,
+  getTrialExpirations,
+  getNewRegistrations,
+  getActivationFunnel,
+} from "@/lib/queries";
+import MrrTrendChart from "@/components/charts/MrrTrendChart";
+import TrialExpirationList from "@/components/TrialExpirationList";
+import NewRegistrationsList from "@/components/NewRegistrationsList";
+import ActivationFunnelChart from "@/components/charts/ActivationFunnelChart";
+import t from "@/lib/i18n";
+
+export const revalidate = 60;
+
+export default async function GrowthPage() {
+  const [mrrTrendRes, currentMrrRes, trialRes, newBizRes, funnelRes] = await Promise.all([
+    getMrrTrend(),
+    getCurrentMrr(),
+    getTrialExpirations(14),
+    getNewRegistrations(30),
+    getActivationFunnel(),
+  ]);
+
+  return (
+    <main className="pt-24 pb-12 px-4 md:px-8 min-h-screen bg-[#FAFAFD]">
+      {/* Başlık */}
+      <div className="mb-8 flex justify-between items-end">
+        <div>
+          <span className="px-3 py-1 bg-[#EEEAFE] text-[#7C6CF6] rounded-sm text-[10px] font-bold tracking-widest uppercase mb-3 inline-block">
+            Büyüme Paneli
+          </span>
+          <h1 className="text-3xl font-extrabold tracking-tight text-[#1F2430] mb-1">
+            {t.growth.title}
+          </h1>
+          <p className="text-[#6B7280] text-sm font-medium">{t.growth.subtitle}</p>
+        </div>
+        <Link
+          href="/"
+          className="text-xs text-[#7C6CF6] font-semibold flex items-center gap-1 hover:underline"
+        >
+          <span className="material-symbols-outlined text-sm">arrow_back</span>
+          Ana Panel
+        </Link>
+      </div>
+
+      {/* Satır 1: MRR Trendi — tam genişlik */}
+      <div className="mb-6">
+        <MrrTrendChart
+          data={mrrTrendRes.data}
+          currentMrr={currentMrrRes.data.totalMrr}
+          breakdown={currentMrrRes.data.breakdown}
+        />
+      </div>
+
+      {/* Satır 2: Trial Uyarıları + Aktivasyon Hunisi */}
+      <div className="grid grid-cols-12 gap-6 mb-6">
+        <div className="col-span-12 lg:col-span-7 bg-white rounded-xl border border-[#E9E9F2] overflow-hidden min-h-[340px]">
+          <TrialExpirationList items={trialRes.data} />
+        </div>
+        <div className="col-span-12 lg:col-span-5 bg-white rounded-xl border border-[#E9E9F2] min-h-[340px]">
+          <ActivationFunnelChart funnel={funnelRes.data} />
+        </div>
+      </div>
+
+      {/* Satır 3: Yeni Kayıtlar — tam genişlik */}
+      <div className="bg-white rounded-xl border border-[#E9E9F2] overflow-hidden">
+        <NewRegistrationsList items={newBizRes.data} />
+      </div>
+    </main>
+  );
+}

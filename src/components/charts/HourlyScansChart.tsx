@@ -83,16 +83,16 @@ export default function HourlyScansChart({ data, period = "today" }: Props) {
             }}
             cursor={{ fill: "#F6F6FB" }}
           />
-          <Bar dataKey="scans" radius={[4, 4, 0, 0]}>
+          <Bar dataKey="scans" radius={[4, 4, 0, 0]} fill="#C4B5FD" isAnimationActive={false}>
             {data.map((entry, index) => (
               <Cell
                 key={index}
                 fill={
-                  entry.scans === maxScans
+                  entry.scans === maxScans && entry.scans > 0
                     ? "#7C6CF6"
                     : entry.scans > maxScans * 0.6
                     ? "#A78BFA"
-                    : "#E9E9F2"
+                    : "#C4B5FD"
                 }
               />
             ))}
@@ -108,7 +108,7 @@ export default function HourlyScansChart({ data, period = "today" }: Props) {
           <span className="w-3 h-3 rounded-full bg-[#A78BFA]"></span> Yoğun Trafik
         </div>
         <div className="flex items-center gap-2 text-xs font-semibold text-[#6B7280]">
-          <span className="w-3 h-3 rounded-full bg-[#E9E9F2]"></span> Normal
+          <span className="w-3 h-3 rounded-full bg-[#C4B5FD]"></span> Normal
         </div>
       </div>
     </div>

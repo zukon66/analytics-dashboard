@@ -5,11 +5,10 @@ import { usePathname } from "next/navigation";
 import t from "@/lib/i18n";
 
 const navItems = [
-  { href: "/", icon: "dashboard", label: t.nav.dashboard },
-  { href: "/analytics", icon: "analytics", label: t.nav.analytics },
-  { href: "/orders", icon: "receipt_long", label: t.nav.orders },
-  { href: "/customers", icon: "group", label: t.nav.customers },
-  { href: "/settings", icon: "settings", label: t.nav.settings },
+  { href: "/",          icon: "monitor_heart", label: t.nav.dashboard,      exact: true  },
+  { href: "/businesses",icon: "store",          label: t.businesses.title,   exact: false },
+  { href: "/growth",    icon: "trending_up",    label: t.nav.growth,         exact: true  },
+  { href: "/settings",  icon: "settings",       label: t.nav.settings,       exact: true  },
 ];
 
 export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
@@ -43,7 +42,9 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
 
       <nav className="flex flex-col space-y-1">
         {navItems.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = item.exact
+            ? pathname === item.href
+            : pathname.startsWith(item.href);
           return (
             <Link
               key={item.href}
@@ -76,10 +77,10 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
           Şu an demo verileri gösteriliyor. QR menü bağlandığında gerçek veriler yansıyacak.
         </p>
         <Link
-          href="/analytics"
+          href="/businesses"
           className="bg-[#7C6CF6] text-white py-2 px-4 rounded-full text-xs font-bold w-fit hover:bg-[#6D5DF0] transition-colors"
         >
-          Analitiğe Git
+          İşletmeleri Gör
         </Link>
       </div>
     </aside>

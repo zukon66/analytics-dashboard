@@ -19,10 +19,10 @@ type Settings = {
 };
 
 const DEFAULT_SETTINGS: Settings = {
-  name: "Restoran Sahibi",
-  email: "sahip@restoran.com",
-  restaurantName: "KÖK Restoran",
-  city: "İstanbul",
+  name: "Platform Yöneticisi",
+  email: "admin@kokos.app",
+  restaurantName: "Silifke STT QR Analitik",
+  city: "Silifke / Mersin",
   timezone: "Europe/Istanbul (UTC+3)",
   notifications: {
     dailyReport: true,
@@ -227,21 +227,27 @@ export default function SettingsPage() {
             </div>
           </section>
 
-          {/* Bilgi Kartı */}
+          {/* Platform Bilgi Kartı */}
           <section className="bg-[#EEEAFE] rounded-xl p-8 border border-[#D4CFFE]">
             <div className="flex items-start gap-4">
               <div className="p-2.5 bg-[#7C6CF6] rounded-xl">
                 <span className="material-symbols-outlined text-white text-xl">
-                  qr_code_scanner
+                  monitor_heart
                 </span>
               </div>
               <div>
-                <p className="text-sm font-bold text-[#1F2430] mb-1">QR Menü Bağlantısı</p>
+                <p className="text-sm font-bold text-[#1F2430] mb-1">Platform Operatör Paneli</p>
                 <p className="text-xs text-[#6B7280] leading-relaxed">
-                  Verileriniz QR menünüzdeki taramalardan otomatik olarak güncellenir.
-                  Müşterileriniz menüyü her taradığında bu panel anlık olarak yansıtır.
+                  Bu panel tüm bağlı işletmelerin QR tarama verilerini merkezi olarak izler.
+                  Her işletmenin aktivitesi gerçek zamanlı olarak yansıtılır.
                 </p>
               </div>
+            </div>
+            <div className="mt-4 pt-4 border-t border-[#D4CFFE] flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#34D399]"></span>
+              <span className="text-xs font-semibold text-[#5D4EE0]">
+                Supabase bağlantısı aktif · uwvehwjq...
+              </span>
             </div>
           </section>
         </div>

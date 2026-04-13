@@ -1,386 +1,118 @@
 -- ============================================================
--- Eski verileri temizle
-TRUNCATE TABLE scans, orders, customers RESTART IDENTITY CASCADE;
-
--- ============================================================
--- KÖK-OS — Zengin Demo Seed Verisi
--- 340 scan · 130 sipariş · 52 müşteri
--- Öğle zirve: 12-14  |  Akşam zirve: 19-21  |  Sabah: 09-11
+-- MOCK DATA SEED — Silifke STT QR Analitik Dashboard
+-- 15 isletme, 30 gunluk scan/order/customer verisi
 -- ============================================================
 
--- ── SCANS ────────────────────────────────────────────────────
+TRUNCATE TABLE customers, orders, scans, businesses RESTART IDENTITY CASCADE;
 
-INSERT INTO scans (table_id, zone, city, scanned_at, duration_minutes) VALUES
-
--- ═══ BUGÜN ═══
-('T-01','Teras',    'İstanbul', CURRENT_DATE + INTERVAL  '9h 05m', 8),
-('T-04','İç Mekan', 'İstanbul', CURRENT_DATE + INTERVAL  '9h 30m', 11),
-('T-07','Bahçe',    'Ankara',   CURRENT_DATE + INTERVAL  '9h 55m', 7),
-('T-10','Bar',      'İzmir',    CURRENT_DATE + INTERVAL '10h 20m', 14),
-('T-13','İç Mekan', 'İstanbul', CURRENT_DATE + INTERVAL '10h 45m', 9),
-('T-02','Teras',    'İstanbul', CURRENT_DATE + INTERVAL '11h 10m', 6),
--- öğle
-('T-01','Teras',    'İstanbul', CURRENT_DATE + INTERVAL '12h 05m', 18),
-('T-03','İç Mekan', 'İstanbul', CURRENT_DATE + INTERVAL '12h 15m', 22),
-('T-05','Bahçe',    'Ankara',   CURRENT_DATE + INTERVAL '12h 25m', 15),
-('T-06','Bar',      'İzmir',    CURRENT_DATE + INTERVAL '12h 35m', 28),
-('T-08','Teras',    'İstanbul', CURRENT_DATE + INTERVAL '12h 45m', 12),
-('T-09','İç Mekan', 'Bursa',    CURRENT_DATE + INTERVAL '12h 55m', 19),
-('T-11','Bahçe',    'İstanbul', CURRENT_DATE + INTERVAL '13h 05m', 24),
-('T-12','Bar',      'Antalya',  CURRENT_DATE + INTERVAL '13h 15m', 16),
-('T-14','Teras',    'İstanbul', CURRENT_DATE + INTERVAL '13h 25m', 21),
-('T-15','İç Mekan', 'İzmir',    CURRENT_DATE + INTERVAL '13h 35m', 13),
-('T-16','Bahçe',    'İstanbul', CURRENT_DATE + INTERVAL '13h 45m', 17),
-('T-17','Bar',      'Ankara',   CURRENT_DATE + INTERVAL '13h 55m', 25),
-('T-18','Teras',    'İstanbul', CURRENT_DATE + INTERVAL '14h 05m', 11),
-('T-19','İç Mekan', 'İstanbul', CURRENT_DATE + INTERVAL '14h 15m', 20),
-('T-20','Bahçe',    'Bursa',    CURRENT_DATE + INTERVAL '14h 25m', 14),
-
--- ═══ DÜN ═══
--- sabah
-('T-02','Teras',    'İstanbul', CURRENT_DATE - '1 day'::interval + INTERVAL  '9h 10m', 9),
-('T-05','İç Mekan', 'Ankara',   CURRENT_DATE - '1 day'::interval + INTERVAL  '9h 40m', 12),
-('T-08','Bahçe',    'İzmir',    CURRENT_DATE - '1 day'::interval + INTERVAL '10h 15m', 7),
-('T-11','Bar',      'İstanbul', CURRENT_DATE - '1 day'::interval + INTERVAL '10h 50m', 15),
-('T-14','İç Mekan', 'İstanbul', CURRENT_DATE - '1 day'::interval + INTERVAL '11h 20m', 10),
--- öğle
-('T-01','Teras',    'İstanbul', CURRENT_DATE - '1 day'::interval + INTERVAL '12h 05m', 20),
-('T-03','İç Mekan', 'İstanbul', CURRENT_DATE - '1 day'::interval + INTERVAL '12h 18m', 16),
-('T-04','Bahçe',    'Ankara',   CURRENT_DATE - '1 day'::interval + INTERVAL '12h 32m', 23),
-('T-06','Bar',      'İzmir',    CURRENT_DATE - '1 day'::interval + INTERVAL '12h 46m', 30),
-('T-07','Teras',    'İstanbul', CURRENT_DATE - '1 day'::interval + INTERVAL '13h 00m', 14),
-('T-09','İç Mekan', 'Bursa',    CURRENT_DATE - '1 day'::interval + INTERVAL '13h 14m', 18),
-('T-10','Bahçe',    'İstanbul', CURRENT_DATE - '1 day'::interval + INTERVAL '13h 28m', 26),
-('T-12','Bar',      'Antalya',  CURRENT_DATE - '1 day'::interval + INTERVAL '13h 42m', 11),
-('T-13','Teras',    'İstanbul', CURRENT_DATE - '1 day'::interval + INTERVAL '13h 56m', 22),
-('T-15','İç Mekan', 'İzmir',    CURRENT_DATE - '1 day'::interval + INTERVAL '14h 10m', 17),
--- akşam
-('T-01','Teras',    'İstanbul', CURRENT_DATE - '1 day'::interval + INTERVAL '19h 05m', 25),
-('T-03','İç Mekan', 'İstanbul', CURRENT_DATE - '1 day'::interval + INTERVAL '19h 20m', 19),
-('T-05','Bahçe',    'Ankara',   CURRENT_DATE - '1 day'::interval + INTERVAL '19h 35m', 31),
-('T-07','Bar',      'İzmir',    CURRENT_DATE - '1 day'::interval + INTERVAL '19h 50m', 22),
-('T-09','Teras',    'İstanbul', CURRENT_DATE - '1 day'::interval + INTERVAL '20h 05m', 15),
-('T-11','İç Mekan', 'Bursa',    CURRENT_DATE - '1 day'::interval + INTERVAL '20h 20m', 28),
-('T-13','Bahçe',    'İstanbul', CURRENT_DATE - '1 day'::interval + INTERVAL '20h 35m', 18),
-('T-15','Bar',      'Antalya',  CURRENT_DATE - '1 day'::interval + INTERVAL '20h 50m', 24),
-('T-17','Teras',    'İstanbul', CURRENT_DATE - '1 day'::interval + INTERVAL '21h 05m', 13),
-('T-19','İç Mekan', 'İzmir',    CURRENT_DATE - '1 day'::interval + INTERVAL '21h 20m', 20),
-
--- ═══ 2 GÜN ÖNCE ═══
-('T-02','Bahçe',    'İstanbul', CURRENT_DATE - '2 days'::interval + INTERVAL  '9h 15m', 8),
-('T-06','Bar',      'Ankara',   CURRENT_DATE - '2 days'::interval + INTERVAL '10h 30m', 13),
-('T-01','Teras',    'İstanbul', CURRENT_DATE - '2 days'::interval + INTERVAL '12h 08m', 21),
-('T-04','İç Mekan', 'İstanbul', CURRENT_DATE - '2 days'::interval + INTERVAL '12h 22m', 17),
-('T-07','Bahçe',    'İzmir',    CURRENT_DATE - '2 days'::interval + INTERVAL '12h 36m', 24),
-('T-10','Bar',      'İstanbul', CURRENT_DATE - '2 days'::interval + INTERVAL '12h 50m', 29),
-('T-13','Teras',    'Bursa',    CURRENT_DATE - '2 days'::interval + INTERVAL '13h 04m', 12),
-('T-16','İç Mekan', 'İstanbul', CURRENT_DATE - '2 days'::interval + INTERVAL '13h 18m', 19),
-('T-19','Bahçe',    'Antalya',  CURRENT_DATE - '2 days'::interval + INTERVAL '13h 32m', 15),
-('T-20','Bar',      'İstanbul', CURRENT_DATE - '2 days'::interval + INTERVAL '13h 46m', 23),
-('T-02','Teras',    'İzmir',    CURRENT_DATE - '2 days'::interval + INTERVAL '14h 00m', 16),
-('T-05','İç Mekan', 'İstanbul', CURRENT_DATE - '2 days'::interval + INTERVAL '19h 10m', 27),
-('T-08','Bahçe',    'Ankara',   CURRENT_DATE - '2 days'::interval + INTERVAL '19h 28m', 20),
-('T-11','Bar',      'İstanbul', CURRENT_DATE - '2 days'::interval + INTERVAL '19h 46m', 32),
-('T-14','Teras',    'İzmir',    CURRENT_DATE - '2 days'::interval + INTERVAL '20h 04m', 18),
-('T-17','İç Mekan', 'İstanbul', CURRENT_DATE - '2 days'::interval + INTERVAL '20h 22m', 25),
-('T-20','Bahçe',    'Bursa',    CURRENT_DATE - '2 days'::interval + INTERVAL '20h 40m', 14),
-('T-03','Bar',      'İstanbul', CURRENT_DATE - '2 days'::interval + INTERVAL '20h 58m', 22),
-('T-06','Teras',    'Antalya',  CURRENT_DATE - '2 days'::interval + INTERVAL '21h 16m', 17),
-
--- ═══ 3 GÜN ÖNCE ═══
-('T-01','İç Mekan', 'İstanbul', CURRENT_DATE - '3 days'::interval + INTERVAL  '9h 20m', 10),
-('T-04','Bahçe',    'İzmir',    CURRENT_DATE - '3 days'::interval + INTERVAL '10h 45m', 13),
-('T-07','Bar',      'İstanbul', CURRENT_DATE - '3 days'::interval + INTERVAL '12h 10m', 19),
-('T-10','Teras',    'Ankara',   CURRENT_DATE - '3 days'::interval + INTERVAL '12h 28m', 25),
-('T-13','İç Mekan', 'İstanbul', CURRENT_DATE - '3 days'::interval + INTERVAL '12h 46m', 16),
-('T-16','Bahçe',    'Bursa',    CURRENT_DATE - '3 days'::interval + INTERVAL '13h 04m', 28),
-('T-19','Bar',      'İstanbul', CURRENT_DATE - '3 days'::interval + INTERVAL '13h 22m', 11),
-('T-02','Teras',    'İzmir',    CURRENT_DATE - '3 days'::interval + INTERVAL '13h 40m', 20),
-('T-05','İç Mekan', 'İstanbul', CURRENT_DATE - '3 days'::interval + INTERVAL '13h 58m', 24),
-('T-08','Bahçe',    'Antalya',  CURRENT_DATE - '3 days'::interval + INTERVAL '14h 16m', 15),
-('T-11','Bar',      'İstanbul', CURRENT_DATE - '3 days'::interval + INTERVAL '19h 08m', 29),
-('T-14','Teras',    'İstanbul', CURRENT_DATE - '3 days'::interval + INTERVAL '19h 30m', 22),
-('T-17','İç Mekan', 'İzmir',    CURRENT_DATE - '3 days'::interval + INTERVAL '19h 52m', 18),
-('T-20','Bahçe',    'Ankara',   CURRENT_DATE - '3 days'::interval + INTERVAL '20h 14m', 26),
-('T-03','Bar',      'İstanbul', CURRENT_DATE - '3 days'::interval + INTERVAL '20h 36m', 13),
-('T-06','Teras',    'Bursa',    CURRENT_DATE - '3 days'::interval + INTERVAL '20h 58m', 21),
-('T-09','İç Mekan', 'İstanbul', CURRENT_DATE - '3 days'::interval + INTERVAL '21h 20m', 17),
-
--- ═══ 4 GÜN ÖNCE ═══
-('T-01','Bahçe',    'İstanbul', CURRENT_DATE - '4 days'::interval + INTERVAL '12h 12m', 14),
-('T-04','Bar',      'İzmir',    CURRENT_DATE - '4 days'::interval + INTERVAL '12h 30m', 22),
-('T-07','Teras',    'İstanbul', CURRENT_DATE - '4 days'::interval + INTERVAL '12h 48m', 18),
-('T-10','İç Mekan', 'Ankara',   CURRENT_DATE - '4 days'::interval + INTERVAL '13h 06m', 27),
-('T-13','Bahçe',    'İstanbul', CURRENT_DATE - '4 days'::interval + INTERVAL '13h 24m', 11),
-('T-16','Bar',      'Bursa',    CURRENT_DATE - '4 days'::interval + INTERVAL '13h 42m', 23),
-('T-19','Teras',    'İstanbul', CURRENT_DATE - '4 days'::interval + INTERVAL '14h 00m', 16),
-('T-02','İç Mekan', 'İzmir',    CURRENT_DATE - '4 days'::interval + INTERVAL '19h 15m', 30),
-('T-05','Bahçe',    'İstanbul', CURRENT_DATE - '4 days'::interval + INTERVAL '19h 40m', 20),
-('T-08','Bar',      'Antalya',  CURRENT_DATE - '4 days'::interval + INTERVAL '20h 05m', 25),
-('T-11','Teras',    'İstanbul', CURRENT_DATE - '4 days'::interval + INTERVAL '20h 30m', 15),
-('T-14','İç Mekan', 'İstanbul', CURRENT_DATE - '4 days'::interval + INTERVAL '20h 55m', 28),
-('T-17','Bahçe',    'İzmir',    CURRENT_DATE - '4 days'::interval + INTERVAL '21h 20m', 12),
-
--- ═══ 5 GÜN ÖNCE ═══
-('T-03','Bar',      'İstanbul', CURRENT_DATE - '5 days'::interval + INTERVAL '12h 07m', 21),
-('T-06','Teras',    'Ankara',   CURRENT_DATE - '5 days'::interval + INTERVAL '12h 28m', 16),
-('T-09','İç Mekan', 'İstanbul', CURRENT_DATE - '5 days'::interval + INTERVAL '12h 49m', 24),
-('T-12','Bahçe',    'Bursa',    CURRENT_DATE - '5 days'::interval + INTERVAL '13h 10m', 19),
-('T-15','Bar',      'İstanbul', CURRENT_DATE - '5 days'::interval + INTERVAL '13h 31m', 28),
-('T-18','Teras',    'İzmir',    CURRENT_DATE - '5 days'::interval + INTERVAL '13h 52m', 13),
-('T-20','İç Mekan', 'İstanbul', CURRENT_DATE - '5 days'::interval + INTERVAL '14h 13m', 22),
-('T-01','Bahçe',    'Antalya',  CURRENT_DATE - '5 days'::interval + INTERVAL '19h 12m', 26),
-('T-04','Bar',      'İstanbul', CURRENT_DATE - '5 days'::interval + INTERVAL '19h 38m', 18),
-('T-07','Teras',    'İstanbul', CURRENT_DATE - '5 days'::interval + INTERVAL '20h 04m', 31),
-('T-10','İç Mekan', 'İzmir',    CURRENT_DATE - '5 days'::interval + INTERVAL '20h 30m', 14),
-('T-13','Bahçe',    'Ankara',   CURRENT_DATE - '5 days'::interval + INTERVAL '20h 56m', 23),
-('T-16','Bar',      'İstanbul', CURRENT_DATE - '5 days'::interval + INTERVAL '21h 22m', 17),
-
--- ═══ 6 GÜN ÖNCE ═══
-('T-02','Teras',    'İstanbul', CURRENT_DATE - '6 days'::interval + INTERVAL '12h 09m', 15),
-('T-05','İç Mekan', 'Bursa',    CURRENT_DATE - '6 days'::interval + INTERVAL '12h 32m', 20),
-('T-08','Bahçe',    'İstanbul', CURRENT_DATE - '6 days'::interval + INTERVAL '12h 55m', 25),
-('T-11','Bar',      'İzmir',    CURRENT_DATE - '6 days'::interval + INTERVAL '13h 18m', 30),
-('T-14','Teras',    'İstanbul', CURRENT_DATE - '6 days'::interval + INTERVAL '13h 41m', 12),
-('T-17','İç Mekan', 'Antalya',  CURRENT_DATE - '6 days'::interval + INTERVAL '14h 04m', 22),
-('T-19','Bahçe',    'İstanbul', CURRENT_DATE - '6 days'::interval + INTERVAL '19h 18m', 27),
-('T-03','Bar',      'Ankara',   CURRENT_DATE - '6 days'::interval + INTERVAL '19h 46m', 19),
-('T-06','Teras',    'İstanbul', CURRENT_DATE - '6 days'::interval + INTERVAL '20h 14m', 24),
-('T-09','İç Mekan', 'İzmir',    CURRENT_DATE - '6 days'::interval + INTERVAL '20h 42m', 16),
-('T-12','Bahçe',    'İstanbul', CURRENT_DATE - '6 days'::interval + INTERVAL '21h 10m', 29),
-
--- ═══ 7 GÜN ÖNCE ═══
-('T-01','Bar',      'İstanbul', CURRENT_DATE - '7 days'::interval + INTERVAL '12h 06m', 18),
-('T-04','Teras',    'Ankara',   CURRENT_DATE - '7 days'::interval + INTERVAL '12h 26m', 23),
-('T-07','İç Mekan', 'İstanbul', CURRENT_DATE - '7 days'::interval + INTERVAL '12h 46m', 28),
-('T-10','Bahçe',    'Bursa',    CURRENT_DATE - '7 days'::interval + INTERVAL '13h 06m', 14),
-('T-13','Bar',      'İstanbul', CURRENT_DATE - '7 days'::interval + INTERVAL '13h 26m', 21),
-('T-16','Teras',    'İzmir',    CURRENT_DATE - '7 days'::interval + INTERVAL '13h 46m', 26),
-('T-19','İç Mekan', 'İstanbul', CURRENT_DATE - '7 days'::interval + INTERVAL '14h 06m', 11),
-('T-02','Bahçe',    'Antalya',  CURRENT_DATE - '7 days'::interval + INTERVAL '19h 10m', 24),
-('T-05','Bar',      'İstanbul', CURRENT_DATE - '7 days'::interval + INTERVAL '19h 35m', 17),
-('T-08','Teras',    'İstanbul', CURRENT_DATE - '7 days'::interval + INTERVAL '20h 00m', 30),
-('T-11','İç Mekan', 'İzmir',    CURRENT_DATE - '7 days'::interval + INTERVAL '20h 25m', 13),
-('T-14','Bahçe',    'Ankara',   CURRENT_DATE - '7 days'::interval + INTERVAL '20h 50m', 22),
-('T-17','Bar',      'İstanbul', CURRENT_DATE - '7 days'::interval + INTERVAL '21h 15m', 19),
-
--- ═══ 8-15 GÜN (aylık trend) ═══
-('T-03','Teras',    'İstanbul', CURRENT_DATE -  '8 days'::interval + INTERVAL '12h 20m', 16),
-('T-06','İç Mekan', 'İzmir',    CURRENT_DATE -  '8 days'::interval + INTERVAL '13h 10m', 21),
-('T-09','Bahçe',    'İstanbul', CURRENT_DATE -  '8 days'::interval + INTERVAL '19h 30m', 25),
-('T-12','Bar',      'Ankara',   CURRENT_DATE -  '8 days'::interval + INTERVAL '20h 20m', 18),
-('T-15','Teras',    'İstanbul', CURRENT_DATE -  '9 days'::interval + INTERVAL '12h 15m', 14),
-('T-18','İç Mekan', 'Bursa',    CURRENT_DATE -  '9 days'::interval + INTERVAL '13h 05m', 22),
-('T-20','Bahçe',    'İstanbul', CURRENT_DATE -  '9 days'::interval + INTERVAL '19h 45m', 28),
-('T-01','Bar',      'İzmir',    CURRENT_DATE -  '9 days'::interval + INTERVAL '20h 35m', 15),
-('T-04','Teras',    'İstanbul', CURRENT_DATE - '10 days'::interval + INTERVAL '12h 30m', 20),
-('T-07','İç Mekan', 'Ankara',   CURRENT_DATE - '10 days'::interval + INTERVAL '13h 20m', 17),
-('T-10','Bahçe',    'İstanbul', CURRENT_DATE - '10 days'::interval + INTERVAL '19h 10m', 26),
-('T-13','Bar',      'İstanbul', CURRENT_DATE - '10 days'::interval + INTERVAL '20h 00m', 19),
-('T-16','Teras',    'İzmir',    CURRENT_DATE - '11 days'::interval + INTERVAL '12h 25m', 23),
-('T-19','İç Mekan', 'Bursa',    CURRENT_DATE - '11 days'::interval + INTERVAL '13h 15m', 16),
-('T-02','Bahçe',    'İstanbul', CURRENT_DATE - '11 days'::interval + INTERVAL '19h 55m', 29),
-('T-05','Bar',      'Antalya',  CURRENT_DATE - '11 days'::interval + INTERVAL '20h 45m', 12),
-('T-08','Teras',    'İstanbul', CURRENT_DATE - '12 days'::interval + INTERVAL '12h 10m', 18),
-('T-11','İç Mekan', 'İstanbul', CURRENT_DATE - '12 days'::interval + INTERVAL '13h 00m', 24),
-('T-14','Bahçe',    'İzmir',    CURRENT_DATE - '12 days'::interval + INTERVAL '19h 20m', 22),
-('T-17','Bar',      'Ankara',   CURRENT_DATE - '12 days'::interval + INTERVAL '20h 10m', 15),
-('T-20','Teras',    'İstanbul', CURRENT_DATE - '13 days'::interval + INTERVAL '12h 35m', 27),
-('T-03','İç Mekan', 'Bursa',    CURRENT_DATE - '13 days'::interval + INTERVAL '13h 25m', 13),
-('T-06','Bahçe',    'İstanbul', CURRENT_DATE - '13 days'::interval + INTERVAL '19h 40m', 31),
-('T-09','Bar',      'İstanbul', CURRENT_DATE - '13 days'::interval + INTERVAL '20h 30m', 20),
-('T-12','Teras',    'İzmir',    CURRENT_DATE - '14 days'::interval + INTERVAL '12h 18m', 16),
-('T-15','İç Mekan', 'Ankara',   CURRENT_DATE - '14 days'::interval + INTERVAL '13h 08m', 24),
-('T-18','Bahçe',    'İstanbul', CURRENT_DATE - '14 days'::interval + INTERVAL '19h 28m', 21),
-('T-01','Bar',      'İstanbul', CURRENT_DATE - '14 days'::interval + INTERVAL '20h 18m', 17),
-('T-04','Teras',    'Bursa',    CURRENT_DATE - '15 days'::interval + INTERVAL '12h 22m', 19),
-('T-07','İç Mekan', 'İzmir',    CURRENT_DATE - '15 days'::interval + INTERVAL '13h 12m', 28),
-('T-10','Bahçe',    'İstanbul', CURRENT_DATE - '15 days'::interval + INTERVAL '19h 32m', 14),
-('T-13','Bar',      'Antalya',  CURRENT_DATE - '15 days'::interval + INTERVAL '20h 22m', 23),
-
--- ═══ 16-30 GÜN ═══
-('T-16','Teras',    'İstanbul', CURRENT_DATE - '16 days'::interval + INTERVAL '12h 30m', 20),
-('T-19','İç Mekan', 'İstanbul', CURRENT_DATE - '16 days'::interval + INTERVAL '20h 00m', 25),
-('T-02','Bahçe',    'İzmir',    CURRENT_DATE - '17 days'::interval + INTERVAL '13h 00m', 16),
-('T-05','Bar',      'Ankara',   CURRENT_DATE - '17 days'::interval + INTERVAL '19h 30m', 22),
-('T-08','Teras',    'İstanbul', CURRENT_DATE - '18 days'::interval + INTERVAL '12h 15m', 18),
-('T-11','İç Mekan', 'Bursa',    CURRENT_DATE - '18 days'::interval + INTERVAL '20h 45m', 27),
-('T-14','Bahçe',    'İstanbul', CURRENT_DATE - '19 days'::interval + INTERVAL '12h 45m', 12),
-('T-17','Bar',      'İzmir',    CURRENT_DATE - '19 days'::interval + INTERVAL '19h 15m', 21),
-('T-20','Teras',    'İstanbul', CURRENT_DATE - '20 days'::interval + INTERVAL '13h 10m', 26),
-('T-03','İç Mekan', 'Ankara',   CURRENT_DATE - '20 days'::interval + INTERVAL '20h 30m', 15),
-('T-06','Bahçe',    'İstanbul', CURRENT_DATE - '21 days'::interval + INTERVAL '12h 20m', 23),
-('T-09','Bar',      'İstanbul', CURRENT_DATE - '21 days'::interval + INTERVAL '19h 50m', 19),
-('T-12','Teras',    'İzmir',    CURRENT_DATE - '22 days'::interval + INTERVAL '12h 40m', 17),
-('T-15','İç Mekan', 'Bursa',    CURRENT_DATE - '22 days'::interval + INTERVAL '20h 10m', 24),
-('T-18','Bahçe',    'İstanbul', CURRENT_DATE - '23 days'::interval + INTERVAL '13h 00m', 20),
-('T-01','Bar',      'Antalya',  CURRENT_DATE - '23 days'::interval + INTERVAL '19h 20m', 28),
-('T-04','Teras',    'İstanbul', CURRENT_DATE - '24 days'::interval + INTERVAL '12h 50m', 13),
-('T-07','İç Mekan', 'İstanbul', CURRENT_DATE - '24 days'::interval + INTERVAL '20h 40m', 22),
-('T-10','Bahçe',    'İzmir',    CURRENT_DATE - '25 days'::interval + INTERVAL '12h 10m', 18),
-('T-13','Bar',      'Ankara',   CURRENT_DATE - '25 days'::interval + INTERVAL '19h 30m', 26),
-('T-16','Teras',    'İstanbul', CURRENT_DATE - '26 days'::interval + INTERVAL '13h 20m', 14),
-('T-19','İç Mekan', 'İstanbul', CURRENT_DATE - '26 days'::interval + INTERVAL '20h 50m', 21),
-('T-02','Bahçe',    'Bursa',    CURRENT_DATE - '27 days'::interval + INTERVAL '12h 30m', 25),
-('T-05','Bar',      'İstanbul', CURRENT_DATE - '27 days'::interval + INTERVAL '19h 10m', 17),
-('T-08','Teras',    'İzmir',    CURRENT_DATE - '28 days'::interval + INTERVAL '12h 50m', 22),
-('T-11','İç Mekan', 'İstanbul', CURRENT_DATE - '28 days'::interval + INTERVAL '20h 20m', 29),
-('T-14','Bahçe',    'Ankara',   CURRENT_DATE - '29 days'::interval + INTERVAL '13h 10m', 16),
-('T-17','Bar',      'İstanbul', CURRENT_DATE - '29 days'::interval + INTERVAL '19h 40m', 24),
-('T-20','Teras',    'İstanbul', CURRENT_DATE - '30 days'::interval + INTERVAL '12h 20m', 19),
-('T-03','İç Mekan', 'İzmir',    CURRENT_DATE - '30 days'::interval + INTERVAL '20h 00m', 23);
+-- ── BUSINESSES ────────────────────────────────────────────────
+INSERT INTO businesses (name, city, plan, status, owner_email, created_at, last_active_at) VALUES
+  ('Liman Balik Restaurant', 'Silifke',  'pro',        'active',   'liman@example.com',     NOW() - INTERVAL '90 days',  NOW() - INTERVAL '1 hour'),
+  ('Tas Han Kahvalti',       'Silifke',  'starter',    'active',   'tashan@example.com',    NOW() - INTERVAL '60 days',  NOW() - INTERVAL '3 hours'),
+  ('Cennet Bogazi Cafe',     'Silifke',  'pro',        'active',   'cennet@example.com',    NOW() - INTERVAL '45 days',  NOW() - INTERVAL '2 hours'),
+  ('Goksu Doner',            'Silifke',  'starter',    'active',   'goksu@example.com',     NOW() - INTERVAL '30 days',  NOW() - INTERVAL '5 hours'),
+  ('Akdeniz Pide Salonu',    'Mersin',   'enterprise', 'active',   'akdeniz@example.com',   NOW() - INTERVAL '120 days', NOW() - INTERVAL '30 minutes'),
+  ('Narlikuyu Sofrasi',      'Mersin',   'pro',        'active',   'narlikuyu@example.com', NOW() - INTERVAL '75 days',  NOW() - INTERVAL '4 hours'),
+  ('Kizkalesi Bistro',       'Erdemli',  'starter',    'active',   'kizkalesi@example.com', NOW() - INTERVAL '20 days',  NOW() - INTERVAL '1 day'),
+  ('Mut Kebap Evi',          'Mut',      'trial',      'trial',    'mut@example.com',       NOW() - INTERVAL '10 days',  NOW() - INTERVAL '2 days'),
+  ('Aydincik Balik',         'Aydincik', 'starter',    'active',   'aydincik@example.com',  NOW() - INTERVAL '55 days',  NOW() - INTERVAL '6 hours'),
+  ('Bozyazi Sahil Cafe',     'Bozyazi',  'trial',      'inactive', 'bozyazi@example.com',   NOW() - INTERVAL '40 days',  NOW() - INTERVAL '18 days'),
+  ('Tarsus Selale Restoran', 'Tarsus',   'pro',        'active',   'tarsus@example.com',    NOW() - INTERVAL '100 days', NOW() - INTERVAL '2 hours'),
+  ('Pozcu Yoresel Mutfak',   'Silifke',  'starter',    'active',   'pozcu@example.com',     NOW() - INTERVAL '15 days',  NOW() - INTERVAL '8 hours'),
+  ('Adanali Usta Ocakbasi',  'Adana',    'enterprise', 'active',   'adanali@example.com',   NOW() - INTERVAL '150 days', NOW() - INTERVAL '1 hour'),
+  ('Gulnar Organik Koy Evi', 'Gulnar',   'trial',      'trial',    'gulnar@example.com',    NOW() - INTERVAL '5 days',   NOW() - INTERVAL '3 days'),
+  ('Iskele Balikci',         'Silifke',  'pro',        'active',   'iskele@example.com',    NOW() - INTERVAL '80 days',  NOW() - INTERVAL '45 minutes');
 
 
--- ── ORDERS ───────────────────────────────────────────────────
+-- ── SCANS — generate_series ile 30 gunluk gercekci veri ──────
+INSERT INTO scans (business_id, table_id, zone, city, scanned_at, duration_minutes)
+SELECT
+  b.id,
+  'T' || LPAD((floor(random() * 20 + 1))::text, 2, '0'),
+  (ARRAY['Ic Mekan','Teras','Bahce','Bar'])[floor(random()*4+1)::int],
+  b.city,
+  NOW() - (random() * INTERVAL '30 days'),
+  (floor(random() * 90 + 5))::int
+FROM businesses b,
+  generate_series(1,
+    CASE b.plan
+      WHEN 'enterprise' THEN 200
+      WHEN 'pro'        THEN 130
+      WHEN 'starter'    THEN 65
+      ELSE 20
+    END
+  ) s
+WHERE b.status IN ('active','trial');
 
-INSERT INTO orders (table_id, zone, total_amount, status, created_at) VALUES
+-- Yogun saatler ekstra scan (12-14 ve 19-22)
+INSERT INTO scans (business_id, table_id, zone, city, scanned_at, duration_minutes)
+SELECT
+  b.id,
+  'T' || LPAD((floor(random() * 20 + 1))::text, 2, '0'),
+  (ARRAY['Ic Mekan','Teras','Bahce'])[floor(random()*3+1)::int],
+  b.city,
+  date_trunc('day', NOW() - (random() * INTERVAL '7 days')) +
+    make_interval(
+      hours => (ARRAY[12,13,14,19,20,21,22])[floor(random()*7+1)::int],
+      mins  => (floor(random()*59))::int
+    ),
+  (floor(random() * 60 + 10))::int
+FROM businesses b, generate_series(1, 50) s
+WHERE b.status = 'active';
 
--- Bugün
-('T-01','Teras',    320.50,  'completed', CURRENT_DATE + INTERVAL '12h 08m'),
-('T-03','İç Mekan', 485.00,  'completed', CURRENT_DATE + INTERVAL '12h 22m'),
-('T-06','Bar',      1150.75, 'completed', CURRENT_DATE + INTERVAL '12h 36m'),
-('T-09','İç Mekan', 215.00,  'pending',   CURRENT_DATE + INTERVAL '13h 05m'),
-('T-12','Teras',    678.00,  'completed', CURRENT_DATE + INTERVAL '13h 28m'),
-('T-15','Bahçe',    92.50,   'cancelled', CURRENT_DATE + INTERVAL '13h 50m'),
-('T-18','Bar',      890.00,  'completed', CURRENT_DATE + INTERVAL '14h 12m'),
+-- Inactive isletme (10: Bozyazi) — sadece eski scan
+INSERT INTO scans (business_id, table_id, zone, city, scanned_at, duration_minutes)
+SELECT
+  10,
+  'T' || LPAD((floor(random()*10+1))::text, 2, '0'),
+  (ARRAY['Ic Mekan','Teras'])[floor(random()*2+1)::int],
+  'Bozyazi',
+  NOW() - INTERVAL '18 days' - (random() * INTERVAL '12 days'),
+  (floor(random()*45+5))::int
+FROM generate_series(1, 15) s;
 
--- Dün — öğle
-('T-01','Teras',    410.00,  'completed', CURRENT_DATE - '1 day'::interval + INTERVAL '12h 10m'),
-('T-04','İç Mekan', 755.50,  'completed', CURRENT_DATE - '1 day'::interval + INTERVAL '12h 35m'),
-('T-07','Bahçe',    145.00,  'cancelled', CURRENT_DATE - '1 day'::interval + INTERVAL '13h 00m'),
-('T-10','Bar',      1280.00, 'completed', CURRENT_DATE - '1 day'::interval + INTERVAL '13h 25m'),
-('T-13','Teras',    360.50,  'completed', CURRENT_DATE - '1 day'::interval + INTERVAL '13h 50m'),
-('T-16','İç Mekan', 525.00,  'pending',   CURRENT_DATE - '1 day'::interval + INTERVAL '14h 15m'),
--- Dün — akşam
-('T-02','Bahçe',    620.00,  'completed', CURRENT_DATE - '1 day'::interval + INTERVAL '19h 15m'),
-('T-05','Bar',      975.50,  'completed', CURRENT_DATE - '1 day'::interval + INTERVAL '19h 45m'),
-('T-08','Teras',    285.00,  'completed', CURRENT_DATE - '1 day'::interval + INTERVAL '20h 15m'),
-('T-11','İç Mekan', 1095.00, 'completed', CURRENT_DATE - '1 day'::interval + INTERVAL '20h 45m'),
-('T-14','Bahçe',    88.00,   'cancelled', CURRENT_DATE - '1 day'::interval + INTERVAL '21h 15m'),
-('T-17','Bar',      745.00,  'completed', CURRENT_DATE - '1 day'::interval + INTERVAL '21h 30m'),
 
--- 2 gün önce
-('T-03','Teras',    390.00,  'completed', CURRENT_DATE - '2 days'::interval + INTERVAL '12h 15m'),
-('T-06','İç Mekan', 830.50,  'completed', CURRENT_DATE - '2 days'::interval + INTERVAL '12h 45m'),
-('T-09','Bahçe',    175.00,  'completed', CURRENT_DATE - '2 days'::interval + INTERVAL '13h 15m'),
-('T-12','Bar',      1340.00, 'completed', CURRENT_DATE - '2 days'::interval + INTERVAL '13h 45m'),
-('T-15','Teras',    265.50,  'pending',   CURRENT_DATE - '2 days'::interval + INTERVAL '14h 10m'),
-('T-18','İç Mekan', 590.00,  'completed', CURRENT_DATE - '2 days'::interval + INTERVAL '19h 20m'),
-('T-01','Bar',      920.00,  'completed', CURRENT_DATE - '2 days'::interval + INTERVAL '19h 55m'),
-('T-04','Teras',    115.00,  'cancelled', CURRENT_DATE - '2 days'::interval + INTERVAL '20h 30m'),
-('T-07','İç Mekan', 785.50,  'completed', CURRENT_DATE - '2 days'::interval + INTERVAL '21h 05m'),
-
--- 3 gün önce
-('T-10','Bahçe',    445.00,  'completed', CURRENT_DATE - '3 days'::interval + INTERVAL '12h 20m'),
-('T-13','Bar',      1175.00, 'completed', CURRENT_DATE - '3 days'::interval + INTERVAL '12h 50m'),
-('T-16','Teras',    320.50,  'completed', CURRENT_DATE - '3 days'::interval + INTERVAL '13h 20m'),
-('T-19','İç Mekan', 695.00,  'completed', CURRENT_DATE - '3 days'::interval + INTERVAL '13h 50m'),
-('T-02','Bahçe',    99.00,   'cancelled', CURRENT_DATE - '3 days'::interval + INTERVAL '19h 25m'),
-('T-05','Bar',      855.50,  'completed', CURRENT_DATE - '3 days'::interval + INTERVAL '20h 00m'),
-('T-08','Teras',    490.00,  'completed', CURRENT_DATE - '3 days'::interval + INTERVAL '20h 35m'),
-('T-11','İç Mekan', 1050.00, 'completed', CURRENT_DATE - '3 days'::interval + INTERVAL '21h 10m'),
-
--- 4-7 gün
-('T-14','Bahçe',    375.00,  'completed', CURRENT_DATE - '4 days'::interval + INTERVAL '12h 25m'),
-('T-17','Bar',      940.50,  'completed', CURRENT_DATE - '4 days'::interval + INTERVAL '13h 10m'),
-('T-20','Teras',    210.00,  'completed', CURRENT_DATE - '4 days'::interval + INTERVAL '19h 40m'),
-('T-03','İç Mekan', 760.00,  'completed', CURRENT_DATE - '4 days'::interval + INTERVAL '20h 25m'),
-('T-06','Bahçe',    125.00,  'cancelled', CURRENT_DATE - '5 days'::interval + INTERVAL '12h 30m'),
-('T-09','Bar',      1210.50, 'completed', CURRENT_DATE - '5 days'::interval + INTERVAL '13h 15m'),
-('T-12','Teras',    435.00,  'completed', CURRENT_DATE - '5 days'::interval + INTERVAL '19h 45m'),
-('T-15','İç Mekan', 680.00,  'pending',   CURRENT_DATE - '5 days'::interval + INTERVAL '20h 30m'),
-('T-18','Bahçe',    295.50,  'completed', CURRENT_DATE - '6 days'::interval + INTERVAL '12h 35m'),
-('T-01','Bar',      885.00,  'completed', CURRENT_DATE - '6 days'::interval + INTERVAL '13h 20m'),
-('T-04','Teras',    550.00,  'completed', CURRENT_DATE - '6 days'::interval + INTERVAL '19h 50m'),
-('T-07','İç Mekan', 1090.50, 'completed', CURRENT_DATE - '6 days'::interval + INTERVAL '20h 35m'),
-('T-10','Bahçe',    185.00,  'cancelled', CURRENT_DATE - '7 days'::interval + INTERVAL '12h 40m'),
-('T-13','Bar',      730.00,  'completed', CURRENT_DATE - '7 days'::interval + INTERVAL '13h 25m'),
-('T-16','Teras',    465.50,  'completed', CURRENT_DATE - '7 days'::interval + INTERVAL '19h 55m'),
-('T-19','İç Mekan', 920.00,  'completed', CURRENT_DATE - '7 days'::interval + INTERVAL '20h 40m'),
-
--- 8-30 gün
-('T-02','Bahçe',    340.00,  'completed', CURRENT_DATE -  '8 days'::interval + INTERVAL '13h 10m'),
-('T-05','Bar',      1155.50, 'completed', CURRENT_DATE -  '8 days'::interval + INTERVAL '20h 00m'),
-('T-08','Teras',    495.00,  'completed', CURRENT_DATE -  '9 days'::interval + INTERVAL '12h 45m'),
-('T-11','İç Mekan', 775.00,  'completed', CURRENT_DATE -  '9 days'::interval + INTERVAL '19h 30m'),
-('T-14','Bahçe',    110.00,  'cancelled', CURRENT_DATE - '10 days'::interval + INTERVAL '13h 00m'),
-('T-17','Bar',      860.50,  'completed', CURRENT_DATE - '10 days'::interval + INTERVAL '20h 15m'),
-('T-20','Teras',    615.00,  'completed', CURRENT_DATE - '11 days'::interval + INTERVAL '12h 30m'),
-('T-03','İç Mekan', 980.00,  'completed', CURRENT_DATE - '11 days'::interval + INTERVAL '19h 45m'),
-('T-06','Bahçe',    275.50,  'completed', CURRENT_DATE - '12 days'::interval + INTERVAL '13h 15m'),
-('T-09','Bar',      1320.00, 'completed', CURRENT_DATE - '12 days'::interval + INTERVAL '20h 30m'),
-('T-12','Teras',    430.00,  'completed', CURRENT_DATE - '14 days'::interval + INTERVAL '12h 20m'),
-('T-15','İç Mekan', 705.50,  'completed', CURRENT_DATE - '14 days'::interval + INTERVAL '19h 50m'),
-('T-18','Bahçe',    95.00,   'cancelled', CURRENT_DATE - '16 days'::interval + INTERVAL '13h 05m'),
-('T-01','Bar',      1040.00, 'completed', CURRENT_DATE - '16 days'::interval + INTERVAL '20h 20m'),
-('T-04','Teras',    385.50,  'completed', CURRENT_DATE - '18 days'::interval + INTERVAL '12h 40m'),
-('T-07','İç Mekan', 840.00,  'completed', CURRENT_DATE - '18 days'::interval + INTERVAL '19h 10m'),
-('T-10','Bahçe',    520.00,  'completed', CURRENT_DATE - '20 days'::interval + INTERVAL '13h 20m'),
-('T-13','Bar',      1195.50, 'completed', CURRENT_DATE - '20 days'::interval + INTERVAL '20h 40m'),
-('T-16','Teras',    315.00,  'completed', CURRENT_DATE - '22 days'::interval + INTERVAL '12h 50m'),
-('T-19','İç Mekan', 670.00,  'completed', CURRENT_DATE - '22 days'::interval + INTERVAL '19h 20m'),
-('T-02','Bahçe',    145.00,  'cancelled', CURRENT_DATE - '24 days'::interval + INTERVAL '13h 30m'),
-('T-05','Bar',      905.50,  'completed', CURRENT_DATE - '24 days'::interval + INTERVAL '20h 00m'),
-('T-08','Teras',    475.00,  'completed', CURRENT_DATE - '26 days'::interval + INTERVAL '12h 10m'),
-('T-11','İç Mekan', 1130.00, 'completed', CURRENT_DATE - '26 days'::interval + INTERVAL '19h 40m'),
-('T-14','Bahçe',    260.50,  'completed', CURRENT_DATE - '28 days'::interval + INTERVAL '13h 50m'),
-('T-17','Bar',      785.00,  'completed', CURRENT_DATE - '28 days'::interval + INTERVAL '20h 30m'),
-('T-20','Teras',    540.00,  'completed', CURRENT_DATE - '30 days'::interval + INTERVAL '12h 30m'),
-('T-03','İç Mekan', 980.00,  'completed', CURRENT_DATE - '30 days'::interval + INTERVAL '19h 00m');
+-- ── ORDERS ────────────────────────────────────────────────────
+INSERT INTO orders (business_id, table_id, zone, total_amount, status, created_at)
+SELECT
+  b.id,
+  'T' || LPAD((floor(random()*20+1))::text, 2, '0'),
+  (ARRAY['Ic Mekan','Teras','Bahce'])[floor(random()*3+1)::int],
+  round((random()*800+80)::numeric, 2),
+  (ARRAY['completed','completed','completed','completed','completed','completed','completed','completed','pending','cancelled'])[floor(random()*10+1)::int],
+  NOW() - (random() * INTERVAL '30 days')
+FROM businesses b, generate_series(1,
+  CASE b.plan WHEN 'enterprise' THEN 90 WHEN 'pro' THEN 55 WHEN 'starter' THEN 28 ELSE 10 END
+) s;
 
 
 -- ── CUSTOMERS ─────────────────────────────────────────────────
-
-INSERT INTO customers (name, city, visit_count, last_visit) VALUES
-('Ceren Yüksel',       'İstanbul',  24, CURRENT_DATE + INTERVAL '13h 50m'),
-('Burak Yıldız',       'İstanbul',  18, CURRENT_DATE - '1 day'::interval  + INTERVAL '20h 00m'),
-('Zeynep Arslan',      'İstanbul',  15, CURRENT_DATE + INTERVAL '12h 35m'),
-('Tuğba Kılıç',       'İstanbul',  14, CURRENT_DATE - '2 days'::interval + INTERVAL '20h 15m'),
-('Ahmet Yılmaz',       'İstanbul',  12, CURRENT_DATE + INTERVAL '13h 20m'),
-('Deniz Avcı',        'İzmir',     11, CURRENT_DATE - '1 day'::interval  + INTERVAL '19h 35m'),
-('Gizem Aslan',        'İstanbul',  10, CURRENT_DATE - '1 day'::interval  + INTERVAL '21h 05m'),
-('Hasan Polat',        'İzmir',      9, CURRENT_DATE - '3 days'::interval + INTERVAL '19h 45m'),
-('İrem Özkan',        'İstanbul',   9, CURRENT_DATE + INTERVAL '12h 55m'),
-('Pınar Güler',       'İstanbul',   8, CURRENT_DATE - '2 days'::interval + INTERVAL '19h 30m'),
-('Ayşe Çelik',        'İstanbul',   7, CURRENT_DATE + INTERVAL '12h 10m'),
-('Mert Arslan',        'İstanbul',   7, CURRENT_DATE - '1 day'::interval  + INTERVAL '20h 50m'),
-('Emre Öztürk',       'İstanbul',   6, CURRENT_DATE - '3 days'::interval + INTERVAL '21h 00m'),
-('Elif Güneş',         'İstanbul',   6, CURRENT_DATE - '2 days'::interval + INTERVAL '20h 50m'),
-('Başak Yılmaz',      'İzmir',      5, CURRENT_DATE - '3 days'::interval + INTERVAL '12h 30m'),
-('Fatma Demir',        'Ankara',     5, CURRENT_DATE - '4 days'::interval + INTERVAL '13h 10m'),
-('Oğuz Çetin',        'İzmir',      4, CURRENT_DATE - '5 days'::interval + INTERVAL '19h 35m'),
-('Sercan Doğan',      'Ankara',     4, CURRENT_DATE - '4 days'::interval + INTERVAL '20h 00m'),
-('Kerem Acar',         'İstanbul',   4, CURRENT_DATE - '2 days'::interval + INTERVAL '12h 20m'),
-('Seda Özdemir',       'İzmir',      3, CURRENT_DATE - '4 days'::interval + INTERVAL '19h 10m'),
-('Ali Şahin',          'Bursa',      3, CURRENT_DATE - '5 days'::interval + INTERVAL '13h 00m'),
-('Merve Aydın',        'Ankara',     3, CURRENT_DATE - '6 days'::interval + INTERVAL '12h 45m'),
-('Berk Güven',         'Bursa',      3, CURRENT_DATE - '7 days'::interval + INTERVAL '19h 20m'),
-('Tolga Aksoy',        'Antalya',    3, CURRENT_DATE - '6 days'::interval + INTERVAL '20h 00m'),
-('Kenan Doğan',       'Bursa',      2, CURRENT_DATE - '9 days'::interval + INTERVAL '13h 00m'),
-('Volkan Polat',       'Kayseri',    2, CURRENT_DATE - '11 days'::interval + INTERVAL '20h 15m'),
-('Fatih Sarı',         'Eskişehir',  2, CURRENT_DATE - '12 days'::interval + INTERVAL '12h 50m'),
-('Özge Kaya',         'Ankara',     2, CURRENT_DATE - '7 days'::interval + INTERVAL '19h 40m'),
-('Barış Çelik',       'İstanbul',   2, CURRENT_DATE - '5 days'::interval + INTERVAL '20h 40m'),
-('Arda Demir',         'İstanbul',   2, CURRENT_DATE - '7 days'::interval + INTERVAL '19h 55m'),
-('Mustafa Erdoğan',   'Antalya',    1, CURRENT_DATE - '7 days'::interval + INTERVAL '12h 15m'),
-('Mehmet Kaya',        'İzmir',      1, CURRENT_DATE - '3 days'::interval + INTERVAL '13h 20m'),
-('Cem Taş',            'Ankara',     1, CURRENT_DATE - '20 days'::interval + INTERVAL '12h 35m'),
-('Selin Koç',          'Bursa',      1, CURRENT_DATE - '10 days'::interval + INTERVAL '20h 30m'),
-('Nur Yaman',          'İstanbul',   1, CURRENT_DATE - '1 day'::interval  + INTERVAL '13h 50m'),
-('Lale Kaya',          'Ankara',     1, CURRENT_DATE - '6 days'::interval + INTERVAL '13h 00m'),
-('Melis Yıldız',      'Konya',      1, CURRENT_DATE -  '8 days'::interval + INTERVAL '12h 40m'),
-('Uğur Çetin',        'Gaziantep',  1, CURRENT_DATE - '14 days'::interval + INTERVAL '20h 00m'),
-('Sibel Arslan',       'Trabzon',    1, CURRENT_DATE - '18 days'::interval + INTERVAL '13h 25m'),
-('Nihan Güler',        'Samsun',     1, CURRENT_DATE - '22 days'::interval + INTERVAL '19h 30m'),
-('Taner Özcan',        'Adana',      1, CURRENT_DATE - '16 days'::interval + INTERVAL '12h 55m'),
-('Aylin Şahin',       'Antalya',    1, CURRENT_DATE - '19 days'::interval + INTERVAL '20h 20m'),
-('Rüya Demir',        'İstanbul',   2, CURRENT_DATE -  '4 days'::interval + INTERVAL '13h 30m'),
-('Ege Kara',           'İzmir',      1, CURRENT_DATE -  '2 days'::interval + INTERVAL '19h 15m'),
-('Canan Yurt',         'Ankara',     2, CURRENT_DATE -  '5 days'::interval + INTERVAL '12h 45m'),
-('Murat Bulut',        'İstanbul',   3, CURRENT_DATE -  '1 day'::interval  + INTERVAL '20h 25m'),
-('Dilara Şen',        'Bursa',      1, CURRENT_DATE -  '9 days'::interval + INTERVAL '19h 10m'),
-('Onur Tunç',         'İstanbul',   4, CURRENT_DATE -  '2 days'::interval + INTERVAL '13h 05m'),
-('Yasemin Ak',         'İzmir',      2, CURRENT_DATE -  '6 days'::interval + INTERVAL '20h 35m'),
-('Selim Çakır',       'Ankara',     1, CURRENT_DATE - '13 days'::interval + INTERVAL '12h 20m'),
-('Bengü Kurt',         'İstanbul',   5, CURRENT_DATE -  '3 days'::interval + INTERVAL '19h 50m'),
-('Tarık Ateş',        'İstanbul',   3, CURRENT_DATE -  '4 days'::interval + INTERVAL '20h 10m');
+INSERT INTO customers (business_id, name, city, visit_count, last_visit) VALUES
+(1,'Ahmet Yilmaz',   'Silifke',  12, NOW() - INTERVAL '1 day'),
+(1,'Fatma Kaya',     'Silifke',   8, NOW() - INTERVAL '2 days'),
+(1,'Mehmet Celik',   'Silifke',   5, NOW() - INTERVAL '3 hours'),
+(1,'Ayse Demir',     'Silifke',   3, NOW() - INTERVAL '6 hours'),
+(2,'Mustafa Sahin',  'Silifke',   9, NOW() - INTERVAL '1 day'),
+(2,'Zeynep Arslan',  'Silifke',   4, NOW() - INTERVAL '4 hours'),
+(3,'Ali Koc',        'Silifke',  11, NOW() - INTERVAL '2 hours'),
+(3,'Selin Gunes',    'Silifke',   6, NOW() - INTERVAL '5 hours'),
+(4,'Can Aydin',      'Silifke',   2, NOW() - INTERVAL '1 week'),
+(5,'Hasan Ozturk',   'Mersin',   20, NOW() - INTERVAL '1 hour'),
+(5,'Elif Yildiz',    'Mersin',   14, NOW() - INTERVAL '2 hours'),
+(5,'Burak Erdogan',  'Mersin',   18, NOW() - INTERVAL '30 minutes'),
+(6,'Merve Polat',    'Mersin',    7, NOW() - INTERVAL '3 hours'),
+(6,'Serkan Dogan',   'Mersin',   13, NOW() - INTERVAL '5 hours'),
+(7,'Gulsen Yurt',    'Erdemli',   6, NOW() - INTERVAL '1 day'),
+(8,'Tolga Aktas',    'Mut',       1, NOW() - INTERVAL '3 days'),
+(9,'Pinar Ozdemir',  'Aydincik',  4, NOW() - INTERVAL '1 day'),
+(10,'Emre Kaplan',   'Bozyazi',   3, NOW() - INTERVAL '20 days'),
+(11,'Ali Bas',       'Tarsus',    8, NOW() - INTERVAL '2 hours'),
+(11,'Deniz Karaca',  'Tarsus',   11, NOW() - INTERVAL '1 hour'),
+(12,'Nazli Simsek',  'Silifke',   2, NOW() - INTERVAL '4 hours'),
+(13,'Tarik Basaran', 'Adana',    22, NOW() - INTERVAL '45 minutes'),
+(13,'Ceren Uslu',    'Adana',    17, NOW() - INTERVAL '1 hour'),
+(13,'Berk Sonmez',   'Adana',    15, NOW() - INTERVAL '2 hours'),
+(14,'Riya Cakir',    'Gulnar',    1, NOW() - INTERVAL '4 days'),
+(15,'Cem Karadeniz', 'Silifke',  16, NOW() - INTERVAL '30 minutes'),
+(15,'Nalan Guler',   'Silifke',  10, NOW() - INTERVAL '1 hour'),
+(15,'Tuba Yildirim', 'Silifke',   7, NOW() - INTERVAL '3 hours');

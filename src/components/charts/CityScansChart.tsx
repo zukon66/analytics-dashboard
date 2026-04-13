@@ -59,7 +59,7 @@ export default function CityScansChart({ data }: Props) {
             }}
             cursor={{ fill: "#EEEAFE" }}
           />
-          <Bar dataKey="scans" radius={[0, 4, 4, 0]}>
+          <Bar dataKey="scans" radius={[0, 4, 4, 0]} fill={COLORS[0]} isAnimationActive={false}>
             {data.map((_, index) => (
               <Cell key={index} fill={COLORS[index % COLORS.length]} />
             ))}

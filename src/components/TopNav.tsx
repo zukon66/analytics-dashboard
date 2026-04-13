@@ -39,8 +39,8 @@ export default function TopNav({ onMenuClick }: { onMenuClick: () => void }) {
         >
           <span className="material-symbols-outlined text-xl">menu</span>
         </button>
-        <span className="material-symbols-outlined text-[#9AA3B2] text-lg hidden md:block">store</span>
-        <span className="text-sm font-bold text-[#1F2430]">{restaurantName}</span>
+        <span className="material-symbols-outlined text-[#7C6CF6] text-lg hidden md:block">monitor_heart</span>
+        <span className="text-sm font-bold text-[#1F2430]">KÖK-OS <span className="text-[#9AA3B2] font-normal text-xs">Operator Panel</span></span>
       </div>
 
       <div className="flex items-center gap-4">

@@ -12,6 +12,7 @@ const tr = {
     orders: "Siparişler",
     customers: "Müşteriler",
     settings: "Ayarlar",
+    growth: "Büyüme",
   },
 
   // Upgrade kartı
@@ -24,7 +25,47 @@ const tr = {
   // TopNav
   topNav: {
     searchPlaceholder: "İçgörü ara...",
-    userRole: "Restoran Sahibi",
+    userRole: "Operatör",
+  },
+
+  // Platform Overview (ana sayfa)
+  platform: {
+    title: "Platform Genel Bakış",
+    subtitle: "Tüm işletmelerin anlık performansı",
+    kpis: {
+      totalBusinesses: "Toplam İşletme",
+      activeBusinesses: "Aktif İşletme",
+      churnRisk: "Pasif İşletmeler",
+      scansToday: "Bugünkü Tarama",
+      scansWeek: "Haftalık Tarama",
+      totalRevenue: "Toplam Gelir",
+    },
+    churnSection: "Pasif İşletmeler — Aksiyon Gerekli",
+    churnEmpty: "14 gün içinde hareketsiz işletme yok.",
+    topBusinesses: "En Aktif İşletmeler (Son 7 Gün)",
+    viewAll: "Tüm İşletmeler",
+  },
+
+  // Businesses (işletme listesi)
+  businesses: {
+    title: "İşletmeler",
+    subtitle: "Platform müşterileri ve kullanım durumları",
+    cols: {
+      name: "İşletme",
+      city: "Şehir",
+      plan: "Plan",
+      status: "Durum",
+      scans7d: "Haftalık Tarama",
+      lastActive: "Son Aktif",
+    },
+    status: {
+      active: "Aktif",
+      inactive: "Pasif",
+      churned: "Ayrıldı",
+      trial: "Deneme",
+    },
+    empty: "İşletme bulunamadı.",
+    detail: "Detay",
   },
 
   // Dashboard (Ana sayfa)
@@ -150,27 +191,27 @@ const tr = {
   // Settings sayfası
   settings: {
     title: "Ayarlar",
-    subtitle: "Hesap ve uygulama tercihlerinizi yönetin",
+    subtitle: "Platform yöneticisi tercihlerinizi yönetin",
     sections: {
-      profile: "Profil Bilgileri",
-      restaurant: "Restoran Ayarları",
+      profile: "Yönetici Profili",
+      restaurant: "Platform Ayarları",
       notifications: "Bildirim Tercihleri",
       danger: "Tehlikeli Alan",
     },
     fields: {
       name: "Ad Soyad",
       email: "E-posta",
-      restaurantName: "Restoran Adı",
-      city: "Şehir",
+      restaurantName: "Platform Adı",
+      city: "Bölge / Şehir",
       timezone: "Saat Dilimi",
     },
     notifications: {
-      dailyReport: "Günlük rapor e-postası",
-      dailyReportDesc: "Her gün sabah 08:00'de özet rapor al",
-      peakAlert: "Zirve saati uyarısı",
-      peakAlertDesc: "Yoğun trafik olduğunda bildirim gönder",
-      weeklyInsight: "Haftalık içgörü",
-      weeklyInsightDesc: "Her Pazartesi haftalık analiz raporu al",
+      dailyReport: "Günlük platform raporu",
+      dailyReportDesc: "Her gün sabah 08:00'de tüm işletmelerin özetini al",
+      peakAlert: "Pasif işletme uyarısı",
+      peakAlertDesc: "14 gün hareketsiz kalan işletmeler için bildirim gönder",
+      weeklyInsight: "Haftalık platform özeti",
+      weeklyInsightDesc: "Her Pazartesi platform geneli haftalık analiz raporu",
     },
     save: "Değişiklikleri Kaydet",
     saving: "Kaydediliyor...",
@@ -180,6 +221,68 @@ const tr = {
       deleteDesc:
         "Bu işlem geri alınamaz. Tüm verileriniz kalıcı olarak silinir.",
       deleteButton: "Hesabı Sil",
+    },
+  },
+
+  // Growth (Büyüme Paneli)
+  growth: {
+    title: "Büyüme Paneli",
+    subtitle: "MRR trendi, trial takibi, yeni kayıtlar ve aktivasyon hunisi",
+    mrr: {
+      badge: "Gelir Analizi",
+      title: "MRR Trendi — Son 12 Ay",
+      subtitle: "Tamamlanan sipariş gelirleri aylık bazda",
+      currentMrr: "Anlık MRR",
+      currentMrrSub: "Plan ücretlerinden hesaplandı",
+      noData: "Henüz tamamlanan sipariş verisi yok.",
+      planBreakdown: "Plan Bazlı Dağılım",
+    },
+    trial: {
+      badge: "Trial Takibi",
+      title: "Yaklaşan Trial Bitişleri",
+      subtitle: "14 gün içinde trial'ı dolacak işletmeler",
+      cols: {
+        name: "İşletme",
+        city: "Şehir",
+        email: "E-posta",
+        daysRemaining: "Kalan Gün",
+      },
+      today: "Bugün bitiyor",
+      daysLeft: "gün kaldı",
+      empty: "Yaklaşan trial bitişi bulunmuyor.",
+    },
+    newBiz: {
+      badge: "Yeni Kayıtlar",
+      title: "Son 30 Günde Kayıt Olan İşletmeler",
+      subtitle: "Kayıt akışı ve ilk aktivasyon durumu",
+      cols: {
+        name: "İşletme",
+        city: "Şehir",
+        plan: "Plan",
+        registered: "Kayıt Tarihi",
+        firstScan: "İlk Tarama",
+      },
+      activated: "Tarama Yapıldı",
+      notActivated: "Henüz Yok",
+      empty: "Son 30 günde yeni kayıt yok.",
+    },
+    funnel: {
+      badge: "Aktivasyon Hunisi",
+      title: "Aktivasyon Hunisi",
+      subtitle: "Kayıttan güçlü kullanıcıya dönüşüm",
+      stages: {
+        registered: "Kayıtlı İşletme",
+        activated: "Aktifleşti (1+ Tarama)",
+        powerUser: "Güçlü Kullanıcı (10+)",
+      },
+      conversion: "dönüşüm",
+    },
+    summaryCard: {
+      title: "Büyüme Özeti",
+      trialWarnings: "Yaklaşan Trial",
+      newSignups: "Yeni Kayıt (30G)",
+      activationRate: "Aktivasyon Oranı",
+      viewAll: "Büyüme Panelini Gör",
     },
   },
 

@@ -1,209 +1,249 @@
+import Link from "next/link";
 import {
+  getPlatformKPIs,
+  getChurnRiskBusinesses,
+  getBusinesses,
+  getBusinessScanCounts,
   getScansByHour,
   getScansByCity,
-  getScansByZone,
-  getTopTables,
-  getPeriodKPIs,
-  getComparisonKPIs,
+  getScansByPlan,
+  getTrialExpirations,
+  getActivationFunnel,
+  getNewRegistrations,
 } from "@/lib/queries";
 import HourlyScansChart from "@/components/charts/HourlyScansChart";
 import CityScansChart from "@/components/charts/CityScansChart";
 import ZoneChart from "@/components/charts/ZoneChart";
-import DateFilterBar from "@/components/DateFilterBar";
+import GrowthSummaryCard from "@/components/GrowthSummaryCard";
 import t from "@/lib/i18n";
 
 export const revalidate = 60;
 
-const VALID_PERIODS = ["today", "7d", "30d"];
-const PERIOD_LABEL: Record<string, string> = { today: "Bugün", "7d": "Son 7 Gün", "30d": "Son 30 Gün" };
+const PLAN_COLORS: Record<string, string> = {
+  trial:      "bg-[#F3F4F6] text-[#6B7280]",
+  starter:    "bg-[#DBEAFE] text-[#1E40AF]",
+  pro:        "bg-[#EDE9FE] text-[#6D28D9]",
+  enterprise: "bg-[#FEF3C7] text-[#92400E]",
+};
 
-function ErrorBanner({ message }: { message: string }) {
+const STATUS_COLORS: Record<string, string> = {
+  active:   "bg-[#DCFCE7] text-[#15803D]",
+  inactive: "bg-[#FEF3C7] text-[#92400E]",
+  churned:  "bg-[#FEE2E2] text-[#991B1B]",
+  trial:    "bg-[#F3F4F6] text-[#6B7280]",
+};
+
+function KPICard({
+  label, value, icon, iconBg, iconColor, sub,
+}: {
+  label: string; value: string; icon: string;
+  iconBg: string; iconColor: string; sub?: string;
+}) {
   return (
-    <div className="mb-4 flex items-center gap-3 bg-[#FEF3C7] border border-[#FDE68A] rounded-xl px-5 py-3 text-sm text-[#92400E]">
-      <span className="material-symbols-outlined text-base">warning</span>
-      <span>Veri yüklenirken sorun oluştu. Lütfen sayfayı yenileyin.</span>
-      <span className="ml-auto text-[10px] font-mono opacity-50">{message.slice(0, 60)}</span>
+    <div className="bg-white rounded-xl p-6 flex items-center gap-4 border border-[#E9E9F2]">
+      <div className={`p-3 rounded-xl ${iconBg} ${iconColor}`}>
+        <span className="material-symbols-outlined">{icon}</span>
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-2xl font-extrabold text-[#1F2430]">{value}</p>
+        <p className="text-[10px] font-bold text-[#9AA3B2] uppercase tracking-tighter">{label}</p>
+        {sub && <p className="text-[10px] text-[#9AA3B2] mt-0.5">{sub}</p>}
+      </div>
     </div>
   );
 }
 
-function DeltaBadge({ current, previous }: { current: number; previous: number }) {
-  if (previous === 0) return null;
-  const pct = Math.round(((current - previous) / previous) * 100);
-  if (pct === 0) return null;
-  const up = pct > 0;
-  return (
-    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${up ? "bg-[#DCFCE7] text-[#15803D]" : "bg-[#FEE2E2] text-[#991B1B]"}`}>
-      {up ? "↑" : "↓"} %{Math.abs(pct)}
-    </span>
-  );
+function daysSince(dateStr: string | null): string {
+  if (!dateStr) return "—";
+  const days = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
+  if (days === 0) return "Bugün";
+  if (days === 1) return "Dün";
+  return `${days} gün önce`;
 }
 
-export default async function DashboardPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ period?: string; date?: string }>;
-}) {
-  const { period = "today", date } = await searchParams;
-  const isValidDate = date && /^\d{4}-\d{2}-\d{2}$/.test(date);
-  const activePeriod = VALID_PERIODS.includes(period) ? period : "today";
-  const queryKey = isValidDate ? date : activePeriod;
-
-  const [hourlyRes, cityRes, zoneRes, topTablesRes, kpisRes, prevKpisRes] = await Promise.all([
-    getScansByHour(queryKey),
-    getScansByCity(queryKey),
-    getScansByZone(queryKey),
-    getTopTables(10, queryKey),
-    getPeriodKPIs(queryKey),
-    getComparisonKPIs(queryKey),
+export default async function PlatformOverviewPage() {
+  const [kpisRes, churnRes, bizRes, hourlyRes, cityRes, zoneRes, trialRes, funnelRes, newBizRes] = await Promise.all([
+    getPlatformKPIs(),
+    getChurnRiskBusinesses(14),
+    getBusinesses(),
+    getScansByHour("7d"),
+    getScansByCity("7d"),
+    getScansByPlan("7d"),
+    getTrialExpirations(14),
+    getActivationFunnel(),
+    getNewRegistrations(30),
   ]);
 
   const kpis = kpisRes.data;
-  const prevKpis = prevKpisRes.data;
-  const hasError = [hourlyRes, cityRes, zoneRes, topTablesRes, kpisRes].some((r) => r.error);
-  const periodDisplayLabel = isValidDate ? date : (PERIOD_LABEL[activePeriod] ?? "Bugün");
+  const churnList = churnRes.data;
+  const allBusinesses = bizRes.data;
+
+  // İşletme bazlı scan sayıları (son 7 gün)
+  const scanCounts = await getBusinessScanCounts(allBusinesses.map((b) => b.id), 7);
+
+  // En aktif 5 işletme
+  const topBusinesses = [...allBusinesses]
+    .sort((a, b) => (scanCounts[b.id] ?? 0) - (scanCounts[a.id] ?? 0))
+    .slice(0, 5);
 
   const kpiCards = [
-    { label: `${periodDisplayLabel} Toplam Tarama`, value: kpis.totalScans.toLocaleString("tr-TR"), prev: prevKpis.totalScans, icon: "qr_code_scanner", iconBg: "bg-[#EEEAFE]", iconColor: "text-[#7C6CF6]" },
-    { label: t.dashboard.kpis.peakHour, value: kpis.peakHour, prev: null, icon: "schedule", iconBg: "bg-[#DBEAFE]", iconColor: "text-[#1E40AF]" },
-    { label: t.dashboard.kpis.activeCities, value: kpis.activeCities.toString(), prev: prevKpis.activeCities, icon: "location_city", iconBg: "bg-[#EDE9FE]", iconColor: "text-[#6D28D9]" },
-    { label: t.dashboard.kpis.activeZones, value: kpis.activeZones.toString(), prev: prevKpis.activeZones, icon: "map", iconBg: "bg-[#F3F4F6]", iconColor: "text-[#6B7280]" },
-  ];
-
-  const zones = [
-    { label: "Teras", tables: 24, color: "#7C6CF6" },
-    { label: "İç Mekan", tables: 42, color: "#60A5FA" },
-    { label: "Bar", tables: 12, color: "#A78BFA" },
-    { label: "Bahçe", tables: 18, color: "#34D399" },
+    { label: t.platform.kpis.totalBusinesses, value: String(kpis.totalBusinesses), icon: "store", iconBg: "bg-[#EEEAFE]", iconColor: "text-[#7C6CF6]" },
+    { label: t.platform.kpis.activeBusinesses, value: String(kpis.activeBusinesses), icon: "check_circle", iconBg: "bg-[#DCFCE7]", iconColor: "text-[#15803D]" },
+    { label: t.platform.kpis.churnRisk, value: String(kpis.churnRiskCount), icon: "warning", iconBg: "bg-[#FEF3C7]", iconColor: "text-[#92400E]", sub: "Son 14 günde aktif değil" },
+    { label: t.platform.kpis.scansWeek, value: kpis.totalScansWeek.toLocaleString("tr-TR"), icon: "qr_code_scanner", iconBg: "bg-[#DBEAFE]", iconColor: "text-[#1E40AF]" },
+    { label: t.platform.kpis.scansToday, value: kpis.totalScansToday.toLocaleString("tr-TR"), icon: "today", iconBg: "bg-[#F3F4F6]", iconColor: "text-[#6B7280]" },
+    { label: t.platform.kpis.totalRevenue, value: `₺${kpis.totalRevenueAllTime.toLocaleString("tr-TR")}`, icon: "payments", iconBg: "bg-[#EDE9FE]", iconColor: "text-[#6D28D9]" },
   ];
 
   return (
     <main className="pt-24 pb-12 px-4 md:px-8 min-h-screen bg-[#FAFAFD]">
+      {/* Başlık */}
       <div className="mb-8 flex justify-between items-end">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-[#1F2430] mb-1">{t.dashboard.title}</h1>
-          <p className="text-[#6B7280] text-sm font-medium">{t.dashboard.subtitle}</p>
+          <span className="px-3 py-1 bg-[#EEEAFE] text-[#7C6CF6] rounded-sm text-[10px] font-bold tracking-widest uppercase mb-3 inline-block">
+            Internal Dashboard
+          </span>
+          <h1 className="text-3xl font-extrabold tracking-tight text-[#1F2430] mb-1">{t.platform.title}</h1>
+          <p className="text-[#6B7280] text-sm font-medium">{t.platform.subtitle}</p>
         </div>
-        <DateFilterBar activePeriod={activePeriod} activeDate={isValidDate ? date : undefined} />
+        <Link
+          href="/businesses"
+          className="bg-[#7C6CF6] text-white px-5 py-2.5 rounded-full text-xs font-bold flex items-center gap-2 hover:bg-[#6D5DF0] transition-colors"
+        >
+          <span className="material-symbols-outlined text-sm">store</span>
+          {t.platform.viewAll}
+        </Link>
       </div>
 
-      {hasError && <ErrorBanner message={[hourlyRes, cityRes, zoneRes, topTablesRes, kpisRes].find((r) => r.error)?.error ?? ""} />}
-
-      {/* KPI Şeridi */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
-        {kpiCards.map((kpi) => (
-          <div key={kpi.label} className="bg-[#FFFFFF] rounded-xl p-6 flex items-center gap-4 border border-[#E9E9F2]">
-            <div className={`p-3 rounded-xl ${kpi.iconBg} ${kpi.iconColor}`}>
-              <span className="material-symbols-outlined">{kpi.icon}</span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-0.5">
-                <p className="text-2xl font-extrabold text-[#1F2430]">{kpi.value}</p>
-                {kpi.prev !== null && typeof kpi.prev === "number" && (
-                  <DeltaBadge current={Number(kpi.value.replace(/\D/g, "")) || 0} previous={kpi.prev} />
-                )}
-              </div>
-              <p className="text-[10px] font-bold text-[#9AA3B2] uppercase tracking-tighter truncate">{kpi.label}</p>
-            </div>
-          </div>
+      {/* KPI Grid — 3 kolon */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+        {kpiCards.map((k) => (
+          <KPICard key={k.label} {...k} />
         ))}
       </div>
 
-      {/* Grafikler Sıra 1 */}
-      <div className="grid grid-cols-12 gap-6 mb-8">
-        <div className="col-span-12 lg:col-span-8">
-          <HourlyScansChart data={hourlyRes.data} period={queryKey} />
-        </div>
-        <div className="col-span-12 lg:col-span-4">
-          <CityScansChart data={cityRes.data} />
-        </div>
+      {/* Büyüme Özeti Kartı */}
+      <div className="mb-8">
+        <GrowthSummaryCard
+          trialCount={trialRes.data.length}
+          newBizCount={newBizRes.data.length}
+          activationRate={
+            funnelRes.data.totalBusinesses > 0
+              ? Math.round((funnelRes.data.activated1Plus / funnelRes.data.totalBusinesses) * 100)
+              : 0
+          }
+        />
       </div>
 
-      {/* Grafikler Sıra 2 */}
-      <div className="grid grid-cols-12 gap-6 mb-8">
-        <div className="col-span-12 lg:col-span-4">
-          <ZoneChart data={zoneRes.data} />
-        </div>
-        <div className="col-span-12 lg:col-span-8 bg-[#FFFFFF] rounded-xl overflow-hidden border border-[#E9E9F2]">
+      <div className="grid grid-cols-12 gap-6">
+        {/* Sol: En Aktif İşletmeler */}
+        <div className="col-span-12 lg:col-span-7 bg-white rounded-xl border border-[#E9E9F2] overflow-hidden">
           <div className="px-8 py-6 flex justify-between items-center border-b border-[#E9E9F2]">
-            <h3 className="text-lg font-bold text-[#1F2430]">{t.dashboard.topTables.title}</h3>
-            <div className="flex gap-4">
-              <div className="flex items-center gap-2 text-xs font-semibold text-[#6B7280]">
-                <span className="w-3 h-3 rounded-full bg-[#7C6CF6]"></span>{t.dashboard.topTables.highVol}
-              </div>
-              <div className="flex items-center gap-2 text-xs font-semibold text-[#6B7280]">
-                <span className="w-3 h-3 rounded-full bg-[#E9E9F2]"></span>{t.dashboard.topTables.normal}
-              </div>
-            </div>
+            <h3 className="text-base font-bold text-[#1F2430]">{t.platform.topBusinesses}</h3>
+            <Link href="/businesses" className="text-xs text-[#7C6CF6] font-semibold hover:underline">
+              Tümünü Gör →
+            </Link>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="text-[10px] font-bold uppercase tracking-widest text-[#9AA3B2]">
-                  <th className="px-8 py-4">{t.dashboard.topTables.cols.tableId}</th>
-                  <th className="px-8 py-4">{t.dashboard.topTables.cols.zone}</th>
-                  <th className="px-8 py-4">{t.dashboard.topTables.cols.dailyScans}</th>
-                  <th className="px-8 py-4">{t.dashboard.topTables.cols.avgDuration}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {topTablesRes.data.length === 0 ? (
-                  <tr><td colSpan={4} className="px-8 py-12 text-center text-[#9AA3B2] text-sm">{periodDisplayLabel} için henüz tarama verisi yok.</td></tr>
-                ) : (
-                  topTablesRes.data.map((table) => {
-                    const maxScans = topTablesRes.data[0]?.scans ?? 1;
-                    const pct = Math.round((table.scans / maxScans) * 100);
-                    return (
-                      <tr key={table.tableId} className="hover:bg-[#FAFAFD] transition-colors border-t border-[#E9E9F2]">
-                        <td className="px-8 py-5"><span className="font-bold text-[#1F2430]">{table.tableId}</span></td>
-                        <td className="px-8 py-5"><span className="text-sm text-[#6B7280]">{table.zone}</span></td>
-                        <td className="px-8 py-5">
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-[#1F2430]">{table.scans}</span>
-                            <div className="w-16 h-1 bg-[#E9E9F2] rounded-full overflow-hidden">
-                              <div className="h-full bg-[#7C6CF6]" style={{ width: `${pct}%` }} />
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-8 py-5 text-sm text-[#6B7280]">{table.avgDuration} {t.common.minutes}</td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
+          <table className="w-full text-left">
+            <thead>
+              <tr className="text-[10px] font-bold uppercase tracking-widest text-[#9AA3B2]">
+                <th className="px-8 py-4">İşletme</th>
+                <th className="px-4 py-4">Plan</th>
+                <th className="px-4 py-4">Durum</th>
+                <th className="px-4 py-4 text-right">7G Tarama</th>
+                <th className="px-8 py-4"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {topBusinesses.map((biz) => {
+                const scans = scanCounts[biz.id] ?? 0;
+                return (
+                  <tr key={biz.id} className="hover:bg-[#FAFAFD] transition-colors border-t border-[#E9E9F2]">
+                    <td className="px-8 py-4">
+                      <p className="font-bold text-[#1F2430] text-sm">{biz.name}</p>
+                      <p className="text-xs text-[#9AA3B2]">{biz.city}</p>
+                    </td>
+                    <td className="px-4 py-4">
+                      <span className={`text-[10px] font-bold px-2 py-1 rounded-full capitalize ${PLAN_COLORS[biz.plan] ?? "bg-[#F3F4F6] text-[#6B7280]"}`}>
+                        {biz.plan}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4">
+                      <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${STATUS_COLORS[biz.status] ?? ""}`}>
+                        {t.businesses.status[biz.status as keyof typeof t.businesses.status] ?? biz.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 text-right">
+                      <span className="font-bold text-[#1F2430]">{scans.toLocaleString("tr-TR")}</span>
+                    </td>
+                    <td className="px-8 py-4 text-right">
+                      <Link
+                        href={`/businesses/${biz.id}`}
+                        className="text-xs text-[#7C6CF6] font-semibold hover:underline"
+                      >
+                        Detay →
+                      </Link>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Sağ: Churn Riski */}
+        <div className="col-span-12 lg:col-span-5 bg-white rounded-xl border border-[#E9E9F2] overflow-hidden">
+          <div className="px-6 py-5 border-b border-[#E9E9F2] flex items-center gap-3">
+            <span className="material-symbols-outlined text-[#F59E0B]">warning</span>
+            <h3 className="text-base font-bold text-[#1F2430]">{t.platform.churnSection}</h3>
+          </div>
+          <div className="divide-y divide-[#E9E9F2]">
+            {churnList.length === 0 ? (
+              <p className="px-6 py-10 text-sm text-[#9AA3B2] text-center">{t.platform.churnEmpty}</p>
+            ) : (
+              churnList.map((biz) => (
+                <div key={biz.id} className="px-6 py-4 flex items-center justify-between hover:bg-[#FAFAFD]">
+                  <div>
+                    <p className="font-bold text-[#1F2430] text-sm">{biz.name}</p>
+                    <p className="text-xs text-[#9AA3B2]">{biz.city} · {biz.plan}</p>
+                    <p className="text-xs text-[#F59E0B] font-semibold mt-0.5">
+                      Son aktif: {daysSince(biz.last_active_at)}
+                    </p>
+                  </div>
+                  <Link
+                    href={`/businesses/${biz.id}`}
+                    className="text-xs text-[#7C6CF6] font-semibold hover:underline shrink-0"
+                  >
+                    İncele →
+                  </Link>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
 
-      {/* Zirve Saat Önerisi */}
-      {kpis.totalScans > 0 && kpis.peakHour !== "--" && (
-        <div className="bg-[#EEEAFE] border border-[#D4CFFE] rounded-xl px-8 py-5 mb-8 flex items-center gap-5">
-          <span className="material-symbols-outlined text-[#7C6CF6] text-2xl shrink-0">lightbulb</span>
-          <div>
-            <p className="text-sm font-bold text-[#1F2430]">
-              En yoğun saatiniz <span className="text-[#7C6CF6]">{kpis.peakHour}</span>
-            </p>
-            <p className="text-xs text-[#6B7280] mt-0.5">
-              Bu saatte ekstra garson veya kasa kapasitesi hazırlamanız hizmet kalitesini artırabilir.
-            </p>
-          </div>
+      {/* Tarama Grafikleri */}
+      <div className="mt-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold text-[#1F2430]">Tarama Analitiği — Son 7 Gün</h2>
         </div>
-      )}
-
-      {/* Bölge Envanteri */}
-      <div className="bg-[#F6F6FB] rounded-xl p-8">
-        <h3 className="text-lg font-bold text-[#1F2430] mb-6">{t.dashboard.inventory.title}</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {zones.map((zone) => (
-            <div key={zone.label} className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: zone.color }} />
-                <span className="text-sm font-semibold text-[#1F2430]">{zone.label}</span>
-              </div>
-              <span className="text-sm font-bold text-[#1F2430]">{zone.tables} {t.common.tables}</span>
-            </div>
-          ))}
+        <div className="mb-6">
+          <HourlyScansChart data={hourlyRes.data} period="7d" />
+        </div>
+        <div className="grid grid-cols-12 gap-6">
+          <div className="col-span-12 lg:col-span-7">
+            <CityScansChart data={cityRes.data} />
+          </div>
+          <div className="col-span-12 lg:col-span-5">
+            <ZoneChart
+              data={zoneRes.data}
+              badge="Plan Dağılımı"
+              title="Plana Göre Tarama"
+              subtitle="Son 7 günde hangi plan daha aktif"
+              totalLabel="Toplam Platform Taraması"
+            />
+          </div>
         </div>
       </div>
     </main>

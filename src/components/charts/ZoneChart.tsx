@@ -4,14 +4,22 @@ import { useState } from "react";
 import t from "@/lib/i18n";
 
 type ZoneData = { zone: string; scans: number };
-interface Props { data: ZoneData[] }
+interface Props {
+  data: ZoneData[];
+  badge?: string;
+  title?: string;
+  subtitle?: string;
+  totalLabel?: string;
+}
 
 const COLORS = ["#7C6CF6", "#60A5FA", "#A78BFA", "#34D399"];
 const GAP = 2;
 
+function r5(n: number) { return Math.round(n * 1e5) / 1e5; }
+
 function polar(cx: number, cy: number, r: number, deg: number) {
   const rad = ((deg - 90) * Math.PI) / 180;
-  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+  return { x: r5(cx + r * Math.cos(rad)), y: r5(cy + r * Math.sin(rad)) };
 }
 
 function arcPath(
@@ -33,7 +41,7 @@ function arcPath(
   ].join(" ");
 }
 
-export default function ZoneChart({ data }: Props) {
+export default function ZoneChart({ data, badge, title, subtitle, totalLabel }: Props) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   const total = data.reduce((s, d) => s + d.scans, 0);
@@ -63,10 +71,10 @@ export default function ZoneChart({ data }: Props) {
     <div className="bg-[#FFFFFF] rounded-xl p-8">
       <div className="mb-6">
         <span className="px-3 py-1 bg-[#EEEAFE] text-[#7C6CF6] rounded-sm text-[10px] font-bold tracking-widest uppercase mb-3 inline-block">
-          {t.dashboard.zone.badge}
+          {badge ?? t.dashboard.zone.badge}
         </span>
-        <h3 className="text-lg font-bold text-[#1F2430]">{t.dashboard.zone.title}</h3>
-        <p className="text-[#6B7280] text-sm mt-1">{t.dashboard.zone.subtitle}</p>
+        <h3 className="text-lg font-bold text-[#1F2430]">{title ?? t.dashboard.zone.title}</h3>
+        <p className="text-[#6B7280] text-sm mt-1">{subtitle ?? t.dashboard.zone.subtitle}</p>
       </div>
 
       <div className="relative flex items-center justify-center">
@@ -75,6 +83,7 @@ export default function ZoneChart({ data }: Props) {
           height={SIZE}
           viewBox={`0 0 ${SIZE} ${SIZE}`}
           style={{ overflow: "visible" }}
+          suppressHydrationWarning
         >
           {slices.map((slice) => {
             const isActive = activeIndex === slice.index;
@@ -89,6 +98,7 @@ export default function ZoneChart({ data }: Props) {
                 d={arcPath(CX, CY, innerR, outerR, slice.start, slice.end)}
                 fill={color}
                 opacity={isDimmed ? 0.18 : 1}
+                suppressHydrationWarning
                 style={{
                   cursor: "pointer",
                   transition: "opacity 0.18s ease",
@@ -157,7 +167,7 @@ export default function ZoneChart({ data }: Props) {
 
       <div className="mt-3 text-center">
         <p className="text-[10px] font-bold text-[#9AA3B2] uppercase tracking-tighter">
-          {t.dashboard.zone.total}
+          {totalLabel ?? t.dashboard.zone.total}
         </p>
       </div>
     </div>
