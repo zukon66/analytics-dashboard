@@ -10,11 +10,13 @@ import {
   getComparisonKPIs,
   getOrderStats,
   getCustomerStats,
+  getPlatformAverages,
 } from "@/lib/queries";
 import HourlyScansChart from "@/components/charts/HourlyScansChart";
-import CityScansChart from "@/components/charts/CityScansChart";
+import CityMapChart from "@/components/charts/CityMapChart";
 import ZoneChart from "@/components/charts/ZoneChart";
 import DateFilterBar from "@/components/DateFilterBar";
+import PlatformComparisonBadge from "@/components/PlatformComparisonBadge";
 import t from "@/lib/i18n";
 
 export const revalidate = 60;
@@ -67,7 +69,7 @@ export default async function BusinessDetailPage({
   const activePeriod = VALID_PERIODS.includes(period) ? period : "7d";
   const queryKey = isValidDate ? date : activePeriod;
 
-  const [hourlyRes, cityRes, zoneRes, topTablesRes, kpisRes, prevKpisRes, orderStatsRes, customerStatsRes] =
+  const [hourlyRes, cityRes, zoneRes, topTablesRes, kpisRes, prevKpisRes, orderStatsRes, customerStatsRes, platformAvgRes] =
     await Promise.all([
       getScansByHour(queryKey, businessId),
       getScansByCity(queryKey, businessId),
@@ -77,17 +79,19 @@ export default async function BusinessDetailPage({
       getComparisonKPIs(queryKey, businessId),
       getOrderStats(businessId),
       getCustomerStats(businessId),
+      getPlatformAverages(activePeriod),
     ]);
+  const platformAvg = platformAvgRes.data;
 
   const kpis = kpisRes.data;
   const prevKpis = prevKpisRes.data;
   const periodDisplayLabel = isValidDate ? date : (PERIOD_LABEL[activePeriod] ?? "Son 7 Gün");
 
   const kpiCards = [
-    { label: `${periodDisplayLabel} Tarama`, value: kpis.totalScans.toLocaleString("tr-TR"), prev: prevKpis.totalScans, icon: "qr_code_scanner", iconBg: "bg-[#EEEAFE]", iconColor: "text-[#7C6CF6]" },
-    { label: t.dashboard.kpis.peakHour, value: kpis.peakHour, prev: null, icon: "schedule", iconBg: "bg-[#DBEAFE]", iconColor: "text-[#1E40AF]" },
-    { label: "Toplam Gelir", value: `₺${orderStatsRes.data.totalRevenue.toLocaleString("tr-TR")}`, prev: null, icon: "payments", iconBg: "bg-[#EDE9FE]", iconColor: "text-[#6D28D9]" },
-    { label: "Toplam Müşteri", value: String(customerStatsRes.data.total), prev: null, icon: "group", iconBg: "bg-[#F3F4F6]", iconColor: "text-[#6B7280]" },
+    { label: `${periodDisplayLabel} Tarama`, value: kpis.totalScans.toLocaleString("tr-TR"), prev: prevKpis.totalScans, icon: "qr_code_scanner", iconBg: "bg-[#EEEAFE]", iconColor: "text-[#7C6CF6]", platformBizValue: kpis.totalScans, platformAvg: platformAvg.avgScans },
+    { label: t.dashboard.kpis.peakHour, value: kpis.peakHour, prev: null, icon: "schedule", iconBg: "bg-[#DBEAFE]", iconColor: "text-[#1E40AF]", platformBizValue: null, platformAvg: 0 },
+    { label: "Toplam Gelir", value: `₺${orderStatsRes.data.totalRevenue.toLocaleString("tr-TR")}`, prev: null, icon: "payments", iconBg: "bg-[#EDE9FE]", iconColor: "text-[#6D28D9]", platformBizValue: orderStatsRes.data.totalRevenue, platformAvg: platformAvg.avgRevenue },
+    { label: "Toplam Müşteri", value: String(customerStatsRes.data.total), prev: null, icon: "group", iconBg: "bg-[#F3F4F6]", iconColor: "text-[#6B7280]", platformBizValue: customerStatsRes.data.total, platformAvg: platformAvg.avgCustomers },
   ];
 
   return (
@@ -137,6 +141,9 @@ export default async function BusinessDetailPage({
                 )}
               </div>
               <p className="text-[10px] font-bold text-[#9AA3B2] uppercase tracking-tighter truncate">{kpi.label}</p>
+              {kpi.platformBizValue !== null && (
+                <PlatformComparisonBadge bizValue={kpi.platformBizValue} platformAvg={kpi.platformAvg} />
+              )}
             </div>
           </div>
         ))}
@@ -148,7 +155,7 @@ export default async function BusinessDetailPage({
           <HourlyScansChart data={hourlyRes.data} period={queryKey} />
         </div>
         <div className="col-span-12 lg:col-span-4">
-          <CityScansChart data={cityRes.data} />
+          <CityMapChart data={cityRes.data} />
         </div>
       </div>
 

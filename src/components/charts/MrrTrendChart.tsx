@@ -11,6 +11,7 @@ import {
   CartesianGrid,
 } from "recharts";
 import type { MrrTrendPoint, MrrPlanBreakdown } from "@/lib/queries";
+import PlanDistributionChart from "./PlanDistributionChart";
 import t from "@/lib/i18n";
 
 interface Props {
@@ -18,20 +19,6 @@ interface Props {
   currentMrr: number;
   breakdown: MrrPlanBreakdown[];
 }
-
-const PLAN_COLORS: Record<string, string> = {
-  enterprise: "#7C6CF6",
-  pro:        "#60A5FA",
-  starter:    "#34D399",
-  trial:      "#9AA3B2",
-};
-
-const PLAN_LABELS: Record<string, string> = {
-  enterprise: "Enterprise",
-  pro:        "Pro",
-  starter:    "Starter",
-  trial:      "Deneme",
-};
 
 function CustomTooltip({ active, payload, label }: {
   active?: boolean;
@@ -119,35 +106,7 @@ export default function MrrTrendChart({ data, currentMrr, breakdown }: Props) {
       )}
 
       {/* Plan Bazlı Dağılım */}
-      {breakdown.length > 0 && (
-        <div className="mt-6 pt-5 border-t border-[#E9E9F2]">
-          <p className="text-[10px] font-bold text-[#9AA3B2] uppercase tracking-widest mb-3">
-            {t.growth.mrr.planBreakdown}
-          </p>
-          <div className="flex flex-wrap gap-3">
-            {breakdown.map((item) => (
-              <div
-                key={item.plan}
-                className="flex items-center gap-2 bg-[#FAFAFD] rounded-lg px-3 py-2 border border-[#E9E9F2]"
-              >
-                <span
-                  className="w-2 h-2 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: PLAN_COLORS[item.plan] ?? "#9AA3B2" }}
-                />
-                <span className="text-xs font-bold text-[#1F2430]">
-                  {PLAN_LABELS[item.plan] ?? item.plan}
-                </span>
-                <span className="text-xs text-[#9AA3B2]">
-                  {item.business_count} işletme
-                </span>
-                <span className="text-xs font-bold text-[#7C6CF6]">
-                  ₺{Number(item.plan_mrr).toLocaleString("tr-TR")}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      <PlanDistributionChart breakdown={breakdown} />
     </div>
   );
 }

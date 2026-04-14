@@ -711,3 +711,60 @@ export async function getActivationFunnel(): Promise<QueryResult<ActivationFunne
     return { data: empty, error: String(e) };
   }
 }
+
+// ── Platform Karşılaştırma ────────────────────────────────────
+
+export type PlatformAverages = {
+  avgScans:     number;
+  avgRevenue:   number;
+  avgCustomers: number;
+};
+
+export async function getPlatformAverages(period = "7d"): Promise<QueryResult<PlatformAverages>> {
+  const empty: PlatformAverages = { avgScans: 0, avgRevenue: 0, avgCustomers: 0 };
+  try {
+    const { data, error } = await supabase.rpc("get_platform_averages", { period_key: period });
+    if (error) throw error;
+    const row = (data as Array<{
+      avg_scans: number;
+      avg_revenue: number;
+      avg_customers: number;
+    }>)?.[0];
+    if (!row) return { data: empty, error: null };
+    return {
+      data: {
+        avgScans:     Number(row.avg_scans),
+        avgRevenue:   Number(row.avg_revenue),
+        avgCustomers: Number(row.avg_customers),
+      },
+      error: null,
+    };
+  } catch (e) {
+    return { data: empty, error: String(e) };
+  }
+}
+
+// ── Müşteri Büyüme Trendi ─────────────────────────────────────
+
+export type CustomerGrowthPoint = {
+  label:        string;
+  newCustomers: number;
+};
+
+export async function getCustomerGrowthTrend(
+  granularity: "weekly" | "monthly" = "weekly"
+): Promise<QueryResult<CustomerGrowthPoint[]>> {
+  try {
+    const { data, error } = await supabase.rpc("get_customer_growth_trend", { granularity });
+    if (error) throw error;
+    return {
+      data: ((data ?? []) as Array<{ period_label: string; new_customers: number }>).map((r) => ({
+        label:        r.period_label,
+        newCustomers: Number(r.new_customers),
+      })),
+      error: null,
+    };
+  } catch (e) {
+    return { data: [], error: String(e) };
+  }
+}

@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { getCustomers, getCustomerStats, getCustomerCount } from "@/lib/queries";
+import { getCustomers, getCustomerStats, getCustomerCount, getCustomerGrowthTrend } from "@/lib/queries";
 import TableExportButton from "@/components/TableExportButton";
+import CustomerGrowthChart from "@/components/charts/CustomerGrowthChart";
 import t from "@/lib/i18n";
 
 export const revalidate = 60;
@@ -10,17 +11,19 @@ const PAGE_SIZE = 20;
 export default async function CustomersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; page?: string }>;
+  searchParams: Promise<{ q?: string; page?: string; trend?: string }>;
 }) {
-  const { q = "", page = "1" } = await searchParams;
+  const { q = "", page = "1", trend = "weekly" } = await searchParams;
+  const granularity = trend === "monthly" ? "monthly" : "weekly" as "weekly" | "monthly";
   const currentPage = Math.max(1, parseInt(page) || 1);
   const offset = (currentPage - 1) * PAGE_SIZE;
 
-  const [statsRes, totalCount, pagedRes, allRes] = await Promise.all([
+  const [statsRes, totalCount, pagedRes, allRes, trendRes] = await Promise.all([
     getCustomerStats(),
     getCustomerCount(q),
     getCustomers(PAGE_SIZE, offset, q),
     getCustomers(1000, 0, q), // for export
+    getCustomerGrowthTrend(granularity),
   ]);
 
   const stats = statsRes.data;
@@ -77,6 +80,9 @@ export default async function CustomersPage({
           </div>
         </div>
       </div>
+
+      {/* Büyüme Trendi */}
+      <CustomerGrowthChart data={trendRes.data} granularity={granularity} />
 
       {/* Arama + Liste */}
       <div className="bg-[#FFFFFF] rounded-xl overflow-hidden border border-[#E9E9F2]">
