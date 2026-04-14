@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { logout } from "@/app/actions/auth";
 import t from "@/lib/i18n";
 
 const navItems = [
@@ -67,8 +68,19 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
         })}
       </nav>
 
+      {/* Çıkış Butonu */}
+      <form action={logout} className="mt-auto">
+        <button
+          type="submit"
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-[#9AA3B2] hover:bg-[#FEE2E2] hover:text-[#991B1B] transition-colors text-sm font-semibold"
+        >
+          <span className="material-symbols-outlined text-xl">logout</span>
+          Çıkış Yap
+        </button>
+      </form>
+
       {/* Durum Kartı */}
-      <div className="mt-auto bg-[#EEEAFE] p-5 rounded-xl flex flex-col gap-3">
+      <div className="bg-[#EEEAFE] p-5 rounded-xl flex flex-col gap-3">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-[#F59E0B]"></span>
           <span className="text-sm font-bold text-[#5D4EE0]">Örnek Veri</span>

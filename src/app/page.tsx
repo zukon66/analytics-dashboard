@@ -15,6 +15,7 @@ import HourlyScansChart from "@/components/charts/HourlyScansChart";
 import CityScansChart from "@/components/charts/CityScansChart";
 import ZoneChart from "@/components/charts/ZoneChart";
 import GrowthSummaryCard from "@/components/GrowthSummaryCard";
+import ActivityLog from "@/components/ActivityLog";
 import t from "@/lib/i18n";
 
 export const revalidate = 60;
@@ -221,6 +222,15 @@ export default async function PlatformOverviewPage() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Aktivite Günlüğü */}
+      <div className="mt-8 mb-6">
+        <ActivityLog
+          newRegs={newBizRes.data}
+          trials={trialRes.data}
+          churnList={churnRes.data}
+        />
       </div>
 
       {/* Tarama Grafikleri */}

@@ -3,12 +3,14 @@ import {
   getScansByCity,
   getScansByZone,
   getWeeklyStats,
+  getDailyScanCounts,
 } from "@/lib/queries";
 import HourlyScansChart from "@/components/charts/HourlyScansChart";
 import CityScansChart from "@/components/charts/CityScansChart";
 import ZoneChart from "@/components/charts/ZoneChart";
 import AnalyticsExportButton from "@/components/AnalyticsExportButton";
 import DateFilterBar from "@/components/DateFilterBar";
+import AnomalyAlert from "@/components/AnomalyAlert";
 import t from "@/lib/i18n";
 
 export const revalidate = 60;
@@ -35,11 +37,12 @@ export default async function AnalyticsPage({
   const activePeriod = VALID_PERIODS.includes(period) ? period : "7d";
   const queryKey = isValidDate ? date : activePeriod;
 
-  const [hourlyRes, cityRes, zoneRes, weeklyRes] = await Promise.all([
+  const [hourlyRes, cityRes, zoneRes, weeklyRes, dailyRes] = await Promise.all([
     getScansByHour(queryKey),
     getScansByCity(queryKey),
     getScansByZone(queryKey),
     getWeeklyStats(),
+    getDailyScanCounts(14),
   ]);
 
   const weekly = weeklyRes.data;
@@ -83,6 +86,9 @@ export default async function AnalyticsPage({
       </div>
 
       {hasError && <ErrorBanner message={[hourlyRes, cityRes, zoneRes, weeklyRes].find((r) => r.error)?.error ?? ""} />}
+
+      {/* Anomali Uyarıları */}
+      <AnomalyAlert daily={dailyRes.data} />
 
       {/* KPI Şeridi */}
       <div className="grid grid-cols-4 gap-4 mb-8">

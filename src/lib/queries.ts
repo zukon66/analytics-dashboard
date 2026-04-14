@@ -744,6 +744,41 @@ export async function getPlatformAverages(period = "7d"): Promise<QueryResult<Pl
   }
 }
 
+// ── Günlük Tarama Sayıları (Anomali Tespiti) ──────────────────
+
+export async function getDailyScanCounts(
+  days = 14
+): Promise<QueryResult<Array<{ date: string; scans: number }>>> {
+  const from = new Date(Date.now() - days * 86400000).toISOString();
+  try {
+    const { data, error } = await supabase
+      .from("scans")
+      .select("scanned_at")
+      .gte("scanned_at", from);
+    if (error) throw error;
+
+    // Her günü sıfırla
+    const dayMap: Record<string, number> = {};
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date(Date.now() - i * 86400000);
+      const key = d.toISOString().split("T")[0];
+      dayMap[key] = 0;
+    }
+    data?.forEach((row) => {
+      const key = new Date(row.scanned_at).toISOString().split("T")[0];
+      if (key in dayMap) dayMap[key] = (dayMap[key] || 0) + 1;
+    });
+    return {
+      data: Object.entries(dayMap)
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .map(([date, scans]) => ({ date, scans })),
+      error: null,
+    };
+  } catch (e) {
+    return { data: [], error: String(e) };
+  }
+}
+
 // ── Müşteri Büyüme Trendi ─────────────────────────────────────
 
 export type CustomerGrowthPoint = {

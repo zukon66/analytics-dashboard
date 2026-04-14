@@ -5,22 +5,25 @@ import {
   getTrialExpirations,
   getNewRegistrations,
   getActivationFunnel,
+  getPlatformKPIs,
 } from "@/lib/queries";
 import MrrTrendChart from "@/components/charts/MrrTrendChart";
 import TrialExpirationList from "@/components/TrialExpirationList";
 import NewRegistrationsList from "@/components/NewRegistrationsList";
 import ActivationFunnelChart from "@/components/charts/ActivationFunnelChart";
+import ReportCard from "@/components/ReportCard";
 import t from "@/lib/i18n";
 
 export const revalidate = 60;
 
 export default async function GrowthPage() {
-  const [mrrTrendRes, currentMrrRes, trialRes, newBizRes, funnelRes] = await Promise.all([
+  const [mrrTrendRes, currentMrrRes, trialRes, newBizRes, funnelRes, kpisRes] = await Promise.all([
     getMrrTrend(),
     getCurrentMrr(),
     getTrialExpirations(14),
     getNewRegistrations(30),
     getActivationFunnel(),
+    getPlatformKPIs(),
   ]);
 
   return (
@@ -64,9 +67,22 @@ export default async function GrowthPage() {
         </div>
       </div>
 
-      {/* Satır 3: Yeni Kayıtlar — tam genişlik */}
-      <div className="bg-white rounded-xl border border-[#E9E9F2] overflow-hidden">
-        <NewRegistrationsList items={newBizRes.data} />
+      {/* Satır 3: Yeni Kayıtlar + Rapor indirme */}
+      <div className="grid grid-cols-12 gap-6">
+        <div className="col-span-12 lg:col-span-8 bg-white rounded-xl border border-[#E9E9F2] overflow-hidden">
+          <NewRegistrationsList items={newBizRes.data} />
+        </div>
+        <div className="col-span-12 lg:col-span-4">
+          <ReportCard
+            totalMrr={currentMrrRes.data.totalMrr}
+            mrrTrend={mrrTrendRes.data}
+            breakdown={currentMrrRes.data.breakdown}
+            trials={trialRes.data}
+            newRegs={newBizRes.data}
+            totalBusinesses={kpisRes.data.totalBusinesses}
+            activeBusinesses={kpisRes.data.activeBusinesses}
+          />
+        </div>
       </div>
     </main>
   );

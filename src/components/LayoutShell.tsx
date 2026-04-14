@@ -1,11 +1,23 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import TopNav from "@/components/TopNav";
 
+// Bu sayfalar sidebar/topnav olmadan render edilir
+const AUTH_PATHS = ["/login"];
+
 export default function LayoutShell({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const pathname = usePathname();
+
+  const isAuthPage = AUTH_PATHS.some((p) => pathname.startsWith(p));
+
+  // Login sayfası: sidebar/topnav yok, doğrudan render
+  if (isAuthPage) {
+    return <>{children}</>;
+  }
 
   return (
     <>
