@@ -54,8 +54,8 @@ export default function ActivationFunnelChart({ funnel }: Props) {
         <span className="px-3 py-1 bg-[#EEEAFE] text-[#7C6CF6] rounded-sm text-[10px] font-bold tracking-widest uppercase mb-2 inline-block">
           {t.growth.funnel.badge}
         </span>
-        <h3 className="text-base font-bold text-[#1F2430]">{t.growth.funnel.title}</h3>
-        <p className="text-xs text-[#6B7280] mt-0.5">{t.growth.funnel.subtitle}</p>
+        <h3 className="text-base font-bold text-[var(--text-1)]">{t.growth.funnel.title}</h3>
+        <p className="text-xs text-[var(--text-2)] mt-0.5">{t.growth.funnel.subtitle}</p>
       </div>
 
       {/* Huni Barları */}
@@ -74,7 +74,7 @@ export default function ActivationFunnelChart({ funnel }: Props) {
                 onMouseLeave={() => setHoveredStage(null)}
               >
                 {/* Bar container */}
-                <div className="bg-[#F6F6FB] rounded-xl h-14 overflow-hidden relative">
+                <div className="bg-[var(--bg-page)] rounded-xl h-14 overflow-hidden relative">
                   {/* Dolu kısım */}
                   <div
                     className="h-full rounded-xl transition-all duration-300 flex items-center px-4"
@@ -135,14 +135,14 @@ export default function ActivationFunnelChart({ funnel }: Props) {
       </div>
 
       {/* Alt özet */}
-      <div className="mt-4 pt-4 border-t border-[#E9E9F2] grid grid-cols-2 gap-3">
+      <div className="mt-4 pt-4 border-t border-[var(--border)] grid grid-cols-2 gap-3">
         <div className="text-center">
           <p className="text-lg font-extrabold text-[#3B82F6]">
             %{funnel.totalBusinesses > 0
               ? Math.round((funnel.activated1Plus / funnel.totalBusinesses) * 100)
               : 0}
           </p>
-          <p className="text-[10px] font-bold text-[#9AA3B2] uppercase tracking-tighter">
+          <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">
             Aktivasyon Oranı
           </p>
         </div>
@@ -152,7 +152,7 @@ export default function ActivationFunnelChart({ funnel }: Props) {
               ? Math.round((funnel.powerUsers10Plus / funnel.totalBusinesses) * 100)
               : 0}
           </p>
-          <p className="text-[10px] font-bold text-[#9AA3B2] uppercase tracking-tighter">
+          <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">
             Güçlü Kullanıcı
           </p>
         </div>

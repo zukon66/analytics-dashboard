@@ -90,19 +90,19 @@ export default function ReportCard(props: ReportCardProps) {
       : null;
 
   return (
-    <div className="bg-white rounded-xl border border-[#E9E9F2] overflow-hidden">
+    <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] overflow-hidden">
       {/* Başlık */}
-      <div className="px-6 py-5 border-b border-[#E9E9F2] flex items-center gap-3">
+      <div className="px-6 py-5 border-b border-[var(--border)] flex items-center gap-3">
         <span className="material-symbols-outlined text-[#7C6CF6]">summarize</span>
         <div>
-          <h3 className="text-base font-bold text-[#1F2430]">Platform Raporu</h3>
-          <p className="text-xs text-[#9AA3B2]">Tüm verileri tek CSV dosyası olarak indir</p>
+          <h3 className="text-base font-bold text-[var(--text-1)]">Platform Raporu</h3>
+          <p className="text-xs text-[var(--text-muted)]">Tüm verileri tek CSV dosyası olarak indir</p>
         </div>
       </div>
 
       {/* İçerik özeti */}
       <div className="px-6 py-5">
-        <p className="text-xs font-bold text-[#9AA3B2] uppercase tracking-widest mb-4">Rapor İçeriği</p>
+        <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest mb-4">Rapor İçeriği</p>
         <div className="grid grid-cols-2 gap-3 mb-6">
           {[
             { icon: "payments",    label: "MRR Trendi",       sub: "Son 12 ay" },
@@ -112,12 +112,12 @@ export default function ReportCard(props: ReportCardProps) {
           ].map((item) => (
             <div
               key={item.label}
-              className="flex items-center gap-3 p-3 bg-[#FAFAFD] rounded-lg border border-[#E9E9F2]"
+              className="flex items-center gap-3 p-3 bg-[var(--bg-page)] rounded-lg border border-[var(--border)]"
             >
               <span className="material-symbols-outlined text-sm text-[#7C6CF6]">{item.icon}</span>
               <div>
-                <p className="text-xs font-semibold text-[#1F2430]">{item.label}</p>
-                <p className="text-[10px] text-[#9AA3B2]">{item.sub}</p>
+                <p className="text-xs font-semibold text-[var(--text-1)]">{item.label}</p>
+                <p className="text-[10px] text-[var(--text-muted)]">{item.sub}</p>
               </div>
             </div>
           ))}
@@ -126,8 +126,8 @@ export default function ReportCard(props: ReportCardProps) {
         {/* MRR özeti */}
         <div className="bg-[#F6F6FB] rounded-lg p-4 mb-5 flex items-center justify-between">
           <div>
-            <p className="text-[10px] font-bold text-[#9AA3B2] uppercase tracking-widest">Güncel MRR</p>
-            <p className="text-2xl font-extrabold text-[#1F2430]">
+            <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">Güncel MRR</p>
+            <p className="text-2xl font-extrabold text-[var(--text-1)]">
               ₺{props.totalMrr.toLocaleString("tr-TR")}
             </p>
           </div>
@@ -153,7 +153,7 @@ export default function ReportCard(props: ReportCardProps) {
           <span className="material-symbols-outlined text-sm">download</span>
           CSV Raporu İndir
         </button>
-        <p className="text-center text-[10px] text-[#9AA3B2] mt-2">{reportName}</p>
+        <p className="text-center text-[10px] text-[var(--text-muted)] mt-2">{reportName}</p>
       </div>
     </div>
   );

@@ -3,10 +3,37 @@
 
 @import "tailwindcss";
 
+/* ── Renk Tokenleri ──────────────────────────────────────── */
+:root {
+  --bg-page:    #FAFAFD;
+  --bg-card:    #FFFFFF;
+  --bg-sidebar: #F6F6FB;
+  --border:     #E9E9F2;
+  --text-1:     #1F2430;
+  --text-2:     #6B7280;
+  --text-muted: #9AA3B2;
+  --accent:     #7C6CF6;
+  --accent-bg:  #EEEAFE;
+}
+
+.dark {
+  --bg-page:    #0F1117;
+  --bg-card:    #1A1D27;
+  --bg-sidebar: #13161F;
+  --border:     #2A2D3E;
+  --text-1:     #E8E9F0;
+  --text-2:     #8B92A8;
+  --text-muted: #5A6070;
+  --accent:     #7C6CF6;
+  --accent-bg:  #1E1A3A;
+}
+
+/* ── Base ────────────────────────────────────────────────── */
 body {
   font-family: "Inter", sans-serif;
-  background-color: #FAFAFD;
-  color: #1F2430;
+  background-color: var(--bg-page);
+  color: var(--text-1);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .material-symbols-outlined {

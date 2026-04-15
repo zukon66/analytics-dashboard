@@ -41,15 +41,15 @@ export default function MrrTrendChart({ data, currentMrr, breakdown }: Props) {
   const maxRevenue = Math.max(...data.map((d) => d.revenue), 1);
 
   return (
-    <div className="bg-white rounded-xl border border-[#E9E9F2] p-8">
+    <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-8">
       {/* Başlık + Anlık MRR */}
       <div className="flex flex-wrap justify-between items-start gap-4 mb-6">
         <div>
           <span className="px-3 py-1 bg-[#EEEAFE] text-[#7C6CF6] rounded-sm text-[10px] font-bold tracking-widest uppercase mb-3 inline-block">
             {t.growth.mrr.badge}
           </span>
-          <h3 className="text-lg font-bold text-[#1F2430]">{t.growth.mrr.title}</h3>
-          <p className="text-sm text-[#6B7280] mt-1">{t.growth.mrr.subtitle}</p>
+          <h3 className="text-lg font-bold text-[var(--text-1)]">{t.growth.mrr.title}</h3>
+          <p className="text-sm text-[var(--text-2)] mt-1">{t.growth.mrr.subtitle}</p>
         </div>
         <div className="text-right">
           <p className="text-3xl font-extrabold text-[#7C6CF6]">
@@ -69,7 +69,8 @@ export default function MrrTrendChart({ data, currentMrr, breakdown }: Props) {
           <p className="text-sm text-[#9AA3B2]">{t.growth.mrr.noData}</p>
         </div>
       ) : (
-        <ResponsiveContainer width="100%" height={240}>
+        <div style={{ width: "100%", height: 240 }}>
+        <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={data} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
             <CartesianGrid vertical={false} stroke="#F3F4F6" />
             <XAxis
@@ -103,6 +104,7 @@ export default function MrrTrendChart({ data, currentMrr, breakdown }: Props) {
             />
           </ComposedChart>
         </ResponsiveContainer>
+        </div>
       )}
 
       {/* Plan Bazlı Dağılım */}

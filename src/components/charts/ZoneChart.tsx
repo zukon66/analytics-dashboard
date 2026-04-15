@@ -68,13 +68,13 @@ export default function ZoneChart({ data, badge, title, subtitle, totalLabel }: 
   }, []);
 
   return (
-    <div className="bg-[#FFFFFF] rounded-xl p-8">
+    <div className="bg-[var(--bg-card)] rounded-xl p-8 border border-[var(--border)]">
       <div className="mb-6">
         <span className="px-3 py-1 bg-[#EEEAFE] text-[#7C6CF6] rounded-sm text-[10px] font-bold tracking-widest uppercase mb-3 inline-block">
           {badge ?? t.dashboard.zone.badge}
         </span>
-        <h3 className="text-lg font-bold text-[#1F2430]">{title ?? t.dashboard.zone.title}</h3>
-        <p className="text-[#6B7280] text-sm mt-1">{subtitle ?? t.dashboard.zone.subtitle}</p>
+        <h3 className="text-lg font-bold text-[var(--text-1)]">{title ?? t.dashboard.zone.title}</h3>
+        <p className="text-[var(--text-2)] text-sm mt-1">{subtitle ?? t.dashboard.zone.subtitle}</p>
       </div>
 
       <div className="relative flex items-center justify-center">
@@ -166,7 +166,7 @@ export default function ZoneChart({ data, badge, title, subtitle, totalLabel }: 
       </div>
 
       <div className="mt-3 text-center">
-        <p className="text-[10px] font-bold text-[#9AA3B2] uppercase tracking-tighter">
+        <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">
           {totalLabel ?? t.dashboard.zone.total}
         </p>
       </div>

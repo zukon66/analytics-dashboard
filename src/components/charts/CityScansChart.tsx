@@ -29,16 +29,17 @@ const COLORS = [
 
 export default function CityScansChart({ data }: Props) {
   return (
-    <div className="bg-[#F6F6FB] rounded-xl p-8 flex flex-col justify-between">
+    <div className="bg-[var(--bg-card)] rounded-xl p-8 flex flex-col justify-between border border-[var(--border)]">
       <div className="mb-6">
         <span className="px-3 py-1 bg-[#DBEAFE] text-[#1E40AF] rounded-sm text-[10px] font-bold tracking-widest uppercase mb-3 inline-block">
           Coğrafi Analiz
         </span>
-        <h3 className="text-lg font-bold text-[#1F2430]">Şehire Göre Tarama</h3>
-        <p className="text-[#6B7280] text-sm mt-1">Son 7 gün</p>
+        <h3 className="text-lg font-bold text-[var(--text-1)]">Şehire Göre Tarama</h3>
+        <p className="text-[var(--text-2)] text-sm mt-1">Son 7 gün</p>
       </div>
 
-      <ResponsiveContainer width="100%" height={220}>
+      <div style={{ width: "100%", height: 220 }}>
+      <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} layout="vertical" barSize={14}>
           <XAxis type="number" hide />
           <YAxis
@@ -66,6 +67,7 @@ export default function CityScansChart({ data }: Props) {
           </Bar>
         </BarChart>
       </ResponsiveContainer>
+      </div>
     </div>
   );
 }

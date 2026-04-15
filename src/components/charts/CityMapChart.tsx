@@ -65,13 +65,13 @@ export default function CityMapChart({ data, title = "Şehir Haritası" }: Props
   const unlisted = data.filter((d) => !CITY_COORDS[d.city]);
 
   return (
-    <div className="bg-[#F6F6FB] rounded-xl p-6 flex flex-col h-full">
+    <div className="bg-[var(--bg-card)] rounded-xl p-6 flex flex-col h-full border border-[var(--border)]">
       <div className="mb-4">
         <span className="px-3 py-1 bg-[#DBEAFE] text-[#1E40AF] rounded-sm text-[10px] font-bold tracking-widest uppercase mb-3 inline-block">
           Coğrafi Analiz
         </span>
-        <h3 className="text-base font-bold text-[#1F2430]">{title}</h3>
-        <p className="text-xs text-[#6B7280] mt-1">Silifke / Mersin bölgesi</p>
+        <h3 className="text-base font-bold text-[var(--text-1)]">{title}</h3>
+        <p className="text-xs text-[var(--text-2)] mt-1">Silifke / Mersin bölgesi</p>
       </div>
 
       {plotted.length === 0 ? (
@@ -141,8 +141,8 @@ export default function CityMapChart({ data, title = "Şehir Haritası" }: Props
           {unlisted.map((d) => (
             <div key={d.city} className="flex items-center gap-1 bg-white rounded-full px-2 py-0.5 border border-[#E9E9F2]">
               <span className="w-1.5 h-1.5 rounded-full bg-[#7C6CF6]" />
-              <span className="text-[10px] font-bold text-[#6B7280]">{d.city}</span>
-              <span className="text-[10px] text-[#9AA3B2]">{d.scans}</span>
+              <span className="text-[10px] font-bold text-[var(--text-2)]">{d.city}</span>
+              <span className="text-[10px] text-[var(--text-muted)]">{d.scans}</span>
             </div>
           ))}
         </div>

@@ -41,14 +41,14 @@ function KPICard({
   iconBg: string; iconColor: string; sub?: string;
 }) {
   return (
-    <div className="bg-white rounded-xl p-6 flex items-center gap-4 border border-[#E9E9F2]">
+    <div className="bg-[var(--bg-card)] rounded-xl p-6 flex items-center gap-4 border border-[var(--border)]">
       <div className={`p-3 rounded-xl ${iconBg} ${iconColor}`}>
         <span className="material-symbols-outlined">{icon}</span>
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-2xl font-extrabold text-[#1F2430]">{value}</p>
-        <p className="text-[10px] font-bold text-[#9AA3B2] uppercase tracking-tighter">{label}</p>
-        {sub && <p className="text-[10px] text-[#9AA3B2] mt-0.5">{sub}</p>}
+        <p className="text-2xl font-extrabold text-[var(--text-1)]">{value}</p>
+        <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">{label}</p>
+        {sub && <p className="text-[10px] text-[var(--text-muted)] mt-0.5">{sub}</p>}
       </div>
     </div>
   );
@@ -97,9 +97,9 @@ export default async function PlatformOverviewPage() {
   ];
 
   return (
-    <main className="pt-24 pb-12 px-4 md:px-8 min-h-screen bg-[#FAFAFD]">
+    <main className="pt-20 md:pt-24 pb-12 px-4 md:px-8 min-h-screen bg-[#FAFAFD]">
       {/* Başlık */}
-      <div className="mb-8 flex justify-between items-end">
+      <div className="mb-6 md:mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4">
         <div>
           <span className="px-3 py-1 bg-[#EEEAFE] text-[#7C6CF6] rounded-sm text-[10px] font-bold tracking-widest uppercase mb-3 inline-block">
             Internal Dashboard
@@ -117,7 +117,7 @@ export default async function PlatformOverviewPage() {
       </div>
 
       {/* KPI Grid — 3 kolon */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-6">
         {kpiCards.map((k) => (
           <KPICard key={k.label} {...k} />
         ))}
@@ -138,16 +138,17 @@ export default async function PlatformOverviewPage() {
 
       <div className="grid grid-cols-12 gap-6">
         {/* Sol: En Aktif İşletmeler */}
-        <div className="col-span-12 lg:col-span-7 bg-white rounded-xl border border-[#E9E9F2] overflow-hidden">
-          <div className="px-8 py-6 flex justify-between items-center border-b border-[#E9E9F2]">
-            <h3 className="text-base font-bold text-[#1F2430]">{t.platform.topBusinesses}</h3>
-            <Link href="/businesses" className="text-xs text-[#7C6CF6] font-semibold hover:underline">
+        <div className="col-span-12 lg:col-span-7 bg-[var(--bg-card)] rounded-xl border border-[var(--border)] overflow-hidden">
+          <div className="px-8 py-6 flex justify-between items-center border-b border-[var(--border)]">
+            <h3 className="text-base font-bold text-[var(--text-1)]">{t.platform.topBusinesses}</h3>
+            <Link href="/businesses" className="text-xs text-[var(--accent)] font-semibold hover:underline">
               Tümünü Gör →
             </Link>
           </div>
-          <table className="w-full text-left">
+          <div className="overflow-x-auto">
+          <table className="w-full text-left min-w-[480px]">
             <thead>
-              <tr className="text-[10px] font-bold uppercase tracking-widest text-[#9AA3B2]">
+              <tr className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
                 <th className="px-8 py-4">İşletme</th>
                 <th className="px-4 py-4">Plan</th>
                 <th className="px-4 py-4">Durum</th>
@@ -159,10 +160,10 @@ export default async function PlatformOverviewPage() {
               {topBusinesses.map((biz) => {
                 const scans = scanCounts[biz.id] ?? 0;
                 return (
-                  <tr key={biz.id} className="hover:bg-[#FAFAFD] transition-colors border-t border-[#E9E9F2]">
+                  <tr key={biz.id} className="hover:bg-[var(--bg-page)] transition-colors border-t border-[var(--border)]">
                     <td className="px-8 py-4">
-                      <p className="font-bold text-[#1F2430] text-sm">{biz.name}</p>
-                      <p className="text-xs text-[#9AA3B2]">{biz.city}</p>
+                      <p className="font-bold text-[var(--text-1)] text-sm">{biz.name}</p>
+                      <p className="text-xs text-[var(--text-muted)]">{biz.city}</p>
                     </td>
                     <td className="px-4 py-4">
                       <span className={`text-[10px] font-bold px-2 py-1 rounded-full capitalize ${PLAN_COLORS[biz.plan] ?? "bg-[#F3F4F6] text-[#6B7280]"}`}>
@@ -175,13 +176,10 @@ export default async function PlatformOverviewPage() {
                       </span>
                     </td>
                     <td className="px-4 py-4 text-right">
-                      <span className="font-bold text-[#1F2430]">{scans.toLocaleString("tr-TR")}</span>
+                      <span className="font-bold text-[var(--text-1)]">{scans.toLocaleString("tr-TR")}</span>
                     </td>
                     <td className="px-8 py-4 text-right">
-                      <Link
-                        href={`/businesses/${biz.id}`}
-                        className="text-xs text-[#7C6CF6] font-semibold hover:underline"
-                      >
+                      <Link href={`/businesses/${biz.id}`} className="text-xs text-[var(--accent)] font-semibold hover:underline">
                         Detay →
                       </Link>
                     </td>
@@ -190,31 +188,29 @@ export default async function PlatformOverviewPage() {
               })}
             </tbody>
           </table>
+          </div>
         </div>
 
         {/* Sağ: Churn Riski */}
-        <div className="col-span-12 lg:col-span-5 bg-white rounded-xl border border-[#E9E9F2] overflow-hidden">
-          <div className="px-6 py-5 border-b border-[#E9E9F2] flex items-center gap-3">
+        <div className="col-span-12 lg:col-span-5 bg-[var(--bg-card)] rounded-xl border border-[var(--border)] overflow-hidden">
+          <div className="px-6 py-5 border-b border-[var(--border)] flex items-center gap-3">
             <span className="material-symbols-outlined text-[#F59E0B]">warning</span>
-            <h3 className="text-base font-bold text-[#1F2430]">{t.platform.churnSection}</h3>
+            <h3 className="text-base font-bold text-[var(--text-1)]">{t.platform.churnSection}</h3>
           </div>
-          <div className="divide-y divide-[#E9E9F2]">
+          <div className="divide-y divide-[var(--border)]">
             {churnList.length === 0 ? (
-              <p className="px-6 py-10 text-sm text-[#9AA3B2] text-center">{t.platform.churnEmpty}</p>
+              <p className="px-6 py-10 text-sm text-[var(--text-muted)] text-center">{t.platform.churnEmpty}</p>
             ) : (
               churnList.map((biz) => (
-                <div key={biz.id} className="px-6 py-4 flex items-center justify-between hover:bg-[#FAFAFD]">
+                <div key={biz.id} className="px-6 py-4 flex items-center justify-between hover:bg-[var(--bg-page)] transition-colors">
                   <div>
-                    <p className="font-bold text-[#1F2430] text-sm">{biz.name}</p>
-                    <p className="text-xs text-[#9AA3B2]">{biz.city} · {biz.plan}</p>
+                    <p className="font-bold text-[var(--text-1)] text-sm">{biz.name}</p>
+                    <p className="text-xs text-[var(--text-muted)]">{biz.city} · {biz.plan}</p>
                     <p className="text-xs text-[#F59E0B] font-semibold mt-0.5">
                       Son aktif: {daysSince(biz.last_active_at)}
                     </p>
                   </div>
-                  <Link
-                    href={`/businesses/${biz.id}`}
-                    className="text-xs text-[#7C6CF6] font-semibold hover:underline shrink-0"
-                  >
+                  <Link href={`/businesses/${biz.id}`} className="text-xs text-[var(--accent)] font-semibold hover:underline shrink-0">
                     İncele →
                   </Link>
                 </div>
@@ -236,7 +232,7 @@ export default async function PlatformOverviewPage() {
       {/* Tarama Grafikleri */}
       <div className="mt-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-[#1F2430]">Tarama Analitiği — Son 7 Gün</h2>
+          <h2 className="text-lg font-bold text-[var(--text-1)]">Tarama Analitiği — Son 7 Gün</h2>
         </div>
         <div className="mb-6">
           <HourlyScansChart data={hourlyRes.data} period="7d" />

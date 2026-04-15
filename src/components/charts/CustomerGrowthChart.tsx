@@ -28,14 +28,14 @@ export default function CustomerGrowthChart({ data, granularity }: Props) {
   const hasData = data.some((d) => d.newCustomers > 0);
 
   return (
-    <div className="bg-white rounded-xl border border-[#E9E9F2] p-8 mb-8">
+    <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-8 mb-8">
       <div className="flex flex-wrap justify-between items-start gap-4 mb-6">
         <div>
           <span className="px-3 py-1 bg-[#EDE9FE] text-[#6D28D9] rounded-sm text-[10px] font-bold tracking-widest uppercase mb-3 inline-block">
             Büyüme Trendi
           </span>
-          <h3 className="text-lg font-bold text-[#1F2430]">Müşteri Büyüme Trendi</h3>
-          <p className="text-sm text-[#6B7280] mt-1">
+          <h3 className="text-lg font-bold text-[var(--text-1)]">Müşteri Büyüme Trendi</h3>
+          <p className="text-sm text-[var(--text-2)] mt-1">
             {granularity === "weekly" ? "Son 8 hafta" : "Son 6 ay"}
           </p>
         </div>
@@ -65,7 +65,8 @@ export default function CustomerGrowthChart({ data, granularity }: Props) {
           <p className="text-sm text-[#9AA3B2]">Henüz müşteri trendi verisi yok.</p>
         </div>
       ) : (
-        <ResponsiveContainer width="100%" height={220}>
+        <div style={{ width: "100%", height: 220 }}>
+        <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="customerGradient" x1="0" y1="0" x2="0" y2="1">
@@ -108,6 +109,7 @@ export default function CustomerGrowthChart({ data, granularity }: Props) {
             />
           </AreaChart>
         </ResponsiveContainer>
+        </div>
       )}
     </div>
   );

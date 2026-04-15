@@ -36,14 +36,14 @@ export default function HourlyScansChart({ data, period = "today" }: Props) {
   const avgPerDay = days > 1 ? Math.round(total / days) : null;
 
   return (
-    <div className="bg-[#FFFFFF] rounded-xl p-8">
+    <div className="bg-[var(--bg-card)] rounded-xl p-8 border border-[var(--border)]">
       <div className="flex justify-between items-start mb-6">
         <div>
           <span className="px-3 py-1 bg-[#EEEAFE] text-[#7C6CF6] rounded-sm text-[10px] font-bold tracking-widest uppercase mb-3 inline-block">
             Saat Analizi
           </span>
-          <h2 className="text-2xl font-bold text-[#1F2430]">Saatlik Taramalar</h2>
-          <p className="text-[#6B7280] text-sm mt-1">
+          <h2 className="text-2xl font-bold text-[var(--text-1)]">Saatlik Taramalar</h2>
+          <p className="text-[var(--text-2)] text-sm mt-1">
             {PERIOD_SUB[period] ?? "Gün boyunca QR kod tarama dağılımı"}
           </p>
         </div>
@@ -62,7 +62,8 @@ export default function HourlyScansChart({ data, period = "today" }: Props) {
         </div>
       </div>
 
-      <ResponsiveContainer width="100%" height={200}>
+      <div style={{ width: "100%", height: 200 }}>
+      <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} barSize={18}>
           <XAxis
             dataKey="hour"
@@ -99,6 +100,7 @@ export default function HourlyScansChart({ data, period = "today" }: Props) {
           </Bar>
         </BarChart>
       </ResponsiveContainer>
+      </div>
 
       <div className="flex gap-4 mt-4">
         <div className="flex items-center gap-2 text-xs font-semibold text-[#6B7280]">

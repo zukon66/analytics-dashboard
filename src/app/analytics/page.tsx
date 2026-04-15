@@ -63,17 +63,17 @@ export default async function AnalyticsPage({
   const hasData = weekly.total > 0;
 
   return (
-    <main className="pt-24 pb-12 px-4 md:px-8 min-h-screen bg-[#FAFAFD]">
+    <main className="pt-20 md:pt-24 pb-12 px-4 md:px-8 min-h-screen bg-[#FAFAFD]">
       {/* Başlık */}
       <div className="mb-8 flex justify-between items-end">
         <div>
           <span className="px-3 py-1 bg-[#EEEAFE] text-[#7C6CF6] rounded-sm text-[10px] font-bold tracking-widest uppercase mb-3 inline-block">
             {t.analytics.badge.trend}
           </span>
-          <h1 className="text-3xl font-extrabold tracking-tight text-[#1F2430] mb-1">{t.analytics.title}</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight text-[var(--text-1)] mb-1">{t.analytics.title}</h1>
           <p className="text-[#6B7280] text-sm font-medium">{t.analytics.subtitle}</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           <DateFilterBar activePeriod={activePeriod} activeDate={isValidDate ? date : undefined} />
           <AnalyticsExportButton
             hourlyData={hourlyRes.data}
@@ -91,15 +91,15 @@ export default async function AnalyticsPage({
       <AnomalyAlert daily={dailyRes.data} />
 
       {/* KPI Şeridi */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8">
         {summaryCards.map((card) => (
-          <div key={card.label} className="bg-[#FFFFFF] rounded-xl p-6 flex items-center gap-4 border border-[#E9E9F2]">
+          <div key={card.label} className="bg-[var(--bg-card)] rounded-xl p-6 flex items-center gap-4 border border-[var(--border)]">
             <div className={`p-3 rounded-xl ${card.iconBg} ${card.iconColor}`}>
               <span className="material-symbols-outlined">{card.icon}</span>
             </div>
             <div>
-              <p className="text-2xl font-extrabold text-[#1F2430]">{card.value}</p>
-              <p className="text-[10px] font-bold text-[#9AA3B2] uppercase tracking-tighter">{card.label}</p>
+              <p className="text-2xl font-extrabold text-[var(--text-1)]">{card.value}</p>
+              <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">{card.label}</p>
             </div>
           </div>
         ))}
@@ -108,9 +108,9 @@ export default async function AnalyticsPage({
       {!hasData && (
         <div className="bg-[#FFFFFF] rounded-xl p-16 flex flex-col items-center justify-center text-center mb-8 border border-[#E9E9F2]">
           <div className="p-4 bg-[#F6F6FB] rounded-full mb-4">
-            <span className="material-symbols-outlined text-4xl text-[#9AA3B2]">analytics</span>
+            <span className="material-symbols-outlined text-4xl text-[var(--text-muted)]">analytics</span>
           </div>
-          <h3 className="text-lg font-bold text-[#1F2430] mb-2">Bu dönem için henüz tarama yok</h3>
+          <h3 className="text-lg font-bold text-[var(--text-1)] mb-2">Bu dönem için henüz tarama yok</h3>
           <p className="text-sm text-[#6B7280] max-w-sm">Müşterileriniz QR menünüzü taramaya başladığında trendler burada görünecek.</p>
         </div>
       )}

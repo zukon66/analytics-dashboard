@@ -53,12 +53,12 @@ export default function PlanDistributionChart({ breakdown }: Props) {
   }));
 
   return (
-    <div className="mt-6 pt-5 border-t border-[#E9E9F2]">
-      <p className="text-[10px] font-bold text-[#9AA3B2] uppercase tracking-widest mb-4">
+    <div className="mt-6 pt-5 border-t border-[var(--border)]">
+      <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-4">
         Plan Bazlı Dağılım
       </p>
       <div className="flex flex-col md:flex-row items-center gap-4">
-        <div className="w-full md:w-1/2" style={{ height: 200 }}>
+        <div className="w-full md:w-1/2" style={{ height: 200, minHeight: 200 }}>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie

@@ -21,6 +21,7 @@ export default function TopNav({ onMenuClick }: { onMenuClick: () => void }) {
       }
     } catch {}
   }, []);
+
   const initials = userName
     .split(" ")
     .map((w: string) => w[0])
@@ -29,27 +30,34 @@ export default function TopNav({ onMenuClick }: { onMenuClick: () => void }) {
     .toUpperCase();
 
   return (
-    <header className="fixed top-0 right-0 w-full md:w-[calc(100%-16rem)] z-40 bg-white/80 backdrop-blur-xl flex justify-between items-center px-4 md:px-8 h-16 border-b border-[#E9E9F2]">
+    <header className="fixed top-0 right-0 w-full md:w-[calc(100%-16rem)] z-40
+      bg-[var(--bg-card)]/80 backdrop-blur-xl
+      flex justify-between items-center px-4 md:px-8 h-16
+      border-b border-[var(--border)]">
+
       <div className="flex items-center gap-3">
         {/* Mobil hamburger */}
         <button
           onClick={onMenuClick}
-          className="md:hidden p-1.5 rounded-lg text-[#9AA3B2] hover:text-[#1F2430] hover:bg-[#F6F6FB] transition-colors"
+          className="md:hidden p-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-1)] hover:bg-[var(--accent-bg)] transition-colors"
           aria-label="Menüyü aç"
         >
           <span className="material-symbols-outlined text-xl">menu</span>
         </button>
-        <span className="material-symbols-outlined text-[#7C6CF6] text-lg hidden md:block">monitor_heart</span>
-        <span className="text-sm font-bold text-[#1F2430]">KÖK-OS <span className="text-[#9AA3B2] font-normal text-xs">Operator Panel</span></span>
+        <span className="material-symbols-outlined text-[var(--accent)] text-lg hidden md:block">monitor_heart</span>
+        <span className="text-sm font-bold text-[var(--text-1)]">
+          KÖK-OS{" "}
+          <span className="text-[var(--text-muted)] font-normal text-xs">Operator Panel</span>
+        </span>
       </div>
 
       <div className="flex items-center gap-4">
-        <div className="flex items-center gap-3 border-l pl-6 border-[#E9E9F2]">
-          <div className="text-right">
-            <p className="text-xs font-bold text-[#1F2430]">{userName}</p>
-            <p className="text-[10px] text-[#9AA3B2]">{t.topNav.userRole}</p>
+        <div className="flex items-center gap-3 border-l pl-6 border-[var(--border)]">
+          <div className="text-right hidden sm:block">
+            <p className="text-xs font-bold text-[var(--text-1)]">{userName}</p>
+            <p className="text-[10px] text-[var(--text-muted)]">{t.topNav.userRole}</p>
           </div>
-          <div className="w-8 h-8 rounded-full bg-[#EEEAFE] flex items-center justify-center text-[#7C6CF6] font-bold text-sm">
+          <div className="w-8 h-8 rounded-full bg-[var(--accent-bg)] flex items-center justify-center text-[var(--accent)] font-bold text-sm">
             {initials}
           </div>
         </div>

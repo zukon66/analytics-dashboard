@@ -60,18 +60,18 @@ function EventRow({ event }: { event: ActivityEvent }) {
   if (event.type === "new_reg") {
     const biz = event.biz;
     return (
-      <div className="flex items-start gap-3 py-3 px-4 hover:bg-[#FAFAFD] transition-colors">
+      <div className="flex items-start gap-3 py-3 px-4 hover:bg-[var(--bg-page)] transition-colors">
         <div className={`mt-0.5 p-2 rounded-lg ${cfg.bg} ${cfg.color} shrink-0`}>
           <span className="material-symbols-outlined text-sm">{cfg.icon}</span>
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-[#1F2430] truncate">
+          <p className="text-sm font-semibold text-[var(--text-1)] truncate">
             Yeni Kayıt: <span className="text-[#7C6CF6]">{biz.name}</span>
           </p>
-          <p className="text-xs text-[#9AA3B2]">{biz.city} · {biz.plan} planı</p>
+          <p className="text-xs text-[var(--text-muted)]">{biz.city} · {biz.plan} planı</p>
         </div>
         <div className="flex flex-col items-end gap-1 shrink-0">
-          <span className="text-[10px] text-[#9AA3B2]">{timeAgo(biz.created_at)}</span>
+          <span className="text-[10px] text-[var(--text-muted)]">{timeAgo(biz.created_at)}</span>
           <Link href={`/businesses/${biz.id}`} className="text-[10px] text-[#7C6CF6] font-semibold hover:underline">
             İncele →
           </Link>
@@ -83,15 +83,15 @@ function EventRow({ event }: { event: ActivityEvent }) {
   if (event.type === "trial_warn") {
     const biz = event.biz;
     return (
-      <div className="flex items-start gap-3 py-3 px-4 hover:bg-[#FAFAFD] transition-colors">
+      <div className="flex items-start gap-3 py-3 px-4 hover:bg-[var(--bg-page)] transition-colors">
         <div className={`mt-0.5 p-2 rounded-lg ${cfg.bg} ${cfg.color} shrink-0`}>
           <span className="material-symbols-outlined text-sm">{cfg.icon}</span>
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-[#1F2430] truncate">
+          <p className="text-sm font-semibold text-[var(--text-1)] truncate">
             Trial Bitiyor: <span className="text-[#92400E]">{biz.name}</span>
           </p>
-          <p className="text-xs text-[#9AA3B2]">{biz.city} · {biz.days_remaining} gün kaldı</p>
+          <p className="text-xs text-[var(--text-muted)]">{biz.city} · {biz.days_remaining} gün kaldı</p>
         </div>
         <div className="flex flex-col items-end gap-1 shrink-0">
           <span
@@ -112,18 +112,18 @@ function EventRow({ event }: { event: ActivityEvent }) {
   // churn_risk
   const biz = event.biz;
   return (
-    <div className="flex items-start gap-3 py-3 px-4 hover:bg-[#FAFAFD] transition-colors">
+    <div className="flex items-start gap-3 py-3 px-4 hover:bg-[var(--bg-page)] transition-colors">
       <div className={`mt-0.5 p-2 rounded-lg ${cfg.bg} ${cfg.color} shrink-0`}>
         <span className="material-symbols-outlined text-sm">{cfg.icon}</span>
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-[#1F2430] truncate">
+        <p className="text-sm font-semibold text-[var(--text-1)] truncate">
           Churn Riski: <span className="text-[#991B1B]">{biz.name}</span>
         </p>
-        <p className="text-xs text-[#9AA3B2]">{biz.city} · {biz.daysSinceActive} gündür pasif</p>
+        <p className="text-xs text-[var(--text-muted)]">{biz.city} · {biz.daysSinceActive} gündür pasif</p>
       </div>
       <div className="flex flex-col items-end gap-1 shrink-0">
-        <span className="text-[10px] text-[#9AA3B2]">{timeAgo(biz.last_active_at ?? "")}</span>
+        <span className="text-[10px] text-[var(--text-muted)]">{timeAgo(biz.last_active_at ?? "")}</span>
         <Link href={`/businesses/${biz.id}`} className="text-[10px] text-[#7C6CF6] font-semibold hover:underline">
           İncele →
         </Link>
@@ -144,24 +144,24 @@ export default function ActivityLog({
   const events = buildEvents(newRegs, trials, churnList);
 
   return (
-    <div className="bg-white rounded-xl border border-[#E9E9F2] overflow-hidden">
-      <div className="px-6 py-5 border-b border-[#E9E9F2] flex items-center gap-3">
+    <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] overflow-hidden">
+      <div className="px-6 py-5 border-b border-[var(--border)] flex items-center gap-3">
         <span className="material-symbols-outlined text-[#7C6CF6]">history</span>
         <div>
-          <h3 className="text-base font-bold text-[#1F2430]">Aktivite Günlüğü</h3>
-          <p className="text-xs text-[#9AA3B2]">Son platformda gerçekleşen önemli olaylar</p>
+          <h3 className="text-base font-bold text-[var(--text-1)]">Aktivite Günlüğü</h3>
+          <p className="text-xs text-[var(--text-muted)]">Son platformda gerçekleşen önemli olaylar</p>
         </div>
         <span className="ml-auto bg-[#EEEAFE] text-[#7C6CF6] text-[10px] font-bold px-2 py-0.5 rounded-full">
           {events.length} olay
         </span>
       </div>
       {events.length === 0 ? (
-        <div className="py-12 text-center text-sm text-[#9AA3B2]">
+        <div className="py-12 text-center text-sm text-[var(--text-muted)]">
           <span className="material-symbols-outlined text-3xl mb-2 block">check_circle</span>
           Henüz kayda değer bir olay yok
         </div>
       ) : (
-        <div className="divide-y divide-[#E9E9F2]">
+        <div className="divide-y divide-[var(--border)]">
           {events.map((event, i) => (
             <EventRow key={i} event={event} />
           ))}

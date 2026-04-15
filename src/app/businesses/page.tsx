@@ -36,15 +36,15 @@ function daysSince(dateStr: string | null): string {
 export default async function BusinessesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ search?: string; status?: string }>;
+  searchParams: Promise<{ search?: string; status?: string; plan?: string }>;
 }) {
-  const { search = "", status = "" } = await searchParams;
+  const { search = "", status = "", plan = "" } = await searchParams;
 
   const { data: businesses } = await getBusinesses(search);
 
-  const filtered = status
-    ? businesses.filter((b) => b.status === status)
-    : businesses;
+  const filtered = businesses
+    .filter((b) => !status || b.status === status)
+    .filter((b) => !plan   || b.plan   === plan);
 
   const scanCounts = await getBusinessScanCounts(filtered.map((b) => b.id), 7);
 
@@ -56,10 +56,10 @@ export default async function BusinessesPage({
   };
 
   return (
-    <main className="pt-24 pb-12 px-4 md:px-8 min-h-screen bg-[#FAFAFD]">
+    <main className="pt-20 md:pt-24 pb-12 px-4 md:px-8 min-h-screen bg-[#FAFAFD]">
       {/* Başlık */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-extrabold tracking-tight text-[#1F2430] mb-1">{t.businesses.title}</h1>
+      <div className="mb-6 md:mb-8">
+        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[var(--text-1)] mb-1">{t.businesses.title}</h1>
         <p className="text-[#6B7280] text-sm font-medium">{t.businesses.subtitle}</p>
       </div>
 
@@ -72,15 +72,15 @@ export default async function BusinessesPage({
             className={`rounded-xl px-5 py-4 border flex items-center gap-3 transition-all ${
               status === s
                 ? "border-[#7C6CF6] bg-[#EEEAFE]"
-                : "border-[#E9E9F2] bg-white hover:border-[#7C6CF6]/40"
+                : "border-[var(--border)] bg-[var(--bg-card)] hover:border-[#7C6CF6]/40"
             }`}
           >
             <span className={`material-symbols-outlined text-lg ${STATUS_COLORS[s].split(" ")[1]}`}>
               {STATUS_ICONS[s]}
             </span>
             <div>
-              <p className="text-lg font-extrabold text-[#1F2430]">{statusGroups[s]}</p>
-              <p className="text-[10px] font-bold text-[#9AA3B2] uppercase tracking-tight">
+              <p className="text-lg font-extrabold text-[var(--text-1)]">{statusGroups[s]}</p>
+              <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tight">
                 {t.businesses.status[s]}
               </p>
             </div>
@@ -88,24 +88,79 @@ export default async function BusinessesPage({
         ))}
       </div>
 
-      {/* Arama */}
-      <div className="mb-4">
-        <form method="GET" action="/businesses">
-          {status && <input type="hidden" name="status" value={status} />}
+      {/* Arama + Filtreler */}
+      <form method="GET" action="/businesses" className="flex flex-wrap gap-2 mb-4">
+        {/* Arama */}
+        <div className="relative flex-1 min-w-[180px]">
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] text-sm">search</span>
           <input
             name="search"
             defaultValue={search}
-            placeholder="İşletme, şehir veya e-posta ara..."
-            className="w-full max-w-sm bg-white border border-[#E9E9F2] rounded-lg py-2.5 px-4 text-sm text-[#1F2430] focus:outline-none focus:ring-2 focus:ring-[#7C6CF6]/30 focus:border-[#7C6CF6] transition-all"
+            placeholder="İşletme, şehir veya e-posta..."
+            className="w-full bg-[var(--bg-card)] border border-[var(--border)] rounded-xl py-2.5 pl-9 pr-4 text-sm text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-[#7C6CF6]/30 focus:border-[#7C6CF6] transition-all"
           />
-        </form>
-      </div>
+        </div>
+
+        {/* Plan filtresi */}
+        <select
+          name="plan"
+          defaultValue={plan}
+          className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl py-2.5 px-3 text-sm text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-[#7C6CF6]/30 focus:border-[#7C6CF6] transition-all"
+        >
+          <option value="">Tüm Planlar</option>
+          <option value="trial">Trial</option>
+          <option value="starter">Starter</option>
+          <option value="pro">Pro</option>
+          <option value="enterprise">Enterprise</option>
+        </select>
+
+        {/* Durum filtresi */}
+        <select
+          name="status"
+          defaultValue={status}
+          className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl py-2.5 px-3 text-sm text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-[#7C6CF6]/30 focus:border-[#7C6CF6] transition-all"
+        >
+          <option value="">Tüm Durumlar</option>
+          <option value="active">Aktif</option>
+          <option value="trial">Trial</option>
+          <option value="inactive">Pasif</option>
+          <option value="churned">Churn</option>
+        </select>
+
+        <button
+          type="submit"
+          className="bg-[#7C6CF6] text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-[#6D5DF0] transition-colors"
+        >
+          Filtrele
+        </button>
+
+        {(search || status || plan) && (
+          <a
+            href="/businesses"
+            className="flex items-center gap-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-[#6B7280] bg-[var(--bg-card)] border border-[var(--border)] hover:border-[#7C6CF6]/40 transition-colors"
+          >
+            <span className="material-symbols-outlined text-sm">close</span>
+            Temizle
+          </a>
+        )}
+      </form>
+
+      {/* Aktif filtre bilgisi */}
+      {(search || status || plan) && (
+        <p className="text-xs text-[var(--text-muted)] mb-3">
+          <span className="font-bold text-[var(--text-1)]">{filtered.length}</span> sonuç bulundu
+          {search && <span> · Arama: <span className="font-semibold">"{search}"</span></span>}
+          {plan && <span> · Plan: <span className="font-semibold capitalize">{plan}</span></span>}
+          {status && <span> · Durum: <span className="font-semibold">{status}</span></span>}
+        </p>
+      )}
 
       {/* Tablo */}
-      <div className="bg-white rounded-xl border border-[#E9E9F2] overflow-hidden">
-        <table className="w-full text-left">
+      <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] overflow-hidden">
+        <div className="overflow-x-auto">
+        <table className="w-full text-left min-w-[640px]">
           <thead>
-            <tr className="text-[10px] font-bold uppercase tracking-widest text-[#9AA3B2] border-b border-[#E9E9F2]">
+            <tr className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] border-b border-[var(--border)]">
               <th className="px-8 py-4">{t.businesses.cols.name}</th>
               <th className="px-4 py-4">{t.businesses.cols.plan}</th>
               <th className="px-4 py-4">{t.businesses.cols.status}</th>
@@ -117,7 +172,7 @@ export default async function BusinessesPage({
           <tbody>
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-8 py-16 text-center text-[#9AA3B2] text-sm">
+                <td colSpan={6} className="px-8 py-16 text-center text-[var(--text-muted)] text-sm">
                   {t.businesses.empty}
                 </td>
               </tr>
@@ -130,15 +185,15 @@ export default async function BusinessesPage({
                   Math.floor((Date.now() - new Date(biz.last_active_at).getTime()) / 86400000) > 14;
 
                 return (
-                  <tr key={biz.id} className="hover:bg-[#FAFAFD] transition-colors border-t border-[#E9E9F2]">
+                  <tr key={biz.id} className="hover:bg-[var(--bg-page)] transition-colors border-t border-[var(--border)]">
                     <td className="px-8 py-5">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-[#EEEAFE] flex items-center justify-center text-[#7C6CF6] font-extrabold text-xs shrink-0">
                           {biz.name.charAt(0)}
                         </div>
                         <div>
-                          <p className="font-bold text-[#1F2430] text-sm">{biz.name}</p>
-                          <p className="text-xs text-[#9AA3B2]">{biz.city} · {biz.owner_email ?? "—"}</p>
+                          <p className="font-bold text-[var(--text-1)] text-sm">{biz.name}</p>
+                          <p className="text-xs text-[var(--text-muted)]">{biz.city} · {biz.owner_email ?? "—"}</p>
                         </div>
                       </div>
                     </td>
@@ -153,7 +208,7 @@ export default async function BusinessesPage({
                       </span>
                     </td>
                     <td className="px-4 py-5 text-right">
-                      <span className="font-bold text-[#1F2430]">{scans.toLocaleString("tr-TR")}</span>
+                      <span className="font-bold text-[var(--text-1)]">{scans.toLocaleString("tr-TR")}</span>
                     </td>
                     <td className="px-4 py-5">
                       <span className={`text-sm ${isChurnRisk ? "text-[#F59E0B] font-semibold" : "text-[#6B7280]"}`}>
@@ -177,6 +232,7 @@ export default async function BusinessesPage({
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </main>
   );

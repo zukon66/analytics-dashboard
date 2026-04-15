@@ -27,7 +27,7 @@ export default async function GrowthPage() {
   ]);
 
   return (
-    <main className="pt-24 pb-12 px-4 md:px-8 min-h-screen bg-[#FAFAFD]">
+    <main className="pt-20 md:pt-24 pb-12 px-4 md:px-8 min-h-screen bg-[#FAFAFD]">
       {/* Başlık */}
       <div className="mb-8 flex justify-between items-end">
         <div>
@@ -59,17 +59,17 @@ export default async function GrowthPage() {
 
       {/* Satır 2: Trial Uyarıları + Aktivasyon Hunisi */}
       <div className="grid grid-cols-12 gap-6 mb-6">
-        <div className="col-span-12 lg:col-span-7 bg-white rounded-xl border border-[#E9E9F2] overflow-hidden min-h-[340px]">
+        <div className="col-span-12 lg:col-span-7 bg-[var(--bg-card)] rounded-xl border border-[var(--border)] overflow-hidden min-h-[340px]">
           <TrialExpirationList items={trialRes.data} />
         </div>
-        <div className="col-span-12 lg:col-span-5 bg-white rounded-xl border border-[#E9E9F2] min-h-[340px]">
+        <div className="col-span-12 lg:col-span-5 bg-[var(--bg-card)] rounded-xl border border-[var(--border)] min-h-[340px]">
           <ActivationFunnelChart funnel={funnelRes.data} />
         </div>
       </div>
 
       {/* Satır 3: Yeni Kayıtlar + Rapor indirme */}
       <div className="grid grid-cols-12 gap-6">
-        <div className="col-span-12 lg:col-span-8 bg-white rounded-xl border border-[#E9E9F2] overflow-hidden">
+        <div className="col-span-12 lg:col-span-8 bg-[var(--bg-card)] rounded-xl border border-[var(--border)] overflow-hidden">
           <NewRegistrationsList items={newBizRes.data} />
         </div>
         <div className="col-span-12 lg:col-span-4">
