@@ -45,12 +45,8 @@ function CustomTooltip({
 }
 
 // Hover'da dışa doğru büyüyen aktif dilim
-function ActiveShape(props: {
-  cx?: number; cy?: number;
-  innerRadius?: number; outerRadius?: number;
-  startAngle?: number; endAngle?: number;
-  fill?: string;
-}) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function ActiveShape(props: any) {
   const { cx = 0, cy = 0, innerRadius = 0, outerRadius = 0, startAngle = 0, endAngle = 0, fill = "" } = props;
   return (
     <Sector
