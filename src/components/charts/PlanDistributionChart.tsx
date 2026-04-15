@@ -2,6 +2,10 @@
 
 import { useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, Sector } from "recharts";
+
+// Recharts 3.x types don't expose activeIndex/activeShape on Pie — cast to use them
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const InteractivePie = Pie as any;
 import type { MrrPlanBreakdown } from "@/lib/queries";
 
 interface Props {
@@ -82,7 +86,7 @@ export default function PlanDistributionChart({ breakdown }: Props) {
         <div className="w-full md:w-1/2" style={{ height: 200, minHeight: 200 }}>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
-              <Pie
+              <InteractivePie
                 data={chartData}
                 dataKey="value"
                 nameKey="name"
@@ -95,7 +99,7 @@ export default function PlanDistributionChart({ breakdown }: Props) {
                 isAnimationActive={false}
                 activeIndex={activeIndex}
                 activeShape={ActiveShape}
-                onMouseEnter={(_, index) => setActiveIndex(index)}
+                onMouseEnter={(_: unknown, index: number) => setActiveIndex(index)}
                 onMouseLeave={() => setActiveIndex(undefined)}
               >
                 {chartData.map((entry) => (
@@ -105,7 +109,7 @@ export default function PlanDistributionChart({ breakdown }: Props) {
                     style={{ cursor: "pointer", outline: "none" }}
                   />
                 ))}
-              </Pie>
+              </InteractivePie>
               <Tooltip content={<CustomTooltip />} />
               <Legend
                 iconType="circle"
