@@ -27,17 +27,17 @@ export default async function GrowthPage() {
   ]);
 
   return (
-    <main className="pt-20 md:pt-24 pb-12 px-4 md:px-8 min-h-screen bg-[#FAFAFD]">
+    <main className="pt-20 md:pt-24 pb-12 px-4 md:px-8 min-h-screen bg-[var(--bg-page)]">
       {/* Başlık */}
       <div className="mb-8 flex justify-between items-end">
         <div>
-          <span className="px-3 py-1 bg-[#EEEAFE] text-[#7C6CF6] rounded-sm text-[10px] font-bold tracking-widest uppercase mb-3 inline-block">
+          <span className="px-3 py-1 bg-[var(--accent-bg)] text-[#7C6CF6] rounded-sm text-[10px] font-bold tracking-widest uppercase mb-3 inline-block">
             Büyüme Paneli
           </span>
-          <h1 className="text-3xl font-extrabold tracking-tight text-[#1F2430] mb-1">
+          <h1 className="text-3xl font-extrabold tracking-tight text-[var(--text-1)] mb-1">
             {t.growth.title}
           </h1>
-          <p className="text-[#6B7280] text-sm font-medium">{t.growth.subtitle}</p>
+          <p className="text-[var(--text-2)] text-sm font-medium">{t.growth.subtitle}</p>
         </div>
         <Link
           href="/"

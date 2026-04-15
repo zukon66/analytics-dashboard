@@ -124,7 +124,7 @@ export default function ReportCard(props: ReportCardProps) {
         </div>
 
         {/* MRR özeti */}
-        <div className="bg-[#F6F6FB] rounded-lg p-4 mb-5 flex items-center justify-between">
+        <div className="bg-[var(--bg-sidebar)] rounded-lg p-4 mb-5 flex items-center justify-between">
           <div>
             <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">Güncel MRR</p>
             <p className="text-2xl font-extrabold text-[var(--text-1)]">
