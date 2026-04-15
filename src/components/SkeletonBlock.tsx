@@ -1,13 +1,16 @@
 // Pulse animasyonlu temel skeleton bloğu
 // Tüm loading.tsx dosyaları bunu kullanır
+import React from "react";
 
 export function SkeletonBlock({
   className = "",
+  style,
 }: {
   className?: string;
+  style?: React.CSSProperties;
 }) {
   return (
-    <div className={`animate-pulse bg-[#E9E9F2] rounded-xl ${className}`} />
+    <div className={`animate-pulse bg-[#E9E9F2] rounded-xl ${className}`} style={style} />
   );
 }
 
