@@ -96,7 +96,7 @@ export default function ActivationFunnelChart({ funnel }: Props) {
                   <div className="absolute inset-0 flex items-center justify-between px-4 pointer-events-none">
                     <span
                       className="text-xs font-bold truncate ml-8"
-                      style={{ color: isHovered ? "white" : "#1F2430" }}
+                      style={{ color: isHovered ? "white" : "var(--text-1)" }}
                     >
                       {stage.getText(funnel)}
                     </span>

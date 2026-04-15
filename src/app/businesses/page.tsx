@@ -56,7 +56,7 @@ export default async function BusinessesPage({
   };
 
   return (
-    <main className="pt-20 md:pt-24 pb-12 px-4 md:px-8 min-h-screen bg-[#FAFAFD]">
+    <main className="pt-20 md:pt-24 pb-12 px-4 md:px-8 min-h-screen bg-[var(--bg-page)]">
       {/* Başlık */}
       <div className="mb-6 md:mb-8">
         <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[var(--text-1)] mb-1">{t.businesses.title}</h1>

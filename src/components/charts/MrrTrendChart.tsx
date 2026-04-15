@@ -27,9 +27,9 @@ function CustomTooltip({ active, payload, label }: {
 }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white border border-[#E9E9F2] rounded-xl px-4 py-3 shadow-lg">
-      <p className="text-[11px] font-bold text-[#9AA3B2] uppercase tracking-wider mb-1">{label}</p>
-      <p className="text-base font-extrabold text-[#1F2430]">
+    <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl px-4 py-3 shadow-lg">
+      <p className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">{label}</p>
+      <p className="text-base font-extrabold text-[var(--text-1)]">
         ₺{Number(payload[0].value).toLocaleString("tr-TR")}
       </p>
     </div>
@@ -55,18 +55,18 @@ export default function MrrTrendChart({ data, currentMrr, breakdown }: Props) {
           <p className="text-3xl font-extrabold text-[#7C6CF6]">
             ₺{currentMrr.toLocaleString("tr-TR")}
           </p>
-          <p className="text-[10px] font-bold text-[#9AA3B2] uppercase tracking-tighter">
+          <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">
             {t.growth.mrr.currentMrr}
           </p>
-          <p className="text-[10px] text-[#9AA3B2] mt-0.5">{t.growth.mrr.currentMrrSub}</p>
+          <p className="text-[10px] text-[var(--text-muted)] mt-0.5">{t.growth.mrr.currentMrrSub}</p>
         </div>
       </div>
 
       {/* Grafik */}
       {!hasData ? (
         <div className="flex flex-col items-center justify-center h-48 text-center">
-          <span className="material-symbols-outlined text-4xl text-[#9AA3B2] mb-2">bar_chart</span>
-          <p className="text-sm text-[#9AA3B2]">{t.growth.mrr.noData}</p>
+          <span className="material-symbols-outlined text-4xl text-[var(--text-muted)] mb-2">bar_chart</span>
+          <p className="text-sm text-[var(--text-muted)]">{t.growth.mrr.noData}</p>
         </div>
       ) : (
         <div style={{ width: "100%", height: 240 }}>
