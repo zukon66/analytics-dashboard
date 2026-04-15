@@ -88,14 +88,14 @@ export default async function BusinessDetailPage({
   const periodDisplayLabel = isValidDate ? date : (PERIOD_LABEL[activePeriod] ?? "Son 7 Gün");
 
   const kpiCards = [
-    { label: `${periodDisplayLabel} Tarama`, value: kpis.totalScans.toLocaleString("tr-TR"), prev: prevKpis.totalScans, icon: "qr_code_scanner", iconBg: "bg-[#EEEAFE]", iconColor: "text-[#7C6CF6]", platformBizValue: kpis.totalScans, platformAvg: platformAvg.avgScans },
+    { label: `${periodDisplayLabel} Tarama`, value: kpis.totalScans.toLocaleString("tr-TR"), prev: prevKpis.totalScans, icon: "qr_code_scanner", iconBg: "bg-[var(--accent-bg)]", iconColor: "text-[#7C6CF6]", platformBizValue: kpis.totalScans, platformAvg: platformAvg.avgScans },
     { label: t.dashboard.kpis.peakHour, value: kpis.peakHour, prev: null, icon: "schedule", iconBg: "bg-[#DBEAFE]", iconColor: "text-[#1E40AF]", platformBizValue: null, platformAvg: 0 },
     { label: "Toplam Gelir", value: `₺${orderStatsRes.data.totalRevenue.toLocaleString("tr-TR")}`, prev: null, icon: "payments", iconBg: "bg-[#EDE9FE]", iconColor: "text-[#6D28D9]", platformBizValue: orderStatsRes.data.totalRevenue, platformAvg: platformAvg.avgRevenue },
-    { label: "Toplam Müşteri", value: String(customerStatsRes.data.total), prev: null, icon: "group", iconBg: "bg-[#F3F4F6]", iconColor: "text-[#6B7280]", platformBizValue: customerStatsRes.data.total, platformAvg: platformAvg.avgCustomers },
+    { label: "Toplam Müşteri", value: String(customerStatsRes.data.total), prev: null, icon: "group", iconBg: "bg-[var(--bg-sidebar)]", iconColor: "text-[var(--text-2)]", platformBizValue: customerStatsRes.data.total, platformAvg: platformAvg.avgCustomers },
   ];
 
   return (
-    <main className="pt-24 pb-12 px-4 md:px-8 min-h-screen bg-[#FAFAFD]">
+    <main className="pt-24 pb-12 px-4 md:px-8 min-h-screen bg-[var(--bg-page)]">
       {/* Geri + Başlık */}
       <div className="mb-8">
         <Link href="/businesses" className="text-xs text-[#7C6CF6] font-semibold flex items-center gap-1 mb-4 hover:underline w-fit">
@@ -105,12 +105,12 @@ export default async function BusinessDetailPage({
         <div className="flex flex-wrap justify-between items-end gap-4">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-[#EEEAFE] flex items-center justify-center text-[#7C6CF6] font-extrabold text-lg">
+              <div className="w-10 h-10 rounded-xl bg-[var(--accent-bg)] flex items-center justify-center text-[#7C6CF6] font-extrabold text-lg">
                 {business.name.charAt(0)}
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h1 className="text-2xl font-extrabold tracking-tight text-[#1F2430]">{business.name}</h1>
+                  <h1 className="text-2xl font-extrabold tracking-tight text-[var(--text-1)]">{business.name}</h1>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full capitalize ${PLAN_COLORS[business.plan] ?? ""}`}>
                     {business.plan}
                   </span>
@@ -118,7 +118,7 @@ export default async function BusinessDetailPage({
                     {t.businesses.status[business.status as keyof typeof t.businesses.status] ?? business.status}
                   </span>
                 </div>
-                <p className="text-sm text-[#6B7280]">{business.city} · {business.owner_email ?? "—"}</p>
+                <p className="text-sm text-[var(--text-2)]">{business.city} · {business.owner_email ?? "—"}</p>
               </div>
             </div>
           </div>
@@ -129,18 +129,18 @@ export default async function BusinessDetailPage({
       {/* KPI Şeridi */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {kpiCards.map((kpi) => (
-          <div key={kpi.label} className="bg-white rounded-xl p-5 flex items-center gap-4 border border-[#E9E9F2]">
+          <div key={kpi.label} className="bg-[var(--bg-card)] rounded-xl p-5 flex items-center gap-4 border border-[var(--border)]">
             <div className={`p-3 rounded-xl ${kpi.iconBg} ${kpi.iconColor}`}>
               <span className="material-symbols-outlined">{kpi.icon}</span>
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-0.5">
-                <p className="text-xl font-extrabold text-[#1F2430]">{kpi.value}</p>
+                <p className="text-xl font-extrabold text-[var(--text-1)]">{kpi.value}</p>
                 {kpi.prev !== null && typeof kpi.prev === "number" && (
                   <DeltaBadge current={Number(String(kpi.value).replace(/\D/g, "")) || 0} previous={kpi.prev} />
                 )}
               </div>
-              <p className="text-[10px] font-bold text-[#9AA3B2] uppercase tracking-tighter truncate">{kpi.label}</p>
+              <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter truncate">{kpi.label}</p>
               {kpi.platformBizValue !== null && (
                 <PlatformComparisonBadge bizValue={kpi.platformBizValue} platformAvg={kpi.platformAvg} />
               )}
@@ -164,14 +164,14 @@ export default async function BusinessDetailPage({
         <div className="col-span-12 lg:col-span-4">
           <ZoneChart data={zoneRes.data} />
         </div>
-        <div className="col-span-12 lg:col-span-8 bg-white rounded-xl overflow-hidden border border-[#E9E9F2]">
-          <div className="px-8 py-6 border-b border-[#E9E9F2]">
-            <h3 className="text-base font-bold text-[#1F2430]">{t.dashboard.topTables.title}</h3>
+        <div className="col-span-12 lg:col-span-8 bg-[var(--bg-card)] rounded-xl overflow-hidden border border-[var(--border)]">
+          <div className="px-8 py-6 border-b border-[var(--border)]">
+            <h3 className="text-base font-bold text-[var(--text-1)]">{t.dashboard.topTables.title}</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="text-[10px] font-bold uppercase tracking-widest text-[#9AA3B2]">
+                <tr className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
                   <th className="px-8 py-4">{t.dashboard.topTables.cols.tableId}</th>
                   <th className="px-8 py-4">{t.dashboard.topTables.cols.zone}</th>
                   <th className="px-8 py-4">{t.dashboard.topTables.cols.dailyScans}</th>
@@ -180,24 +180,24 @@ export default async function BusinessDetailPage({
               </thead>
               <tbody>
                 {topTablesRes.data.length === 0 ? (
-                  <tr><td colSpan={4} className="px-8 py-12 text-center text-[#9AA3B2] text-sm">{periodDisplayLabel} için tarama verisi yok.</td></tr>
+                  <tr><td colSpan={4} className="px-8 py-12 text-center text-[var(--text-muted)] text-sm">{periodDisplayLabel} için tarama verisi yok.</td></tr>
                 ) : (
                   topTablesRes.data.map((table) => {
                     const maxScans = topTablesRes.data[0]?.scans ?? 1;
                     const pct = Math.round((table.scans / maxScans) * 100);
                     return (
-                      <tr key={table.tableId} className="hover:bg-[#FAFAFD] transition-colors border-t border-[#E9E9F2]">
-                        <td className="px-8 py-5"><span className="font-bold text-[#1F2430]">{table.tableId}</span></td>
-                        <td className="px-8 py-5"><span className="text-sm text-[#6B7280]">{table.zone}</span></td>
+                      <tr key={table.tableId} className="hover:bg-[var(--bg-page)] transition-colors border-t border-[var(--border)]">
+                        <td className="px-8 py-5"><span className="font-bold text-[var(--text-1)]">{table.tableId}</span></td>
+                        <td className="px-8 py-5"><span className="text-sm text-[var(--text-2)]">{table.zone}</span></td>
                         <td className="px-8 py-5">
                           <div className="flex items-center gap-2">
-                            <span className="font-bold text-[#1F2430]">{table.scans}</span>
-                            <div className="w-16 h-1 bg-[#E9E9F2] rounded-full overflow-hidden">
+                            <span className="font-bold text-[var(--text-1)]">{table.scans}</span>
+                            <div className="w-16 h-1 bg-[var(--border)] rounded-full overflow-hidden">
                               <div className="h-full bg-[#7C6CF6]" style={{ width: `${pct}%` }} />
                             </div>
                           </div>
                         </td>
-                        <td className="px-8 py-5 text-sm text-[#6B7280]">{table.avgDuration} {t.common.minutes}</td>
+                        <td className="px-8 py-5 text-sm text-[var(--text-2)]">{table.avgDuration} {t.common.minutes}</td>
                       </tr>
                     );
                   })

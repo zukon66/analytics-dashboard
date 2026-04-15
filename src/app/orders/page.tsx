@@ -25,7 +25,7 @@ function SortHeader({ col, label, currentSort, currentDir, search }: { col: stri
   const href = `/orders?sort=${col}&dir=${nextDir}${search ? `&q=${encodeURIComponent(search)}` : ""}`;
   return (
     <th className="px-8 py-4">
-      <Link href={href} className={`inline-flex items-center gap-1 transition-colors ${isActive ? "text-[#7C6CF6]" : "text-[#9AA3B2] hover:text-[#6B7280]"}`}>
+      <Link href={href} className={`inline-flex items-center gap-1 transition-colors ${isActive ? "text-[#7C6CF6]" : "text-[var(--text-muted)] hover:text-[var(--text-2)]"}`}>
         <span className="text-[10px] font-bold uppercase tracking-widest">{label}</span>
         <span className="material-symbols-outlined text-sm leading-none">
           {isActive ? (currentDir === "asc" ? "arrow_upward" : "arrow_downward") : "unfold_more"}
@@ -73,12 +73,12 @@ export default async function OrdersPage({
   void orders;
 
   return (
-    <main className="pt-24 pb-12 px-4 md:px-8 min-h-screen bg-[#FAFAFD]">
+    <main className="pt-24 pb-12 px-4 md:px-8 min-h-screen bg-[var(--bg-page)]">
       {/* Başlık */}
       <div className="mb-8 flex justify-between items-end">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-[#1F2430] mb-1">{t.orders.title}</h1>
-          <p className="text-[#6B7280] text-sm font-medium">{t.orders.subtitle}</p>
+          <h1 className="text-3xl font-extrabold tracking-tight text-[var(--text-1)] mb-1">{t.orders.title}</h1>
+          <p className="text-[var(--text-2)] text-sm font-medium">{t.orders.subtitle}</p>
         </div>
         {!isEmpty && (
           <TableExportButton
@@ -92,86 +92,86 @@ export default async function OrdersPage({
 
       {/* KPI Şeridi — 5 kart */}
       <div className="grid grid-cols-5 gap-4 mb-8">
-        <div className="bg-[#FFFFFF] rounded-xl p-6 flex items-center gap-4 border border-[#E9E9F2]">
-          <div className="p-3 rounded-xl bg-[#EEEAFE] text-[#7C6CF6]"><span className="material-symbols-outlined">payments</span></div>
+        <div className="bg-[var(--bg-card)] rounded-xl p-6 flex items-center gap-4 border border-[var(--border)]">
+          <div className="p-3 rounded-xl bg-[var(--accent-bg)] text-[#7C6CF6]"><span className="material-symbols-outlined">payments</span></div>
           <div>
-            <p className="text-2xl font-extrabold text-[#1F2430]">₺{stats.totalRevenue.toLocaleString("tr-TR")}</p>
-            <p className="text-[10px] font-bold text-[#9AA3B2] uppercase tracking-tighter">{t.orders.totalRevenue}</p>
+            <p className="text-2xl font-extrabold text-[var(--text-1)]">₺{stats.totalRevenue.toLocaleString("tr-TR")}</p>
+            <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">{t.orders.totalRevenue}</p>
           </div>
         </div>
-        <div className="bg-[#FFFFFF] rounded-xl p-6 flex items-center gap-4 border border-[#E9E9F2]">
-          <div className="p-3 rounded-xl bg-[#EEEAFE] text-[#7C6CF6]"><span className="material-symbols-outlined">receipt</span></div>
+        <div className="bg-[var(--bg-card)] rounded-xl p-6 flex items-center gap-4 border border-[var(--border)]">
+          <div className="p-3 rounded-xl bg-[var(--accent-bg)] text-[#7C6CF6]"><span className="material-symbols-outlined">receipt</span></div>
           <div>
-            <p className="text-2xl font-extrabold text-[#1F2430]">₺{stats.avgAmount.toLocaleString("tr-TR")}</p>
-            <p className="text-[10px] font-bold text-[#9AA3B2] uppercase tracking-tighter">Ort. Sipariş Tutarı</p>
+            <p className="text-2xl font-extrabold text-[var(--text-1)]">₺{stats.avgAmount.toLocaleString("tr-TR")}</p>
+            <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">Ort. Sipariş Tutarı</p>
           </div>
         </div>
-        <div className="bg-[#FFFFFF] rounded-xl p-6 flex items-center gap-4 border border-[#E9E9F2]">
+        <div className="bg-[var(--bg-card)] rounded-xl p-6 flex items-center gap-4 border border-[var(--border)]">
           <div className="p-3 rounded-xl bg-[#DCFCE7] text-[#15803D]"><span className="material-symbols-outlined">check_circle</span></div>
           <div>
-            <p className="text-2xl font-extrabold text-[#1F2430]">{stats.completed}</p>
-            <p className="text-[10px] font-bold text-[#9AA3B2] uppercase tracking-tighter">{t.orders.completedOrders}</p>
+            <p className="text-2xl font-extrabold text-[var(--text-1)]">{stats.completed}</p>
+            <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">{t.orders.completedOrders}</p>
           </div>
         </div>
-        <div className="bg-[#FFFFFF] rounded-xl p-6 flex items-center gap-4 border border-[#E9E9F2]">
+        <div className="bg-[var(--bg-card)] rounded-xl p-6 flex items-center gap-4 border border-[var(--border)]">
           <div className="p-3 rounded-xl bg-[#FEF3C7] text-[#92400E]"><span className="material-symbols-outlined">hourglass_empty</span></div>
           <div>
-            <p className="text-2xl font-extrabold text-[#1F2430]">{stats.pending}</p>
-            <p className="text-[10px] font-bold text-[#9AA3B2] uppercase tracking-tighter">{t.orders.pendingOrders}</p>
+            <p className="text-2xl font-extrabold text-[var(--text-1)]">{stats.pending}</p>
+            <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">{t.orders.pendingOrders}</p>
           </div>
         </div>
-        <div className="bg-[#FFFFFF] rounded-xl p-6 flex items-center gap-4 border border-[#E9E9F2]">
-          <div className={`p-3 rounded-xl ${stats.cancelRate > 15 ? "bg-[#FEE2E2] text-[#991B1B]" : "bg-[#F3F4F6] text-[#6B7280]"}`}>
+        <div className="bg-[var(--bg-card)] rounded-xl p-6 flex items-center gap-4 border border-[var(--border)]">
+          <div className={`p-3 rounded-xl ${stats.cancelRate > 15 ? "bg-[#FEE2E2] text-[#991B1B]" : "bg-[var(--bg-sidebar)] text-[var(--text-2)]"}`}>
             <span className="material-symbols-outlined">cancel</span>
           </div>
           <div>
-            <p className="text-2xl font-extrabold text-[#1F2430]">%{stats.cancelRate}</p>
-            <p className="text-[10px] font-bold text-[#9AA3B2] uppercase tracking-tighter">İptal Oranı</p>
+            <p className="text-2xl font-extrabold text-[var(--text-1)]">%{stats.cancelRate}</p>
+            <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">İptal Oranı</p>
           </div>
         </div>
       </div>
 
       {/* Dönüşüm Oranı Banner */}
-      <div className="bg-[#EEEAFE] border border-[#D4CFFE] rounded-xl px-8 py-5 mb-8 flex items-center justify-between">
+      <div className="bg-[var(--accent-bg)] border border-[#D4CFFE] rounded-xl px-8 py-5 mb-8 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <span className="material-symbols-outlined text-[#7C6CF6] text-2xl">conversion_path</span>
           <div>
-            <p className="text-sm font-bold text-[#1F2430]">QR Tarama → Sipariş Dönüşümü</p>
-            <p className="text-xs text-[#6B7280] mt-0.5">{conv.scanCount.toLocaleString("tr-TR")} taramadan {conv.orderCount.toLocaleString("tr-TR")} sipariş oluştu</p>
+            <p className="text-sm font-bold text-[var(--text-1)]">QR Tarama → Sipariş Dönüşümü</p>
+            <p className="text-xs text-[var(--text-2)] mt-0.5">{conv.scanCount.toLocaleString("tr-TR")} taramadan {conv.orderCount.toLocaleString("tr-TR")} sipariş oluştu</p>
           </div>
         </div>
         <p className="text-3xl font-extrabold text-[#7C6CF6]">%{conv.rate}</p>
       </div>
 
       {/* Arama + Tablo */}
-      <div className="bg-[#FFFFFF] rounded-xl overflow-hidden border border-[#E9E9F2]">
-        <div className="px-8 py-6 border-b border-[#E9E9F2] flex justify-between items-center gap-4">
-          <h3 className="text-lg font-bold text-[#1F2430] shrink-0">{t.orders.title}</h3>
+      <div className="bg-[var(--bg-card)] rounded-xl overflow-hidden border border-[var(--border)]">
+        <div className="px-8 py-6 border-b border-[var(--border)] flex justify-between items-center gap-4">
+          <h3 className="text-lg font-bold text-[var(--text-1)] shrink-0">{t.orders.title}</h3>
           <form method="get" className="flex items-center gap-2 flex-1 max-w-sm">
             {sort !== "created_at" && <input type="hidden" name="sort" value={validSort} />}
             {dir !== "desc" && <input type="hidden" name="dir" value={validDir} />}
             <div className="relative flex-1">
-              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#9AA3B2] text-sm">search</span>
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] text-sm">search</span>
               <input
                 name="q"
                 defaultValue={q}
                 placeholder="Masa veya bölge ara..."
-                className="w-full bg-[#FCFCFE] border border-[#E9E9F2] rounded-full py-2 pl-9 pr-4 text-sm text-[#1F2430] focus:outline-none focus:ring-2 focus:ring-[#7C6CF6]/30 focus:border-[#7C6CF6] transition-all"
+                className="w-full bg-[var(--bg-page)] border border-[var(--border)] rounded-full py-2 pl-9 pr-4 text-sm text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-[#7C6CF6]/30 focus:border-[#7C6CF6] transition-all"
               />
             </div>
             <button type="submit" className="bg-[#7C6CF6] text-white px-4 py-2 rounded-full text-xs font-bold hover:bg-[#6D5DF0] transition-colors">Ara</button>
-            {q && <Link href={`/orders?sort=${validSort}&dir=${validDir}`} className="text-xs text-[#9AA3B2] hover:text-[#6B7280]">Temizle</Link>}
+            {q && <Link href={`/orders?sort=${validSort}&dir=${validDir}`} className="text-xs text-[var(--text-muted)] hover:text-[var(--text-2)]">Temizle</Link>}
           </form>
-          {!isEmpty && <p className="text-xs text-[#9AA3B2] shrink-0">Başlıklara tıklayarak sıralayabilirsiniz</p>}
+          {!isEmpty && <p className="text-xs text-[var(--text-muted)] shrink-0">Başlıklara tıklayarak sıralayabilirsiniz</p>}
         </div>
 
         {isEmpty ? (
           <div className="flex flex-col items-center justify-center py-24 text-center px-8">
-            <div className="p-4 bg-[#F6F6FB] rounded-full mb-4">
-              <span className="material-symbols-outlined text-4xl text-[#9AA3B2]">receipt_long</span>
+            <div className="p-4 bg-[var(--bg-sidebar)] rounded-full mb-4">
+              <span className="material-symbols-outlined text-4xl text-[var(--text-muted)]">receipt_long</span>
             </div>
-            <h3 className="text-lg font-bold text-[#1F2430] mb-2">{q ? `"${q}" için sonuç bulunamadı` : "Henüz sipariş yok"}</h3>
-            <p className="text-sm text-[#6B7280] max-w-sm">{q ? "Farklı bir arama terimi deneyin." : "Müşterileriniz QR menüden sipariş verdiğinde burada görüntülenecek."}</p>
+            <h3 className="text-lg font-bold text-[var(--text-1)] mb-2">{q ? `"${q}" için sonuç bulunamadı` : "Henüz sipariş yok"}</h3>
+            <p className="text-sm text-[var(--text-2)] max-w-sm">{q ? "Farklı bir arama terimi deneyin." : "Müşterileriniz QR menüden sipariş verdiğinde burada görüntülenecek."}</p>
           </div>
         ) : (
           <>
@@ -183,23 +183,23 @@ export default async function OrdersPage({
                     <SortHeader col="table_id"     label={t.orders.cols.tableId} currentSort={validSort} currentDir={validDir} search={q} />
                     <SortHeader col="zone"         label={t.orders.cols.zone}    currentSort={validSort} currentDir={validDir} search={q} />
                     <SortHeader col="total_amount" label={t.orders.cols.amount}  currentSort={validSort} currentDir={validDir} search={q} />
-                    <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-[#9AA3B2]">{t.orders.cols.status}</th>
+                    <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">{t.orders.cols.status}</th>
                     <SortHeader col="created_at"   label={t.orders.cols.time}    currentSort={validSort} currentDir={validDir} search={q} />
                   </tr>
                 </thead>
                 <tbody>
                   {pagedOrders.map((order) => (
-                    <tr key={order.id} className="hover:bg-[#FAFAFD] transition-colors border-t border-[#E9E9F2]">
-                      <td className="px-8 py-5"><span className="font-bold text-[#1F2430]">#{order.id}</span></td>
-                      <td className="px-8 py-5"><span className="font-semibold text-[#1F2430]">{order.table_id}</span></td>
-                      <td className="px-8 py-5"><span className="text-sm text-[#6B7280]">{order.zone}</span></td>
+                    <tr key={order.id} className="hover:bg-[var(--bg-page)] transition-colors border-t border-[var(--border)]">
+                      <td className="px-8 py-5"><span className="font-bold text-[var(--text-1)]">#{order.id}</span></td>
+                      <td className="px-8 py-5"><span className="font-semibold text-[var(--text-1)]">{order.table_id}</span></td>
+                      <td className="px-8 py-5"><span className="text-sm text-[var(--text-2)]">{order.zone}</span></td>
                       <td className="px-8 py-5"><span className="font-bold text-[#7C6CF6]">₺{Number(order.total_amount).toLocaleString("tr-TR")}</span></td>
                       <td className="px-8 py-5">
-                        <span className={`px-3 py-1 rounded-full text-[10px] font-bold ${STATUS_STYLE[order.status] ?? "bg-[#F3F4F6] text-[#6B7280]"}`}>
+                        <span className={`px-3 py-1 rounded-full text-[10px] font-bold ${STATUS_STYLE[order.status] ?? "bg-[var(--bg-sidebar)] text-[var(--text-2)]"}`}>
                           {STATUS_LABEL[order.status] ?? order.status}
                         </span>
                       </td>
-                      <td className="px-8 py-5 text-sm text-[#6B7280]">
+                      <td className="px-8 py-5 text-sm text-[var(--text-2)]">
                         {new Date(order.created_at).toLocaleString("tr-TR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
                       </td>
                     </tr>
@@ -210,12 +210,12 @@ export default async function OrdersPage({
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="px-8 py-5 border-t border-[#E9E9F2] flex items-center justify-between">
-                <p className="text-xs text-[#9AA3B2]">{totalCount} sipariş · Sayfa {currentPage}/{totalPages}</p>
+              <div className="px-8 py-5 border-t border-[var(--border)] flex items-center justify-between">
+                <p className="text-xs text-[var(--text-muted)]">{totalCount} sipariş · Sayfa {currentPage}/{totalPages}</p>
                 <div className="flex gap-2">
                   {currentPage > 1 && (
                     <Link href={`/orders?sort=${validSort}&dir=${validDir}&page=${currentPage - 1}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
-                      className="px-3 py-1.5 text-xs font-bold bg-[#F6F6FB] border border-[#E9E9F2] rounded-full hover:border-[#7C6CF6] hover:text-[#7C6CF6] transition-colors">
+                      className="px-3 py-1.5 text-xs font-bold bg-[var(--bg-sidebar)] border border-[var(--border)] rounded-full hover:border-[#7C6CF6] hover:text-[#7C6CF6] transition-colors">
                       ← Önceki
                     </Link>
                   )}
