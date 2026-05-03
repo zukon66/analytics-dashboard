@@ -158,10 +158,21 @@ body {
   }
 }
 
+@keyframes navSweep {
+  0%   { left: -60%; width: 60%; }
+  50%  { left: 30%;  width: 50%; }
+  100% { left: 100%; width: 60%; }
+}
+
+.nav-progress-sweep {
+  animation: navSweep 1.1s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .kok-fade-in,
   .kok-fade-in-delayed,
-  .kok-pulse-soft {
+  .kok-pulse-soft,
+  .nav-progress-sweep {
     animation: none;
   }
 

@@ -1,46 +1,21 @@
+import { createServerClient } from "@supabase/ssr";
 import { NextRequest, NextResponse } from "next/server";
 
-const COOKIE_NAME = "kokos_session";
-const PUBLIC_PATHS = ["/login"];
+const ADMIN_COOKIE = "kokos_session";
+const DEMO_BUSINESS_COOKIE = "kokos_business_demo";
+const PUBLIC_PATHS = ["/admin", "/login", "/signup"];
 
-export async function proxy(req: NextRequest) {
-  const { pathname } = req.nextUrl;
-
-  // Public path'lere (login) izin ver
-  if (PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
-    return NextResponse.next();
-  }
-
-  const token = req.cookies.get(COOKIE_NAME)?.value;
-
-  if (!token) {
-    // Cookie yok → login'e yönlendir
-    const loginUrl = req.nextUrl.clone();
-    loginUrl.pathname = "/login";
-    return NextResponse.redirect(loginUrl);
-  }
-
-  // Token imzasını doğrula
-  const isValid = await verifyToken(token);
-  if (!isValid) {
-    const loginUrl = req.nextUrl.clone();
-    loginUrl.pathname = "/login";
-    const res = NextResponse.redirect(loginUrl);
-    res.cookies.delete(COOKIE_NAME);
-    return res;
-  }
-
-  return NextResponse.next();
+function isDemoBusinessLoginEnabled() {
+  return process.env.NODE_ENV !== "production" || process.env.ENABLE_DEMO_BUSINESS_LOGIN === "true";
 }
 
-async function verifyToken(token: string): Promise<boolean> {
+async function verifyAdminToken(token: string): Promise<boolean> {
   try {
     const lastDot = token.lastIndexOf(".");
     if (lastDot === -1) return false;
 
     const value = token.slice(0, lastDot);
     const providedSig = token.slice(lastDot + 1);
-
     const secret = process.env.AUTH_SECRET ?? "fallback-secret";
     const encoder = new TextEncoder();
     const key = await crypto.subtle.importKey(
@@ -50,11 +25,7 @@ async function verifyToken(token: string): Promise<boolean> {
       false,
       ["sign"]
     );
-    const signature = await crypto.subtle.sign(
-      "HMAC",
-      key,
-      encoder.encode(value)
-    );
+    const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(value));
     const expectedSig = Buffer.from(signature).toString("base64url");
     return providedSig === expectedSig;
   } catch {
@@ -62,8 +33,78 @@ async function verifyToken(token: string): Promise<boolean> {
   }
 }
 
+async function requireBusinessAuth(request: NextRequest) {
+  if (isDemoBusinessLoginEnabled() && request.cookies.get(DEMO_BUSINESS_COOKIE)?.value === "1") {
+    return NextResponse.next();
+  }
+
+  const response = NextResponse.next({ request });
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            request.cookies.set(name, value);
+            response.cookies.set(name, value, options);
+          });
+        },
+      },
+    }
+  );
+
+  let user;
+
+  try {
+    const result = await supabase.auth.getUser();
+    user = result.data.user;
+  } catch {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  if (!user) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  return response;
+}
+
+async function requireAdminAuth(request: NextRequest) {
+  const token = request.cookies.get(ADMIN_COOKIE)?.value;
+  if (!token) {
+    return NextResponse.redirect(new URL("/admin", request.url));
+  }
+
+  const valid = await verifyAdminToken(token);
+  if (!valid) {
+    const response = NextResponse.redirect(new URL("/admin", request.url));
+    response.cookies.delete(ADMIN_COOKIE);
+    return response;
+  }
+
+  return NextResponse.next();
+}
+
+export async function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  if (PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`))) {
+    return NextResponse.next();
+  }
+
+  if (pathname.startsWith("/portal")) {
+    return requireBusinessAuth(request);
+  }
+
+  return requireAdminAuth(request);
+}
+
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico).*)",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

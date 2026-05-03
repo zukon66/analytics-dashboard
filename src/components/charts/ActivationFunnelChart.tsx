@@ -12,8 +12,8 @@ const STAGES = [
   {
     key: "registered",
     icon: "store",
-    color: "#7C6CF6",
-    bg: "#EEEAFE",
+    color: "#A78BFA",
+    bg: "rgba(139,124,251,0.18)",
     getText: () => t.growth.funnel.stages.registered,
     getCount: (f: ActivationFunnel) => f.totalBusinesses,
     getPct: () => 100,
@@ -21,8 +21,8 @@ const STAGES = [
   {
     key: "activated",
     icon: "qr_code_scanner",
-    color: "#3B82F6",
-    bg: "#DBEAFE",
+    color: "#60A5FA",
+    bg: "rgba(59,130,246,0.18)",
     getText: () => t.growth.funnel.stages.activated,
     getCount: (f: ActivationFunnel) => f.activated1Plus,
     getPct: (f: ActivationFunnel) =>
@@ -33,8 +33,8 @@ const STAGES = [
   {
     key: "powerUser",
     icon: "bolt",
-    color: "#059669",
-    bg: "#DCFCE7",
+    color: "#34D399",
+    bg: "rgba(5,150,105,0.18)",
     getText: () => t.growth.funnel.stages.powerUser,
     getCount: (f: ActivationFunnel) => f.powerUsers10Plus,
     getPct: (f: ActivationFunnel) =>
@@ -80,13 +80,15 @@ export default function ActivationFunnelChart({ funnel }: Props) {
                     className="h-full rounded-2xl transition-all duration-300 flex items-center px-4"
                     style={{
                       width: barWidth,
-                      backgroundColor: isHovered ? stage.color : stage.bg,
+                      background: isHovered
+                        ? `linear-gradient(90deg, ${stage.color}55, ${stage.color})`
+                        : stage.bg,
                       minWidth: "80px",
                     }}
                   >
                     <span
                       className="material-symbols-outlined text-base flex-shrink-0"
-                      style={{ color: isHovered ? "white" : stage.color }}
+                      style={{ color: stage.color, fontVariationSettings: "'FILL' 1" }}
                     >
                       {stage.icon}
                     </span>
@@ -96,22 +98,23 @@ export default function ActivationFunnelChart({ funnel }: Props) {
                   <div className="absolute inset-0 flex items-center justify-between px-4 pointer-events-none">
                     <span
                       className="text-xs font-bold truncate ml-8"
-                      style={{ color: isHovered ? "white" : "var(--text-1)" }}
+                      style={{ color: "var(--text-1)" }}
                     >
                       {stage.getText()}
                     </span>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <span
                         className="text-base font-extrabold"
-                        style={{ color: isHovered ? "white" : stage.color }}
+                        style={{ color: stage.color }}
                       >
                         {count.toLocaleString("tr-TR")}
                       </span>
                       <span
                         className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
                         style={{
-                          backgroundColor: isHovered ? "rgba(255,255,255,0.25)" : stage.bg,
-                          color: isHovered ? "white" : stage.color,
+                          backgroundColor: `${stage.color}22`,
+                          color: stage.color,
+                          border: `1px solid ${stage.color}44`,
                         }}
                       >
                         %{pct}
@@ -137,7 +140,7 @@ export default function ActivationFunnelChart({ funnel }: Props) {
       {/* Alt özet */}
       <div className="mt-4 pt-4 border-t border-[var(--border)] grid grid-cols-2 gap-3">
         <div className="text-center">
-          <p className="text-lg font-extrabold text-[#3B82F6]">
+          <p className="text-lg font-extrabold" style={{ color: "#60A5FA" }}>
             %{funnel.totalBusinesses > 0
               ? Math.round((funnel.activated1Plus / funnel.totalBusinesses) * 100)
               : 0}
@@ -147,13 +150,13 @@ export default function ActivationFunnelChart({ funnel }: Props) {
           </p>
         </div>
         <div className="text-center">
-          <p className="text-lg font-extrabold text-[#059669]">
+          <p className="text-lg font-extrabold" style={{ color: "#34D399" }}>
             %{funnel.totalBusinesses > 0
               ? Math.round((funnel.powerUsers10Plus / funnel.totalBusinesses) * 100)
               : 0}
           </p>
           <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">
-            Güçlü Kullanıcı
+            Güçlü Kullanıcı (Son 7G)
           </p>
         </div>
       </div>

@@ -27,6 +27,20 @@ export const MOCK_END = "2026-05-31";
 const DAY_MS = 86400000;
 const zones = ["Salon", "Teras", "Paket", "Bahçe", "VIP"];
 const cityPool = ["Silifke", "Mersin", "Tarsus", "Erdemli", "Mut", "Adana"];
+const menuItems = [
+  { name: "Mercimek Çorbası", category: "Çorbalar", price: 95 },
+  { name: "Tavuk Şiş", category: "Ana Yemek", price: 260 },
+  { name: "Adana Kebap", category: "Ana Yemek", price: 320 },
+  { name: "Izgara Köfte", category: "Ana Yemek", price: 285 },
+  { name: "Lahmacun", category: "Fırın", price: 120 },
+  { name: "Çoban Salata", category: "Salatalar", price: 135 },
+  { name: "Patates Kızartması", category: "Ara Sıcak", price: 110 },
+  { name: "Humus", category: "Mezeler", price: 145 },
+  { name: "Ayran", category: "İçecekler", price: 45 },
+  { name: "Kola", category: "İçecekler", price: 65 },
+  { name: "Künefe", category: "Tatlılar", price: 185 },
+  { name: "Sütlaç", category: "Tatlılar", price: 120 },
+];
 const planFee: Record<Business["plan"], number> = {
   trial: 0,
   starter: 699,
@@ -96,16 +110,41 @@ for (let day = 2; day <= 31; day++) {
   }
 }
 
+function buildOrderItems(seed: number) {
+  const itemCount = 2 + (seed % 4);
+  const start = seed % menuItems.length;
+  return Array.from({ length: itemCount }, (_, index) => {
+    const menuItem = menuItems[(start + index) % menuItems.length];
+    const quantity = 1 + ((seed + index) % 3 === 0 ? 1 : 0);
+    const total = menuItem.price * quantity;
+    return {
+      name: menuItem.name,
+      category: menuItem.category,
+      quantity,
+      unit_price: menuItem.price,
+      total,
+    };
+  });
+}
+
 const orders: Order[] = scans
   .filter((scan) => scan.id % 4 === 0 || scan.duration_minutes > 15)
-  .map((scan, index) => ({
-    id: 1000 + index,
-    table_id: scan.table_id,
-    zone: scan.zone,
-    total_amount: 145 + ((scan.id * 37) % 920),
-    status: scan.id % 17 === 0 ? "cancelled" : scan.id % 7 === 0 ? "pending" : "completed",
-    created_at: scan.scanned_at.replace(/:(\d{2})$/, ":30"),
-  }));
+  .map((scan, index) => {
+    const createdAt = scan.scanned_at.replace(/:(\d{2})$/, ":30");
+    const isLatestServiceDay = createdAt.startsWith("2026-05-31");
+    const isRecentHour = new Date(createdAt).getHours() >= 18;
+    const items = buildOrderItems(scan.id + index);
+
+    return {
+      id: 1000 + index,
+      table_id: scan.table_id,
+      zone: scan.zone,
+      total_amount: items.reduce((sum, item) => sum + item.total, 0),
+      status: scan.id % 17 === 0 ? "cancelled" : isLatestServiceDay && isRecentHour && scan.id % 7 === 0 ? "pending" : "completed",
+      created_at: createdAt,
+      items,
+    };
+  });
 
 const customers: Customer[] = Array.from({ length: 96 }, (_, i) => {
   const day = 2 + (i % 30);
@@ -291,6 +330,142 @@ export function mockGetCustomerCount(search = "", businessId?: number): number {
   return mockGetCustomers(1000, 0, search, businessId).length;
 }
 
+export function mockGetTablePerformance(search = "", businessId?: number) {
+  const q = search.toLocaleLowerCase("tr-TR");
+  const scanRows = scans.filter((scan) => !businessId || scan.business_id === businessId);
+  const orderRows = filterOrders("", businessId);
+  const orderMap: Record<string, Order[]> = {};
+
+  for (const order of orderRows) {
+    orderMap[order.table_id] ??= [];
+    orderMap[order.table_id].push(order);
+  }
+
+  const map: Record<
+    string,
+    {
+      tableId: string;
+      zone: string;
+      scans: number;
+      totalDuration: number;
+      orders: number;
+      revenue: number;
+      lastActivity: string;
+      hourly: Record<number, number>;
+    }
+  > = {};
+
+  for (const scan of scanRows) {
+    map[scan.table_id] ??= {
+      tableId: scan.table_id,
+      zone: scan.zone,
+      scans: 0,
+      totalDuration: 0,
+      orders: 0,
+      revenue: 0,
+      lastActivity: scan.scanned_at,
+      hourly: {},
+    };
+    const row = map[scan.table_id];
+    row.zone = scan.zone;
+    row.scans += 1;
+    row.totalDuration += scan.duration_minutes;
+    row.lastActivity = scan.scanned_at > row.lastActivity ? scan.scanned_at : row.lastActivity;
+    const hour = new Date(scan.scanned_at).getHours();
+    row.hourly[hour] = (row.hourly[hour] ?? 0) + 1;
+  }
+
+  for (const [tableId, rows] of Object.entries(orderMap)) {
+    map[tableId] ??= {
+      tableId,
+      zone: rows[0]?.zone ?? "Salon",
+      scans: 0,
+      totalDuration: 0,
+      orders: 0,
+      revenue: 0,
+      lastActivity: rows[0]?.created_at ?? "2026-05-31T00:00:00",
+      hourly: {},
+    };
+    const row = map[tableId];
+    row.orders += rows.length;
+    row.revenue += rows.filter((order) => order.status !== "cancelled").reduce((sum, order) => sum + order.total_amount, 0);
+    for (const order of rows) {
+      row.lastActivity = order.created_at > row.lastActivity ? order.created_at : row.lastActivity;
+    }
+  }
+
+  return Object.values(map)
+    .map((row) => {
+      const peakHour = Object.entries(row.hourly).sort((a, b) => b[1] - a[1])[0]?.[0];
+      return {
+        tableId: row.tableId,
+        zone: row.zone,
+        scans: row.scans,
+        orders: row.orders,
+        revenue: row.revenue,
+        avgAmount: Math.round(row.revenue / Math.max(row.orders, 1)),
+        avgDuration: Math.round(row.totalDuration / Math.max(row.scans, 1)),
+        conversionRate: Math.round((row.orders / Math.max(row.scans, 1)) * 100),
+        peakHour: peakHour ? `${peakHour.padStart(2, "0")}:00` : "--",
+        lastActivity: row.lastActivity,
+      };
+    })
+    .filter((row) => !q || row.tableId.toLocaleLowerCase("tr-TR").includes(q) || row.zone.toLocaleLowerCase("tr-TR").includes(q))
+    .sort((a, b) => b.revenue - a.revenue);
+}
+
+export function mockGetTableDetail(tableId: string, businessId?: number) {
+  const normalizedTableId = decodeURIComponent(tableId);
+  const scanRows = scans
+    .filter((scan) => scan.table_id === normalizedTableId && (!businessId || scan.business_id === businessId))
+    .sort((a, b) => b.scanned_at.localeCompare(a.scanned_at));
+  const orderRows = filterOrders("", businessId)
+    .filter((order) => order.table_id === normalizedTableId)
+    .sort((a, b) => b.created_at.localeCompare(a.created_at));
+  const performance = mockGetTablePerformance("", businessId).find((table) => table.tableId === normalizedTableId);
+
+  const hourly = Array.from({ length: 24 }, (_, hour) => ({
+    hour: `${String(hour).padStart(2, "0")}:00`,
+    scans: scanRows.filter((scan) => new Date(scan.scanned_at).getHours() === hour).length,
+    orders: orderRows.filter((order) => new Date(order.created_at).getHours() === hour).length,
+  }));
+
+  const statusBreakdown = {
+    completed: orderRows.filter((order) => order.status === "completed").length,
+    pending: orderRows.filter((order) => order.status === "pending").length,
+    cancelled: orderRows.filter((order) => order.status === "cancelled").length,
+  };
+
+  const zone = performance?.zone ?? scanRows[0]?.zone ?? orderRows[0]?.zone ?? "Salon";
+  const revenue = orderRows
+    .filter((order) => order.status !== "cancelled")
+    .reduce((sum, order) => sum + order.total_amount, 0);
+
+  return {
+    summary: performance ?? {
+      tableId: normalizedTableId,
+      zone,
+      scans: scanRows.length,
+      orders: orderRows.length,
+      revenue,
+      avgAmount: Math.round(revenue / Math.max(orderRows.length, 1)),
+      avgDuration: Math.round(scanRows.reduce((sum, scan) => sum + scan.duration_minutes, 0) / Math.max(scanRows.length, 1)),
+      conversionRate: Math.round((orderRows.length / Math.max(scanRows.length, 1)) * 100),
+      peakHour: hourly.sort((a, b) => b.scans - a.scans)[0]?.hour ?? "--",
+      lastActivity: scanRows[0]?.scanned_at ?? orderRows[0]?.created_at ?? "2026-05-31T00:00:00",
+    },
+    hourly: hourly.sort((a, b) => b.scans + b.orders - (a.scans + a.orders)).slice(0, 8),
+    statusBreakdown,
+    recentOrders: orderRows.slice(0, 12),
+    recentScans: scanRows.slice(0, 8).map((scan) => ({
+      id: scan.id,
+      scanned_at: scan.scanned_at,
+      duration_minutes: scan.duration_minutes,
+      zone: scan.zone,
+    })),
+  };
+}
+
 export function mockGetMrrTrend(): MrrTrendPoint[] {
   const labels = ["Haz 2025", "Tem 2025", "Ağu 2025", "Eyl 2025", "Eki 2025", "Kas 2025", "Ara 2025", "Oca 2026", "Şub 2026", "Mar 2026", "Nis 2026", "May 2026"];
   return labels.map((label, i) => ({ month_label: label, month_start: `${i < 7 ? 2025 : 2026}-${String(((i + 5) % 12) + 1).padStart(2, "0")}-01`, revenue: 5200 + i * 1450 + (i % 3) * 700 }));
@@ -320,7 +495,16 @@ export function mockGetNewRegistrations(lookbackDays = 30): NewRegistration[] {
 
 export function mockGetActivationFunnel(): ActivationFunnel {
   const activated = mockBusinesses.filter((b) => scans.some((s) => s.business_id === b.id)).length;
-  const power = mockBusinesses.filter((b) => scans.filter((s) => s.business_id === b.id).length >= 10).length;
+  // Güçlü kullanıcı: son 7 günde (Mayıs 25-31) 10+ tarama alan işletmeler
+  const recentFrom = new Date("2026-05-25T00:00:00");
+  const recentTo   = new Date("2026-05-31T23:59:59");
+  const recentCount: Record<number, number> = {};
+  for (const s of scans) {
+    const d = new Date(s.scanned_at);
+    if (d >= recentFrom && d <= recentTo)
+      recentCount[s.business_id] = (recentCount[s.business_id] ?? 0) + 1;
+  }
+  const power = mockBusinesses.filter((b) => (recentCount[b.id] ?? 0) >= 10).length;
   return { totalBusinesses: mockBusinesses.length, activated1Plus: activated, powerUsers10Plus: power };
 }
 

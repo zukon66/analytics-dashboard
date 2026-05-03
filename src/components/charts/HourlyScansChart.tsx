@@ -5,7 +5,6 @@ import {
   Bar,
   XAxis,
   YAxis,
-  Tooltip,
   ResponsiveContainer,
   Cell,
 } from "recharts";
@@ -74,18 +73,7 @@ export default function HourlyScansChart({ data, period = "today" }: Props) {
             tickLine={false}
           />
           <YAxis hide />
-          <Tooltip
-            contentStyle={{
-              background: "rgba(13, 14, 22, 0.94)",
-              border: "1px solid rgba(139,124,251,0.28)",
-              borderRadius: "16px",
-              boxShadow: "0 18px 44px rgba(0,0,0,0.35)",
-              fontSize: 12,
-              color: "#F7F7FF",
-            }}
-            cursor={{ fill: "rgba(139,124,251,0.08)" }}
-          />
-          <Bar dataKey="scans" radius={[10, 10, 2, 2]} fill="#C4B5FD" isAnimationActive>
+          <Bar dataKey="scans" radius={[10, 10, 2, 2]} fill="#C4B5FD" isAnimationActive={false}>
             {data.map((entry, index) => (
               <Cell
                 key={index}

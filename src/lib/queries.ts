@@ -1,4 +1,5 @@
-import { supabase } from "./supabase";
+import { cookies } from "next/headers";
+import { createSupabaseServer } from "./supabase/server";
 import {
   hasRows,
   mockGetActivationFunnel,
@@ -13,6 +14,8 @@ import {
   mockGetCustomers,
   mockGetCustomerStats,
   mockGetDailyScanCounts,
+  mockGetTablePerformance,
+  mockGetTableDetail,
   mockGetMrrTrend,
   mockGetNewRegistrations,
   mockGetOrders,
@@ -30,6 +33,14 @@ import {
 } from "./mockData";
 
 // ─── HELPERS ──────────────────────────────────────────────────
+
+async function getDb() {
+  const cookieStore = await cookies();
+  if (cookieStore.get("kokos_business_demo")?.value === "1") {
+    throw new Error("Demo işletme oturumunda mock veri kullanılıyor.");
+  }
+  return createSupabaseServer();
+}
 
 function getPeriodRange(period: string): { from: string; to: string } {
   const now = new Date();
@@ -71,7 +82,7 @@ export type Business = {
 
 export async function getBusinesses(search = ""): Promise<QueryResult<Business[]>> {
   try {
-    const { data, error } = await supabase.rpc("get_businesses_list", { search_term: search });
+    const { data, error } = await (await getDb()).rpc("get_businesses_list", { search_term: search });
     if (error) throw error;
     const rows = (data as Business[]) ?? [];
     return { data: hasRows(rows) ? rows : mockGetBusinesses(search), error: null };
@@ -82,7 +93,7 @@ export async function getBusinesses(search = ""): Promise<QueryResult<Business[]
 
 export async function getBusinessById(id: number): Promise<QueryResult<Business | null>> {
   try {
-    const { data, error } = await supabase.rpc("get_business_by_id", { business_id: id });
+    const { data, error } = await (await getDb()).rpc("get_business_by_id", { business_id: id });
     if (error) throw error;
     const rows = data as Business[];
     return { data: rows?.[0] ?? mockGetBusinessById(id), error: null };
@@ -104,7 +115,7 @@ export async function getPlatformKPIs(): Promise<
   }>
 > {
   try {
-    const { data, error } = await supabase.rpc("get_platform_kpis");
+    const { data, error } = await (await getDb()).rpc("get_platform_kpis");
     if (error) throw error;
     const rows = data as Array<{
       totalbusinesses: number; activebusinesses: number; churnriskcount: number;
@@ -132,7 +143,7 @@ export async function getChurnRiskBusinesses(inactiveDays = 14): Promise<
   QueryResult<Array<Business & { daysSinceActive: number }>>
 > {
   try {
-    const { data, error } = await supabase.rpc("get_churn_risk_businesses", { inactive_days: inactiveDays });
+    const { data, error } = await (await getDb()).rpc("get_churn_risk_businesses", { inactive_days: inactiveDays });
     if (error) throw error;
     const rows = (data ?? []) as Array<Business & { days_since_active: number }>;
     return {
@@ -157,8 +168,7 @@ export async function getBusinessScanCounts(
   if (businessIds.length === 0) return {};
   const from = new Date(Date.now() - days * 86400000).toISOString();
   try {
-    const { data } = await supabase
-      .from("scans")
+    const { data } = await (await getDb()).from("scans")
       .select("business_id")
       .in("business_id", businessIds)
       .gte("scanned_at", from);
@@ -180,7 +190,7 @@ export async function getScansByHour(
 ): Promise<QueryResult<Array<{ hour: string; scans: number }>>> {
   const { from, to } = getPeriodRange(period);
   try {
-    let query = supabase.from("scans").select("scanned_at").gte("scanned_at", from).lte("scanned_at", to);
+    let query = (await getDb()).from("scans").select("scanned_at").gte("scanned_at", from).lte("scanned_at", to);
     query = applyBusinessFilter(query, businessId);
     const { data, error } = await query;
     if (error) throw error;
@@ -207,7 +217,7 @@ export async function getScansByCity(
 ): Promise<QueryResult<Array<{ city: string; scans: number }>>> {
   const { from, to } = getPeriodRange(period);
   try {
-    let query = supabase.from("scans").select("city").gte("scanned_at", from).lte("scanned_at", to);
+    let query = (await getDb()).from("scans").select("city").gte("scanned_at", from).lte("scanned_at", to);
     query = applyBusinessFilter(query, businessId);
     const { data, error } = await query;
     if (error) throw error;
@@ -229,8 +239,7 @@ export async function getScansByPlan(
 ): Promise<QueryResult<Array<{ zone: string; scans: number }>>> {
   const { from, to } = getPeriodRange(period);
   try {
-    const { data, error } = await supabase
-      .from("scans")
+    const { data, error } = await (await getDb()).from("scans")
       .select("business_id, businesses!inner(plan)")
       .gte("scanned_at", from)
       .lte("scanned_at", to);
@@ -267,7 +276,7 @@ export async function getScansByZone(
 ): Promise<QueryResult<Array<{ zone: string; scans: number }>>> {
   const { from, to } = getPeriodRange(period);
   try {
-    let query = supabase.from("scans").select("zone").gte("scanned_at", from).lte("scanned_at", to);
+    let query = (await getDb()).from("scans").select("zone").gte("scanned_at", from).lte("scanned_at", to);
     query = applyBusinessFilter(query, businessId);
     const { data, error } = await query;
     if (error) throw error;
@@ -288,8 +297,7 @@ export async function getTopTables(
 ): Promise<QueryResult<Array<{ tableId: string; zone: string; scans: number; avgDuration: number }>>> {
   const { from, to } = getPeriodRange(period);
   try {
-    let query = supabase
-      .from("scans")
+    let query = (await getDb()).from("scans")
       .select("table_id, zone, duration_minutes")
       .gte("scanned_at", from)
       .lte("scanned_at", to);
@@ -324,7 +332,7 @@ export async function getPeriodKPIs(
 ): Promise<QueryResult<{ totalScans: number; peakHour: string; activeCities: number; activeZones: number }>> {
   const { from, to } = getPeriodRange(period);
   try {
-    let query = supabase.from("scans").select("scanned_at, city, zone").gte("scanned_at", from).lte("scanned_at", to);
+    let query = (await getDb()).from("scans").select("scanned_at, city, zone").gte("scanned_at", from).lte("scanned_at", to);
     query = applyBusinessFilter(query, businessId);
     const { data, error } = await query;
     if (error) throw error;
@@ -372,7 +380,7 @@ export async function getComparisonKPIs(
     const prevTo = new Date(now.getTime() - 7 * 86400000).toISOString();
     const prevFrom = new Date(now.getTime() - 14 * 86400000).toISOString();
     try {
-      let query = supabase.from("scans").select("scanned_at, city, zone").gte("scanned_at", prevFrom).lte("scanned_at", prevTo);
+      let query = (await getDb()).from("scans").select("scanned_at, city, zone").gte("scanned_at", prevFrom).lte("scanned_at", prevTo);
       query = applyBusinessFilter(query, businessId);
       const { data, error } = await query;
       if (error) throw error;
@@ -396,7 +404,7 @@ export async function getComparisonKPIs(
     const prevTo = new Date(now.getTime() - 30 * 86400000).toISOString();
     const prevFrom = new Date(now.getTime() - 60 * 86400000).toISOString();
     try {
-      let query = supabase.from("scans").select("scanned_at, city, zone").gte("scanned_at", prevFrom).lte("scanned_at", prevTo);
+      let query = (await getDb()).from("scans").select("scanned_at, city, zone").gte("scanned_at", prevFrom).lte("scanned_at", prevTo);
       query = applyBusinessFilter(query, businessId);
       const { data, error } = await query;
       if (error) throw error;
@@ -427,7 +435,7 @@ export async function getWeeklyStats(
 ): Promise<QueryResult<{ total: number; avgPerDay: number; bestDay: string; dailyData: Array<{ day: string; scans: number }> }>> {
   const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
   try {
-    let query = supabase.from("scans").select("scanned_at").gte("scanned_at", weekAgo);
+    let query = (await getDb()).from("scans").select("scanned_at").gte("scanned_at", weekAgo);
     query = applyBusinessFilter(query, businessId);
     const { data, error } = await query;
     if (error) throw error;
@@ -452,6 +460,14 @@ export async function getWeeklyStats(
 
 // ─── ORDERS ───────────────────────────────────────────────────
 
+export type OrderItem = {
+  name: string;
+  category: string;
+  quantity: number;
+  unit_price: number;
+  total: number;
+};
+
 export type Order = {
   id: number;
   table_id: string;
@@ -459,6 +475,7 @@ export type Order = {
   total_amount: number;
   status: "completed" | "pending" | "cancelled";
   created_at: string;
+  items?: OrderItem[];
 };
 
 const VALID_ORDER_SORT_COLS = ["id", "table_id", "total_amount", "created_at", "zone", "status"] as const;
@@ -475,8 +492,7 @@ export async function getOrders(
     ? (sortBy as OrderSortCol)
     : "created_at";
   try {
-    let query = supabase
-      .from("orders")
+    let query = (await getDb()).from("orders")
       .select("id, table_id, zone, total_amount, status, created_at")
       .order(col, { ascending: sortDir === "asc" })
       .limit(limit);
@@ -495,7 +511,7 @@ export async function getOrderStats(
   businessId?: number
 ): Promise<QueryResult<{ totalRevenue: number; completed: number; pending: number; cancelled: number; avgAmount: number; cancelRate: number }>> {
   try {
-    let query = supabase.from("orders").select("total_amount, status");
+    let query = (await getDb()).from("orders").select("total_amount, status");
     query = applyBusinessFilter(query, businessId);
     const { data, error } = await query;
     if (error) throw error;
@@ -526,8 +542,8 @@ export async function getConversionRate(
   businessId?: number
 ): Promise<QueryResult<{ scanCount: number; orderCount: number; rate: number }>> {
   try {
-    let scansQuery = supabase.from("scans").select("id", { count: "exact", head: true });
-    let ordersQuery = supabase.from("orders").select("id", { count: "exact", head: true });
+    let scansQuery = (await getDb()).from("scans").select("id", { count: "exact", head: true });
+    let ordersQuery = (await getDb()).from("orders").select("id", { count: "exact", head: true });
     scansQuery = applyBusinessFilter(scansQuery, businessId);
     ordersQuery = applyBusinessFilter(ordersQuery, businessId);
 
@@ -562,8 +578,7 @@ export async function getCustomers(
   businessId?: number
 ): Promise<QueryResult<Customer[]>> {
   try {
-    let query = supabase
-      .from("customers")
+    let query = (await getDb()).from("customers")
       .select("id, name, city, visit_count, last_visit")
       .order("visit_count", { ascending: false })
       .range(offset, offset + limit - 1);
@@ -582,7 +597,7 @@ export async function getCustomerStats(
   businessId?: number
 ): Promise<QueryResult<{ total: number; returning: number; newThisWeek: number }>> {
   try {
-    let query = supabase.from("customers").select("visit_count, last_visit");
+    let query = (await getDb()).from("customers").select("visit_count, last_visit");
     query = applyBusinessFilter(query, businessId);
     const { data, error } = await query;
     if (error) throw error;
@@ -600,13 +615,211 @@ export async function getCustomerStats(
 
 export async function getCustomerCount(search = "", businessId?: number): Promise<number> {
   try {
-    let query = supabase.from("customers").select("id", { count: "exact", head: true });
+    let query = (await getDb()).from("customers").select("id", { count: "exact", head: true });
     if (search) query = query.or(`name.ilike.%${search}%,city.ilike.%${search}%`);
     query = applyBusinessFilter(query, businessId);
     const { count } = await query;
     return count && count > 0 ? count : mockGetCustomerCount(search, businessId);
   } catch {
     return mockGetCustomerCount(search, businessId);
+  }
+}
+
+export type TablePerformance = {
+  tableId: string;
+  zone: string;
+  scans: number;
+  orders: number;
+  revenue: number;
+  avgAmount: number;
+  avgDuration: number;
+  conversionRate: number;
+  peakHour: string;
+  lastActivity: string;
+};
+
+export type TableDetail = {
+  summary: TablePerformance;
+  hourly: Array<{ hour: string; scans: number; orders: number }>;
+  statusBreakdown: { completed: number; pending: number; cancelled: number };
+  recentOrders: Order[];
+  recentScans: Array<{ id: number; scanned_at: string; duration_minutes: number; zone: string }>;
+};
+
+export async function getTablePerformance(
+  search = "",
+  businessId?: number
+): Promise<QueryResult<TablePerformance[]>> {
+  try {
+    let scansQuery = (await getDb()).from("scans")
+      .select("table_id, zone, scanned_at, duration_minutes")
+      .order("scanned_at", { ascending: false });
+    let ordersQuery = (await getDb()).from("orders")
+      .select("table_id, zone, total_amount, status, created_at")
+      .order("created_at", { ascending: false });
+
+    scansQuery = applyBusinessFilter(scansQuery, businessId);
+    ordersQuery = applyBusinessFilter(ordersQuery, businessId);
+
+    if (search) {
+      scansQuery = scansQuery.or(`table_id.ilike.%${search}%,zone.ilike.%${search}%`);
+      ordersQuery = ordersQuery.or(`table_id.ilike.%${search}%,zone.ilike.%${search}%`);
+    }
+
+    const [scansRes, ordersRes] = await Promise.all([scansQuery, ordersQuery]);
+    if (scansRes.error) throw scansRes.error;
+    if (ordersRes.error) throw ordersRes.error;
+
+    const map: Record<
+      string,
+      {
+        tableId: string;
+        zone: string;
+        scans: number;
+        totalDuration: number;
+        orders: number;
+        revenue: number;
+        lastActivity: string;
+        hourly: Record<number, number>;
+      }
+    > = {};
+
+    scansRes.data?.forEach((scan) => {
+      map[scan.table_id] ??= {
+        tableId: scan.table_id,
+        zone: scan.zone,
+        scans: 0,
+        totalDuration: 0,
+        orders: 0,
+        revenue: 0,
+        lastActivity: scan.scanned_at,
+        hourly: {},
+      };
+      const row = map[scan.table_id];
+      row.zone = scan.zone;
+      row.scans += 1;
+      row.totalDuration += scan.duration_minutes ?? 0;
+      row.lastActivity = scan.scanned_at > row.lastActivity ? scan.scanned_at : row.lastActivity;
+      const hour = new Date(scan.scanned_at).getHours();
+      row.hourly[hour] = (row.hourly[hour] ?? 0) + 1;
+    });
+
+    ordersRes.data?.forEach((order) => {
+      map[order.table_id] ??= {
+        tableId: order.table_id,
+        zone: order.zone,
+        scans: 0,
+        totalDuration: 0,
+        orders: 0,
+        revenue: 0,
+        lastActivity: order.created_at,
+        hourly: {},
+      };
+      const row = map[order.table_id];
+      row.zone = order.zone;
+      row.orders += 1;
+      row.revenue += order.status === "cancelled" ? 0 : Number(order.total_amount ?? 0);
+      row.lastActivity = order.created_at > row.lastActivity ? order.created_at : row.lastActivity;
+    });
+
+    const rows = Object.values(map)
+      .map((row) => {
+        const peakHour = Object.entries(row.hourly).sort((a, b) => b[1] - a[1])[0]?.[0];
+        return {
+          tableId: row.tableId,
+          zone: row.zone,
+          scans: row.scans,
+          orders: row.orders,
+          revenue: row.revenue,
+          avgAmount: Math.round(row.revenue / Math.max(row.orders, 1)),
+          avgDuration: Math.round(row.totalDuration / Math.max(row.scans, 1)),
+          conversionRate: Math.round((row.orders / Math.max(row.scans, 1)) * 100),
+          peakHour: peakHour ? `${peakHour.padStart(2, "0")}:00` : "--",
+          lastActivity: row.lastActivity,
+        };
+      })
+      .sort((a, b) => b.revenue - a.revenue);
+
+    return { data: hasRows(rows) ? rows : mockGetTablePerformance(search, businessId), error: null };
+  } catch {
+    return { data: mockGetTablePerformance(search, businessId), error: null };
+  }
+}
+
+export async function getTableDetail(
+  tableId: string,
+  businessId?: number
+): Promise<QueryResult<TableDetail>> {
+  const normalizedTableId = decodeURIComponent(tableId);
+
+  try {
+    let scansQuery = (await getDb()).from("scans")
+      .select("id, table_id, zone, scanned_at, duration_minutes")
+      .eq("table_id", normalizedTableId)
+      .order("scanned_at", { ascending: false });
+    let ordersQuery = (await getDb()).from("orders")
+      .select("id, table_id, zone, total_amount, status, created_at")
+      .eq("table_id", normalizedTableId)
+      .order("created_at", { ascending: false });
+
+    scansQuery = applyBusinessFilter(scansQuery, businessId);
+    ordersQuery = applyBusinessFilter(ordersQuery, businessId);
+
+    const [scansRes, ordersRes, performanceRes] = await Promise.all([
+      scansQuery,
+      ordersQuery,
+      getTablePerformance("", businessId),
+    ]);
+    if (scansRes.error) throw scansRes.error;
+    if (ordersRes.error) throw ordersRes.error;
+
+    const scans = scansRes.data ?? [];
+    const orders = (ordersRes.data as Order[] | null) ?? [];
+    const performance = performanceRes.data.find((table) => table.tableId === normalizedTableId);
+    const revenue = orders
+      .filter((order) => order.status !== "cancelled")
+      .reduce((sum, order) => sum + Number(order.total_amount ?? 0), 0);
+    const hourly = Array.from({ length: 24 }, (_, hour) => ({
+      hour: `${String(hour).padStart(2, "0")}:00`,
+      scans: scans.filter((scan) => new Date(scan.scanned_at).getHours() === hour).length,
+      orders: orders.filter((order) => new Date(order.created_at).getHours() === hour).length,
+    }))
+      .sort((a, b) => b.scans + b.orders - (a.scans + a.orders))
+      .slice(0, 8);
+
+    const summary: TablePerformance = performance ?? {
+      tableId: normalizedTableId,
+      zone: scans[0]?.zone ?? orders[0]?.zone ?? "Salon",
+      scans: scans.length,
+      orders: orders.length,
+      revenue,
+      avgAmount: Math.round(revenue / Math.max(orders.length, 1)),
+      avgDuration: Math.round(scans.reduce((sum, scan) => sum + (scan.duration_minutes ?? 0), 0) / Math.max(scans.length, 1)),
+      conversionRate: Math.round((orders.length / Math.max(scans.length, 1)) * 100),
+      peakHour: hourly[0]?.hour ?? "--",
+      lastActivity: scans[0]?.scanned_at ?? orders[0]?.created_at ?? new Date().toISOString(),
+    };
+
+    const rows: TableDetail = {
+      summary,
+      hourly,
+      statusBreakdown: {
+        completed: orders.filter((order) => order.status === "completed").length,
+        pending: orders.filter((order) => order.status === "pending").length,
+        cancelled: orders.filter((order) => order.status === "cancelled").length,
+      },
+      recentOrders: orders.slice(0, 12),
+      recentScans: scans.slice(0, 8).map((scan) => ({
+        id: scan.id,
+        scanned_at: scan.scanned_at,
+        duration_minutes: scan.duration_minutes ?? 0,
+        zone: scan.zone,
+      })),
+    };
+
+    return { data: rows.summary.scans > 0 || rows.summary.orders > 0 ? rows : mockGetTableDetail(normalizedTableId, businessId), error: null };
+  } catch {
+    return { data: mockGetTableDetail(normalizedTableId, businessId), error: null };
   }
 }
 
@@ -653,7 +866,7 @@ export type ActivationFunnel = {
 
 export async function getMrrTrend(): Promise<QueryResult<MrrTrendPoint[]>> {
   try {
-    const { data, error } = await supabase.rpc("get_mrr_trend");
+    const { data, error } = await (await getDb()).rpc("get_mrr_trend");
     if (error) throw error;
     const rows = (data ?? []) as Array<{
       month_label: string;
@@ -688,7 +901,7 @@ export async function getMrrTrend(): Promise<QueryResult<MrrTrendPoint[]>> {
 
 export async function getCurrentMrr(): Promise<QueryResult<{ totalMrr: number; breakdown: MrrPlanBreakdown[] }>> {
   try {
-    const { data, error } = await supabase.rpc("get_current_mrr");
+    const { data, error } = await (await getDb()).rpc("get_current_mrr");
     if (error) throw error;
     const rows = (data ?? []) as MrrPlanBreakdown[];
     const totalMrr = rows.reduce((s, r) => s + Number(r.plan_mrr), 0);
@@ -700,7 +913,7 @@ export async function getCurrentMrr(): Promise<QueryResult<{ totalMrr: number; b
 
 export async function getTrialExpirations(warningDays = 14): Promise<QueryResult<TrialExpiration[]>> {
   try {
-    const { data, error } = await supabase.rpc("get_trial_expirations", { warning_days: warningDays });
+    const { data, error } = await (await getDb()).rpc("get_trial_expirations", { warning_days: warningDays });
     if (error) throw error;
     const rows = (data as TrialExpiration[]) ?? [];
     return { data: hasRows(rows) ? rows : mockGetTrialExpirations(warningDays), error: null };
@@ -711,7 +924,7 @@ export async function getTrialExpirations(warningDays = 14): Promise<QueryResult
 
 export async function getNewRegistrations(lookbackDays = 30): Promise<QueryResult<NewRegistration[]>> {
   try {
-    const { data, error } = await supabase.rpc("get_new_registrations", { lookback_days: lookbackDays });
+    const { data, error } = await (await getDb()).rpc("get_new_registrations", { lookback_days: lookbackDays });
     if (error) throw error;
     const rows = (data as NewRegistration[]) ?? [];
     return { data: hasRows(rows) ? rows : mockGetNewRegistrations(lookbackDays), error: null };
@@ -722,7 +935,7 @@ export async function getNewRegistrations(lookbackDays = 30): Promise<QueryResul
 
 export async function getActivationFunnel(): Promise<QueryResult<ActivationFunnel>> {
   try {
-    const { data, error } = await supabase.rpc("get_activation_funnel");
+    const { data, error } = await (await getDb()).rpc("get_activation_funnel");
     if (error) throw error;
     const row = (data as Array<{
       total_businesses: number;
@@ -753,7 +966,7 @@ export type PlatformAverages = {
 
 export async function getPlatformAverages(period = "7d"): Promise<QueryResult<PlatformAverages>> {
   try {
-    const { data, error } = await supabase.rpc("get_platform_averages", { period_key: period });
+    const { data, error } = await (await getDb()).rpc("get_platform_averages", { period_key: period });
     if (error) throw error;
     const row = (data as Array<{
       avg_scans: number;
@@ -781,8 +994,7 @@ export async function getDailyScanCounts(
 ): Promise<QueryResult<Array<{ date: string; scans: number }>>> {
   const from = new Date(Date.now() - days * 86400000).toISOString();
   try {
-    const { data, error } = await supabase
-      .from("scans")
+    const { data, error } = await (await getDb()).from("scans")
       .select("scanned_at")
       .gte("scanned_at", from);
     if (error) throw error;
@@ -818,7 +1030,7 @@ export async function getCustomerGrowthTrend(
   granularity: "weekly" | "monthly" = "weekly"
 ): Promise<QueryResult<CustomerGrowthPoint[]>> {
   try {
-    const { data, error } = await supabase.rpc("get_customer_growth_trend", { granularity });
+    const { data, error } = await (await getDb()).rpc("get_customer_growth_trend", { granularity });
     if (error) throw error;
     const rows = ((data ?? []) as Array<{ period_label: string; new_customers: number }>).map((r) => ({
         label:        r.period_label,

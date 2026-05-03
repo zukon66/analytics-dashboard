@@ -1,9 +1,24 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { logout } from "@/app/actions/auth";
+import { businessLogout } from "@/app/actions/business-auth";
 import t from "@/lib/i18n";
+
+const GLOSSARY = [
+  { term: "QR Tarama", def: "Müşterinin menü QR kodunu telefonu ile okutması. Her okutma bir tarama sayılır." },
+  { term: "MRR", def: "Monthly Recurring Revenue — İşletmelerin aylık abonelik ödemeleri toplamı (₺)." },
+  { term: "Trial (Deneme)", def: "Ödeme yapılmadan kullanılan 14 günlük deneme sürecindeki işletme." },
+  { term: "Churn Riski", def: "Son 14 gündür hiç QR taraması almamış, platform bağlantısı kopma riski taşıyan işletme." },
+  { term: "Aktivasyon", def: "İşletmenin ilk kez QR taraması alarak sisteme aktif olarak dahil olması." },
+  { term: "Pasif İşletme", def: "Son 14 gündür hiç tarama aktivitesi olmayan işletme. Aksiyon gerektirir." },
+  { term: "Plan", def: "İşletmenin abonelik paketi: Trial → Starter → Pro → Enterprise sıralamasıyla ilerler." },
+  { term: "Haftalık Tarama", def: "Son 7 günde o işletmenin aldığı toplam QR taraması sayısı." },
+  { term: "Aktivasyon Oranı", def: "Platforma kayıtlı işletmeler içinden en az bir tarama almış olanların yüzdesi." },
+  { term: "MRR · Trial · Aktivasyon", def: "Büyüme panelindeki üç ana metrik: gelir tabanı, deneme havuzu ve dönüşüm sağlığı." },
+];
 
 const navItems = [
   { href: "/", icon: "monitor_heart", label: t.nav.dashboard, exact: true },
@@ -12,10 +27,24 @@ const navItems = [
   { href: "/settings", icon: "settings", label: t.nav.settings, exact: true },
 ];
 
+const portalNavItems = [
+  { href: "/portal", icon: "monitor_heart", label: "Gösterge Paneli", exact: true },
+  { href: "/portal/analytics", icon: "query_stats", label: "Analitik", exact: false },
+  { href: "/portal/orders", icon: "receipt_long", label: "Siparişler", exact: false },
+  { href: "/portal/customers", icon: "table_restaurant", label: "Masa Performansı", exact: false },
+  { href: "/portal/growth", icon: "trending_up", label: "Büyüme", exact: false },
+  { href: "/portal/settings", icon: "settings", label: "Ayarlar", exact: false },
+];
+
 export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const pathname = usePathname();
+  const [glossaryOpen, setGlossaryOpen] = useState(false);
+  const isPortal = pathname.startsWith("/portal");
+  const items = isPortal ? portalNavItems : navItems;
+  const logoutAction = isPortal ? businessLogout : logout;
 
   return (
+    <>
     <aside
       className={`h-screen w-64 fixed left-0 top-0 flex flex-col p-5 space-y-5 z-50
         transform transition-transform duration-300
@@ -47,7 +76,7 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
       </div>
 
       <nav className="flex flex-col space-y-1.5">
-        {navItems.map((item) => {
+        {items.map((item) => {
           const isActive = item.exact
             ? pathname === item.href
             : pathname.startsWith(item.href);
@@ -74,7 +103,17 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
         })}
       </nav>
 
-      <form action={logout} className="border-t border-[var(--border)] pt-4">
+      {/* Sözlük butonu */}
+      <button
+        type="button"
+        onClick={() => setGlossaryOpen(true)}
+        className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[var(--text-muted)] hover:bg-[var(--accent-bg)]/50 hover:text-[var(--text-1)] transition-colors text-sm font-semibold"
+      >
+        <span className="material-symbols-outlined text-xl">menu_book</span>
+        Terimler Sözlüğü
+      </button>
+
+      <form action={logoutAction} className="border-t border-[var(--border)] pt-4">
         <button
           type="submit"
           className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[var(--text-muted)] hover:bg-red-500/10 hover:text-red-300 transition-colors text-sm font-semibold"
@@ -94,12 +133,49 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
           Şu an demo verileri gösteriliyor. QR menü bağlandığında gerçek veriler yansıyacak.
         </p>
         <Link
-          href="/businesses"
+          href={isPortal ? "/portal/analytics" : "/businesses"}
           className="kok-gradient-button text-white py-2 px-4 rounded-full text-xs font-bold w-fit hover:opacity-90 transition-opacity"
         >
           İşletmeleri Gör
         </Link>
       </div>
     </aside>
+
+    {/* Sözlük modal */}
+    {glossaryOpen && (
+      <div
+        className="fixed inset-0 z-[70] flex items-center justify-center p-4"
+        onClick={() => setGlossaryOpen(false)}
+      >
+        <div className="absolute inset-0 bg-black/65 backdrop-blur-sm" />
+        <div
+          className="relative kok-card rounded-3xl p-6 w-full max-w-sm max-h-[80vh] flex flex-col kok-fade-in"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex items-center justify-between mb-5 shrink-0">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-[var(--accent)]" style={{ fontVariationSettings: "'FILL' 1" }}>menu_book</span>
+              <h3 className="text-base font-bold text-[var(--text-1)]">Terimler Sözlüğü</h3>
+            </div>
+            <button
+              onClick={() => setGlossaryOpen(false)}
+              className="p-1.5 rounded-xl text-[var(--text-muted)] hover:text-[var(--text-1)] hover:bg-[var(--accent-bg)] transition-colors"
+            >
+              <span className="material-symbols-outlined text-lg">close</span>
+            </button>
+          </div>
+
+          <div className="overflow-y-auto space-y-4 pr-1">
+            {GLOSSARY.map(({ term, def }) => (
+              <div key={term} className="border-l-2 border-[var(--accent)]/40 pl-3">
+                <p className="text-sm font-bold text-[var(--text-1)]">{term}</p>
+                <p className="text-xs text-[var(--text-2)] leading-relaxed mt-0.5">{def}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }

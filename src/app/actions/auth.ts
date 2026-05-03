@@ -68,5 +68,5 @@ export async function login(prevState: string | null, formData: FormData) {
 export async function logout() {
   const cookieStore = await cookies();
   cookieStore.delete(COOKIE_NAME);
-  redirect("/login");
+  redirect("/admin");
 }

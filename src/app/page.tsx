@@ -88,6 +88,9 @@ export default async function PlatformOverviewPage({
   const churnList = churnRes.data;
   const allBusinesses = bizRes.data;
 
+  const trialCount   = allBusinesses.filter((b) => b.status === "trial").length;
+  const churnedCount = allBusinesses.filter((b) => b.status === "churned").length;
+
   // İşletme bazlı scan sayıları (son 7 gün)
   const scanCounts = await getBusinessScanCounts(allBusinesses.map((b) => b.id), 7);
 
@@ -97,12 +100,14 @@ export default async function PlatformOverviewPage({
     .slice(0, 5);
 
   const kpiCards = [
-    { label: t.platform.kpis.totalBusinesses, value: String(kpis.totalBusinesses), icon: "store", iconBg: "bg-[#EEEAFE]", iconColor: "text-[#7C6CF6]" },
-    { label: t.platform.kpis.activeBusinesses, value: String(kpis.activeBusinesses), icon: "check_circle", iconBg: "bg-[#DCFCE7]", iconColor: "text-[#15803D]" },
-    { label: t.platform.kpis.churnRisk, value: String(kpis.churnRiskCount), icon: "warning", iconBg: "bg-[#FEF3C7]", iconColor: "text-[#92400E]", sub: "Son 14 günde aktif değil" },
-    { label: t.platform.kpis.scansWeek, value: kpis.totalScansWeek.toLocaleString("tr-TR"), icon: "qr_code_scanner", iconBg: "bg-[#DBEAFE]", iconColor: "text-[#1E40AF]" },
-    { label: t.platform.kpis.scansToday, value: kpis.totalScansToday.toLocaleString("tr-TR"), icon: "today", iconBg: "bg-[#F3F4F6]", iconColor: "text-[#6B7280]" },
-    { label: t.platform.kpis.totalRevenue, value: `₺${kpis.totalRevenueAllTime.toLocaleString("tr-TR")}`, icon: "payments", iconBg: "bg-[#EDE9FE]", iconColor: "text-[#6D28D9]" },
+    { label: t.platform.kpis.totalBusinesses,  value: String(kpis.totalBusinesses),                            icon: "store",                iconBg: "bg-[rgba(139,124,251,0.18)]", iconColor: "text-[#A78BFA]" },
+    { label: t.platform.kpis.activeBusinesses, value: String(kpis.activeBusinesses),                            icon: "check_circle",         iconBg: "bg-[rgba(34,197,94,0.15)]",   iconColor: "text-[#4ADE80]" },
+    { label: t.platform.kpis.trialBusinesses,  value: String(trialCount),                                       icon: "hourglass_empty",      iconBg: "bg-[rgba(251,191,36,0.15)]",  iconColor: "text-[#FCD34D]", sub: "Deneme sürecinde" },
+    { label: t.platform.kpis.churnedBusinesses,value: String(churnedCount),                                     icon: "person_off",           iconBg: "bg-[rgba(239,68,68,0.12)]",   iconColor: "text-[#F87171]", sub: "Platformdan ayrılan" },
+    { label: t.platform.kpis.churnRisk,        value: String(kpis.churnRiskCount),                              icon: "warning",              iconBg: "bg-[rgba(245,158,11,0.15)]",  iconColor: "text-[#FBBF24]", sub: "Son 14 günde aktif değil" },
+    { label: t.platform.kpis.scansWeek,        value: kpis.totalScansWeek.toLocaleString("tr-TR"),             icon: "qr_code_scanner",      iconBg: "bg-[rgba(59,130,246,0.15)]",  iconColor: "text-[#60A5FA]" },
+    { label: t.platform.kpis.scansToday,       value: kpis.totalScansToday.toLocaleString("tr-TR"),            icon: "today",                iconBg: "bg-[rgba(148,163,184,0.12)]", iconColor: "text-[#94A3B8]" },
+    { label: t.platform.kpis.totalRevenue,     value: `₺${kpis.totalRevenueAllTime.toLocaleString("tr-TR")}`, icon: "payments",             iconBg: "bg-[rgba(192,132,252,0.15)]", iconColor: "text-[#C084FC]" },
   ];
 
   return (
@@ -130,7 +135,7 @@ export default async function PlatformOverviewPage({
         <DateFilterBar activePeriod={params?.period ?? "7d"} activeDate={activeDate} />
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
         {kpiCards.map((k) => (
           <KPICard key={k.label} {...k} />
         ))}
@@ -149,6 +154,33 @@ export default async function PlatformOverviewPage({
         />
       </div>
 
+      {/* Tarama Grafikleri */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold text-[var(--text-1)]">
+            Tarama Analitiği — {activeDate ?? (period === "30d" ? "30 Gün" : period === "today" ? "Bugün" : "7 Gün")}
+          </h2>
+        </div>
+        <div className="mb-6">
+          <HourlyScansChart data={hourlyRes.data} period={period} />
+        </div>
+        <div className="grid grid-cols-12 gap-6">
+          <div className="col-span-12 lg:col-span-7">
+            <CityScansChart data={cityRes.data} />
+          </div>
+          <div className="col-span-12 lg:col-span-5">
+            <ZoneChart
+              data={zoneRes.data}
+              badge="Plan Dağılımı"
+              title="Plana Göre Tarama"
+              subtitle="Son 7 günde hangi plan daha aktif"
+              totalLabel="Toplam Platform Taraması"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* En Aktif İşletmeler + Pasif İşletmeler */}
       <div className="grid grid-cols-12 gap-6">
         {/* Sol: En Aktif İşletmeler */}
         <div className="col-span-12 lg:col-span-7 kok-card rounded-3xl overflow-hidden">
@@ -237,38 +269,12 @@ export default async function PlatformOverviewPage({
       </div>
 
       {/* Aktivite Günlüğü */}
-      <div className="mt-8 mb-6">
+      <div className="mt-8">
         <ActivityLog
           newRegs={newBizRes.data}
           trials={trialRes.data}
           churnList={churnRes.data}
         />
-      </div>
-
-      {/* Tarama Grafikleri */}
-      <div className="mt-8">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-[var(--text-1)]">
-            Tarama Analitiği — {activeDate ?? (period === "30d" ? "30 Gün" : period === "today" ? "Bugün" : "7 Gün")}
-          </h2>
-        </div>
-        <div className="mb-6">
-          <HourlyScansChart data={hourlyRes.data} period={period} />
-        </div>
-        <div className="grid grid-cols-12 gap-6">
-          <div className="col-span-12 lg:col-span-7">
-            <CityScansChart data={cityRes.data} />
-          </div>
-          <div className="col-span-12 lg:col-span-5">
-            <ZoneChart
-              data={zoneRes.data}
-              badge="Plan Dağılımı"
-              title="Plana Göre Tarama"
-              subtitle="Son 7 günde hangi plan daha aktif"
-              totalLabel="Toplam Platform Taraması"
-            />
-          </div>
-        </div>
       </div>
     </main>
   );

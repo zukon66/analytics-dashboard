@@ -4,9 +4,10 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import TopNav from "@/components/TopNav";
+import NavigationProgress from "@/components/NavigationProgress";
 
 // Bu sayfalar sidebar/topnav olmadan render edilir
-const AUTH_PATHS = ["/login"];
+const AUTH_PATHS = ["/admin", "/login", "/signup"];
 
 export default function LayoutShell({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -21,6 +22,8 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
 
   return (
     <>
+      <NavigationProgress />
+
       {/* Mobil overlay */}
       {sidebarOpen && (
         <div

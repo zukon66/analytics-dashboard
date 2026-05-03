@@ -35,7 +35,9 @@ const tr = {
     kpis: {
       totalBusinesses: "Toplam İşletme",
       activeBusinesses: "Aktif İşletme",
-      churnRisk: "Pasif İşletmeler",
+      churnRisk: "Churn Riski",
+      trialBusinesses: "Trial İşletme",
+      churnedBusinesses: "Ayrılan İşletme",
       scansToday: "Bugünkü Tarama",
       scansWeek: "Haftalık Tarama",
       totalRevenue: "Toplam Gelir",
