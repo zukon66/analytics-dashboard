@@ -23,10 +23,13 @@ import {
   mockGetPeriodKPIs,
   mockGetPlatformAverages,
   mockGetPlatformKPIs,
+  mockGetRevenueByDay,
+  mockGetRevenueByZone,
   mockGetScansByCity,
   mockGetScansByHour,
   mockGetScansByPlan,
   mockGetScansByZone,
+  mockGetTopMenuItems,
   mockGetTopTables,
   mockGetTrialExpirations,
   mockGetWeeklyStats,
@@ -486,7 +489,8 @@ export async function getOrders(
   sortBy = "created_at",
   sortDir: "asc" | "desc" = "desc",
   search = "",
-  businessId?: number
+  businessId?: number,
+  period?: string
 ): Promise<QueryResult<Order[]>> {
   const col: OrderSortCol = (VALID_ORDER_SORT_COLS as readonly string[]).includes(sortBy)
     ? (sortBy as OrderSortCol)
@@ -498,21 +502,30 @@ export async function getOrders(
       .limit(limit);
     if (search) query = query.or(`table_id.ilike.%${search}%,zone.ilike.%${search}%`);
     query = applyBusinessFilter(query, businessId);
+    if (period) {
+      const { from, to } = getPeriodRange(period);
+      query = query.gte("created_at", from).lte("created_at", to);
+    }
     const { data, error } = await query;
     if (error) throw error;
     const rows = (data as Order[]) ?? [];
-    return { data: hasRows(rows) ? rows : mockGetOrders(limit, col, sortDir, search, businessId), error: null };
+    return { data: hasRows(rows) ? rows : mockGetOrders(limit, col, sortDir, search, businessId, period), error: null };
   } catch {
-    return { data: mockGetOrders(limit, col, sortDir, search, businessId), error: null };
+    return { data: mockGetOrders(limit, col, sortDir, search, businessId, period), error: null };
   }
 }
 
 export async function getOrderStats(
-  businessId?: number
+  businessId?: number,
+  period?: string
 ): Promise<QueryResult<{ totalRevenue: number; completed: number; pending: number; cancelled: number; avgAmount: number; cancelRate: number }>> {
   try {
     let query = (await getDb()).from("orders").select("total_amount, status");
     query = applyBusinessFilter(query, businessId);
+    if (period) {
+      const { from, to } = getPeriodRange(period);
+      query = query.gte("created_at", from).lte("created_at", to);
+    }
     const { data, error } = await query;
     if (error) throw error;
 
@@ -521,7 +534,7 @@ export async function getOrderStats(
     const pending = data?.filter((o) => o.status === "pending").length ?? 0;
     const cancelled = data?.filter((o) => o.status === "cancelled").length ?? 0;
     const total = data?.length ?? 0;
-    if (total === 0) return { data: mockGetOrderStats(businessId), error: null };
+    if (total === 0) return { data: mockGetOrderStats(businessId, period), error: null };
     return {
       data: {
         totalRevenue,
@@ -534,7 +547,7 @@ export async function getOrderStats(
       error: null,
     };
   } catch {
-    return { data: mockGetOrderStats(businessId), error: null };
+    return { data: mockGetOrderStats(businessId, period), error: null };
   }
 }
 
@@ -1025,6 +1038,99 @@ export type CustomerGrowthPoint = {
   label:        string;
   newCustomers: number;
 };
+
+// ── Menü Analitikleri ─────────────────────────────────────────
+
+export type MenuItemStat = {
+  name: string;
+  category: string;
+  count: number;
+  revenue: number;
+};
+
+export async function getTopMenuItems(
+  limit = 10,
+  businessId?: number,
+  period?: string
+): Promise<QueryResult<MenuItemStat[]>> {
+  // Supabase'de order_items tablosu olmadığından doğrudan mock kullan
+  return { data: mockGetTopMenuItems(limit, businessId, period), error: null };
+}
+
+// ── Ciro Analitikleri ─────────────────────────────────────────
+
+export type RevenueDayPoint = {
+  date: string;
+  revenue: number;
+  orders: number;
+};
+
+export async function getRevenueByDay(
+  days = 14,
+  businessId?: number
+): Promise<QueryResult<RevenueDayPoint[]>> {
+  try {
+    let query = (await getDb())
+      .from("orders")
+      .select("created_at, total_amount")
+      .neq("status", "cancelled");
+    query = applyBusinessFilter(query, businessId);
+    const { data, error } = await query;
+    if (error) throw error;
+
+    const end = new Date();
+    const dayMap: Record<string, { revenue: number; orders: number }> = {};
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date(end.getTime() - i * 86400000);
+      const key = d.toISOString().split("T")[0];
+      dayMap[key] = { revenue: 0, orders: 0 };
+    }
+    data?.forEach((row) => {
+      const key = new Date(row.created_at).toISOString().split("T")[0];
+      if (key in dayMap) {
+        dayMap[key].revenue += Number(row.total_amount ?? 0);
+        dayMap[key].orders += 1;
+      }
+    });
+    const rows = Object.entries(dayMap)
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([date, { revenue, orders }]) => ({ date, revenue, orders }));
+    return { data: rows.some((r) => r.revenue > 0) ? rows : mockGetRevenueByDay(days, businessId), error: null };
+  } catch {
+    return { data: mockGetRevenueByDay(days, businessId), error: null };
+  }
+}
+
+export type RevenueZone = {
+  zone: string;
+  revenue: number;
+  orders: number;
+};
+
+export async function getRevenueByZone(
+  businessId?: number
+): Promise<QueryResult<RevenueZone[]>> {
+  try {
+    let query = (await getDb())
+      .from("orders")
+      .select("zone, total_amount")
+      .neq("status", "cancelled");
+    query = applyBusinessFilter(query, businessId);
+    const { data, error } = await query;
+    if (error) throw error;
+
+    const map: Record<string, { zone: string; revenue: number; orders: number }> = {};
+    data?.forEach((row) => {
+      map[row.zone] ??= { zone: row.zone, revenue: 0, orders: 0 };
+      map[row.zone].revenue += Number(row.total_amount ?? 0);
+      map[row.zone].orders += 1;
+    });
+    const rows = Object.values(map).sort((a, b) => b.revenue - a.revenue);
+    return { data: hasRows(rows) ? rows : mockGetRevenueByZone(businessId), error: null };
+  } catch {
+    return { data: mockGetRevenueByZone(businessId), error: null };
+  }
+}
 
 export async function getCustomerGrowthTrend(
   granularity: "weekly" | "monthly" = "weekly"

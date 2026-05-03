@@ -162,13 +162,14 @@ function filterScans(period = "today", businessId?: number): Scan[] {
   return scans.filter((scan) => inPeriod(scan.scanned_at, period) && (!businessId || scan.business_id === businessId));
 }
 
-function filterOrders(search = "", businessId?: number): Order[] {
+function filterOrders(search = "", businessId?: number, period?: string): Order[] {
   const businessScanIds = businessId ? new Set(scans.filter((s) => s.business_id === businessId).map((s) => s.table_id + s.scanned_at.slice(0, 13))) : null;
   return orders.filter((order) => {
     const matchesBusiness = !businessScanIds || businessScanIds.has(order.table_id + order.created_at.slice(0, 13));
     const q = search.toLocaleLowerCase("tr-TR");
     const matchesSearch = !q || order.table_id.toLocaleLowerCase("tr-TR").includes(q) || order.zone.toLocaleLowerCase("tr-TR").includes(q);
-    return matchesBusiness && matchesSearch;
+    const matchesPeriod = !period || inPeriod(order.created_at, period);
+    return matchesBusiness && matchesSearch && matchesPeriod;
   });
 }
 
@@ -286,8 +287,8 @@ export function mockGetWeeklyStats(businessId?: number) {
   return { total: rows.length, avgPerDay: Math.round(rows.length / 7), bestDay: bestDay.day, dailyData };
 }
 
-export function mockGetOrders(limit = 50, sortBy = "created_at", sortDir: "asc" | "desc" = "desc", search = "", businessId?: number): Order[] {
-  const rows = [...filterOrders(search, businessId)];
+export function mockGetOrders(limit = 50, sortBy = "created_at", sortDir: "asc" | "desc" = "desc", search = "", businessId?: number, period?: string): Order[] {
+  const rows = [...filterOrders(search, businessId, period)];
   rows.sort((a, b) => {
     const av = a[sortBy as keyof Order] ?? a.created_at;
     const bv = b[sortBy as keyof Order] ?? b.created_at;
@@ -297,13 +298,53 @@ export function mockGetOrders(limit = 50, sortBy = "created_at", sortDir: "asc" 
   return rows.slice(0, limit);
 }
 
-export function mockGetOrderStats(businessId?: number) {
-  const rows = filterOrders("", businessId);
+export function mockGetOrderStats(businessId?: number, period?: string) {
+  const rows = filterOrders("", businessId, period);
   const totalRevenue = rows.reduce((s, o) => s + o.total_amount, 0);
   const completed = rows.filter((o) => o.status === "completed").length;
   const pending = rows.filter((o) => o.status === "pending").length;
   const cancelled = rows.filter((o) => o.status === "cancelled").length;
   return { totalRevenue, completed, pending, cancelled, avgAmount: Math.round(totalRevenue / Math.max(rows.length, 1)), cancelRate: Math.round((cancelled / Math.max(rows.length, 1)) * 100) };
+}
+
+export function mockGetTopMenuItems(limit = 10, businessId?: number, period?: string) {
+  const orderRows = filterOrders("", businessId, period).filter((o) => o.status !== "cancelled");
+  const map: Record<string, { name: string; category: string; count: number; revenue: number }> = {};
+  for (const order of orderRows) {
+    for (const item of order.items ?? []) {
+      map[item.name] ??= { name: item.name, category: item.category, count: 0, revenue: 0 };
+      map[item.name].count += item.quantity;
+      map[item.name].revenue += item.total;
+    }
+  }
+  return Object.values(map).sort((a, b) => b.count - a.count).slice(0, limit);
+}
+
+export function mockGetRevenueByDay(days = 14, businessId?: number) {
+  const end = new Date("2026-05-31T23:59:59");
+  return Array.from({ length: days }, (_, i) => {
+    const d = new Date(end.getTime() - (days - 1 - i) * DAY_MS);
+    const key = dateKey(d);
+    const dayOrders = filterOrders("", businessId).filter(
+      (o) => o.status !== "cancelled" && o.created_at.startsWith(key)
+    );
+    return {
+      date: key,
+      revenue: dayOrders.reduce((sum, o) => sum + o.total_amount, 0),
+      orders: dayOrders.length,
+    };
+  });
+}
+
+export function mockGetRevenueByZone(businessId?: number) {
+  const orderRows = filterOrders("", businessId).filter((o) => o.status !== "cancelled");
+  const map: Record<string, { zone: string; revenue: number; orders: number }> = {};
+  for (const order of orderRows) {
+    map[order.zone] ??= { zone: order.zone, revenue: 0, orders: 0 };
+    map[order.zone].revenue += order.total_amount;
+    map[order.zone].orders += 1;
+  }
+  return Object.values(map).sort((a, b) => b.revenue - a.revenue);
 }
 
 export function mockGetConversionRate(businessId?: number) {
