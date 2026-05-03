@@ -4,7 +4,7 @@ import "./globals.css";
 import LayoutShell from "@/components/LayoutShell";
 import ThemeProvider from "@/components/ThemeProvider";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin", "latin-ext"] });
 
 export const metadata: Metadata = {
   title: "KÖK-OS Analytics Dashboard",
