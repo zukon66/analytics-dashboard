@@ -65,7 +65,7 @@ export default async function AnalyticsPage({
   return (
     <main className="kok-page kok-fade-in pt-20 md:pt-24 pb-12 px-4 md:px-8 min-h-screen">
       {/* Başlık */}
-      <div className="mb-8 flex justify-between items-end">
+      <div className="mb-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <span className="kok-soft-button px-3 py-1 text-[var(--accent)] rounded-full text-[10px] font-bold tracking-widest uppercase mb-3 inline-block">
             {t.analytics.badge.trend}
@@ -73,16 +73,17 @@ export default async function AnalyticsPage({
           <h1 className="text-3xl font-extrabold tracking-tight text-[var(--text-1)] mb-1">{t.analytics.title}</h1>
           <p className="text-[var(--text-2)] text-sm font-medium">{t.analytics.subtitle}</p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <DateFilterBar activePeriod={activePeriod} activeDate={isValidDate ? date : undefined} />
-          <AnalyticsExportButton
-            hourlyData={hourlyRes.data}
-            cityData={cityRes.data}
-            zoneData={zoneRes.data}
-            weekly={{ total: weekly.total, avgPerDay: weekly.avgPerDay, bestDay: weekly.bestDay }}
-            peakHour={peakHour.hour}
-          />
-        </div>
+        <AnalyticsExportButton
+          hourlyData={hourlyRes.data}
+          cityData={cityRes.data}
+          zoneData={zoneRes.data}
+          weekly={{ total: weekly.total, avgPerDay: weekly.avgPerDay, bestDay: weekly.bestDay }}
+          peakHour={peakHour.hour}
+        />
+      </div>
+
+      <div className="mb-8">
+        <DateFilterBar activePeriod={activePeriod} activeDate={isValidDate ? date : undefined} />
       </div>
 
       {hasError && <ErrorBanner message={[hourlyRes, cityRes, zoneRes, weeklyRes].find((r) => r.error)?.error ?? ""} />}

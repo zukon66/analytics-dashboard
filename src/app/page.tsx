@@ -16,6 +16,7 @@ import CityScansChart from "@/components/charts/CityScansChart";
 import ZoneChart from "@/components/charts/ZoneChart";
 import GrowthSummaryCard from "@/components/GrowthSummaryCard";
 import ActivityLog from "@/components/ActivityLog";
+import DateFilterBar from "@/components/DateFilterBar";
 import t from "@/lib/i18n";
 
 export const revalidate = 60;
@@ -62,14 +63,22 @@ function daysSince(dateStr: string | null): string {
   return `${days} gün önce`;
 }
 
-export default async function PlatformOverviewPage() {
+export default async function PlatformOverviewPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ period?: string; date?: string }>;
+}) {
+  const params = await searchParams;
+  const activeDate = params?.date;
+  const period = activeDate ?? params?.period ?? "7d";
+
   const [kpisRes, churnRes, bizRes, hourlyRes, cityRes, zoneRes, trialRes, funnelRes, newBizRes] = await Promise.all([
     getPlatformKPIs(),
     getChurnRiskBusinesses(14),
     getBusinesses(),
-    getScansByHour("7d"),
-    getScansByCity("7d"),
-    getScansByPlan("7d"),
+    getScansByHour(period),
+    getScansByCity(period),
+    getScansByPlan(period),
     getTrialExpirations(14),
     getActivationFunnel(),
     getNewRegistrations(30),
@@ -117,6 +126,10 @@ export default async function PlatformOverviewPage() {
       </div>
 
       {/* KPI Grid — 3 kolon */}
+      <div className="mb-6">
+        <DateFilterBar activePeriod={params?.period ?? "7d"} activeDate={activeDate} />
+      </div>
+
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-6">
         {kpiCards.map((k) => (
           <KPICard key={k.label} {...k} />
@@ -235,10 +248,12 @@ export default async function PlatformOverviewPage() {
       {/* Tarama Grafikleri */}
       <div className="mt-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-[var(--text-1)]">Tarama Analitiği — Son 7 Gün</h2>
+          <h2 className="text-lg font-bold text-[var(--text-1)]">
+            Tarama Analitiği — {activeDate ?? (period === "30d" ? "30 Gün" : period === "today" ? "Bugün" : "7 Gün")}
+          </h2>
         </div>
         <div className="mb-6">
-          <HourlyScansChart data={hourlyRes.data} period="7d" />
+          <HourlyScansChart data={hourlyRes.data} period={period} />
         </div>
         <div className="grid grid-cols-12 gap-6">
           <div className="col-span-12 lg:col-span-7">

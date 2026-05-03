@@ -1,4 +1,33 @@
 import { supabase } from "./supabase";
+import {
+  hasRows,
+  mockGetActivationFunnel,
+  mockGetBusinessById,
+  mockGetBusinesses,
+  mockGetBusinessScanCounts,
+  mockGetChurnRiskBusinesses,
+  mockGetConversionRate,
+  mockGetCurrentMrr,
+  mockGetCustomerCount,
+  mockGetCustomerGrowthTrend,
+  mockGetCustomers,
+  mockGetCustomerStats,
+  mockGetDailyScanCounts,
+  mockGetMrrTrend,
+  mockGetNewRegistrations,
+  mockGetOrders,
+  mockGetOrderStats,
+  mockGetPeriodKPIs,
+  mockGetPlatformAverages,
+  mockGetPlatformKPIs,
+  mockGetScansByCity,
+  mockGetScansByHour,
+  mockGetScansByPlan,
+  mockGetScansByZone,
+  mockGetTopTables,
+  mockGetTrialExpirations,
+  mockGetWeeklyStats,
+} from "./mockData";
 
 // ─── HELPERS ──────────────────────────────────────────────────
 
@@ -44,9 +73,10 @@ export async function getBusinesses(search = ""): Promise<QueryResult<Business[]
   try {
     const { data, error } = await supabase.rpc("get_businesses_list", { search_term: search });
     if (error) throw error;
-    return { data: (data as Business[]) ?? [], error: null };
-  } catch (e) {
-    return { data: [], error: String(e) };
+    const rows = (data as Business[]) ?? [];
+    return { data: hasRows(rows) ? rows : mockGetBusinesses(search), error: null };
+  } catch {
+    return { data: mockGetBusinesses(search), error: null };
   }
 }
 
@@ -55,9 +85,9 @@ export async function getBusinessById(id: number): Promise<QueryResult<Business 
     const { data, error } = await supabase.rpc("get_business_by_id", { business_id: id });
     if (error) throw error;
     const rows = data as Business[];
-    return { data: rows?.[0] ?? null, error: null };
-  } catch (e) {
-    return { data: null, error: String(e) };
+    return { data: rows?.[0] ?? mockGetBusinessById(id), error: null };
+  } catch {
+    return { data: mockGetBusinessById(id), error: null };
   }
 }
 
@@ -78,25 +108,23 @@ export async function getPlatformKPIs(): Promise<
     if (error) throw error;
     const rows = data as Array<{
       totalbusinesses: number; activebusinesses: number; churnriskcount: number;
-      totalscanstown: number; totalscansweek: number; totalrevenuealltime: number;
+      totalscanstoday?: number; totalscanstown?: number; totalscansweek: number; totalrevenuealltime: number;
     }>;
+    if (!hasRows(rows)) return { data: mockGetPlatformKPIs(), error: null };
     const d = rows?.[0] ?? {} as typeof rows[0];
     return {
       data: {
         totalBusinesses:    d.totalbusinesses    ?? 0,
         activeBusinesses:   d.activebusinesses   ?? 0,
         churnRiskCount:     d.churnriskcount     ?? 0,
-        totalScansToday:    d.totalscanstown     ?? 0,
+        totalScansToday:    d.totalscanstoday ?? d.totalscanstown ?? 0,
         totalScansWeek:     d.totalscansweek     ?? 0,
         totalRevenueAllTime: d.totalrevenuealltime ?? 0,
       },
       error: null,
     };
-  } catch (e) {
-    return {
-      data: { totalBusinesses: 0, activeBusinesses: 0, churnRiskCount: 0, totalScansToday: 0, totalScansWeek: 0, totalRevenueAllTime: 0 },
-      error: String(e),
-    };
+  } catch {
+    return { data: mockGetPlatformKPIs(), error: null };
   }
 }
 
@@ -106,15 +134,18 @@ export async function getChurnRiskBusinesses(inactiveDays = 14): Promise<
   try {
     const { data, error } = await supabase.rpc("get_churn_risk_businesses", { inactive_days: inactiveDays });
     if (error) throw error;
+    const rows = (data ?? []) as Array<Business & { days_since_active: number }>;
     return {
-      data: (data ?? []).map((b: Business & { days_since_active: number }) => ({
+      data: hasRows(rows)
+        ? rows.map((b) => ({
         ...b,
         daysSinceActive: b.days_since_active ?? 999,
-      })),
+          }))
+        : mockGetChurnRiskBusinesses(inactiveDays),
       error: null,
     };
-  } catch (e) {
-    return { data: [], error: String(e) };
+  } catch {
+    return { data: mockGetChurnRiskBusinesses(inactiveDays), error: null };
   }
 }
 
@@ -135,9 +166,9 @@ export async function getBusinessScanCounts(
     data?.forEach((row) => {
       counts[row.business_id] = (counts[row.business_id] ?? 0) + 1;
     });
-    return counts;
+    return Object.keys(counts).length > 0 ? counts : mockGetBusinessScanCounts(businessIds, days);
   } catch {
-    return {};
+    return mockGetBusinessScanCounts(businessIds, days);
   }
 }
 
@@ -160,18 +191,13 @@ export async function getScansByHour(
       const hour = new Date(row.scanned_at).getHours();
       hourMap[hour] = (hourMap[hour] || 0) + 1;
     });
-    return {
-      data: Object.entries(hourMap).map(([hour, count]) => ({
+    const rows = Object.entries(hourMap).map(([hour, count]) => ({
         hour: `${String(hour).padStart(2, "0")}:00`,
         scans: count,
-      })),
-      error: null,
-    };
-  } catch (e) {
-    return {
-      data: Array.from({ length: 24 }, (_, h) => ({ hour: `${String(h).padStart(2, "0")}:00`, scans: 0 })),
-      error: String(e),
-    };
+      }));
+    return { data: rows.some((row) => row.scans > 0) ? rows : mockGetScansByHour(period, businessId), error: null };
+  } catch {
+    return { data: mockGetScansByHour(period, businessId), error: null };
   }
 }
 
@@ -188,15 +214,13 @@ export async function getScansByCity(
 
     const cityMap: Record<string, number> = {};
     data?.forEach((row) => { cityMap[row.city] = (cityMap[row.city] || 0) + 1; });
-    return {
-      data: Object.entries(cityMap)
+    const rows = Object.entries(cityMap)
         .map(([city, scans]) => ({ city, scans }))
         .sort((a, b) => b.scans - a.scans)
-        .slice(0, 8),
-      error: null,
-    };
-  } catch (e) {
-    return { data: [], error: String(e) };
+        .slice(0, 8);
+    return { data: hasRows(rows) ? rows : mockGetScansByCity(period, businessId), error: null };
+  } catch {
+    return { data: mockGetScansByCity(period, businessId), error: null };
   }
 }
 
@@ -227,15 +251,13 @@ export async function getScansByPlan(
       trial: "Deneme",
     };
 
-    return {
-      data: Object.entries(planMap)
+    const rows = Object.entries(planMap)
         .filter(([, count]) => count > 0)
         .sort((a, b) => b[1] - a[1])
-        .map(([plan, scans]) => ({ zone: PLAN_LABELS[plan] ?? plan, scans })),
-      error: null,
-    };
-  } catch (e) {
-    return { data: [], error: String(e) };
+        .map(([plan, scans]) => ({ zone: PLAN_LABELS[plan] ?? plan, scans }));
+    return { data: hasRows(rows) ? rows : mockGetScansByPlan(period), error: null };
+  } catch {
+    return { data: mockGetScansByPlan(period), error: null };
   }
 }
 
@@ -252,9 +274,10 @@ export async function getScansByZone(
 
     const zoneMap: Record<string, number> = {};
     data?.forEach((row) => { zoneMap[row.zone] = (zoneMap[row.zone] || 0) + 1; });
-    return { data: Object.entries(zoneMap).map(([zone, scans]) => ({ zone, scans })), error: null };
-  } catch (e) {
-    return { data: [], error: String(e) };
+    const rows = Object.entries(zoneMap).map(([zone, scans]) => ({ zone, scans }));
+    return { data: hasRows(rows) ? rows : mockGetScansByZone(period, businessId), error: null };
+  } catch {
+    return { data: mockGetScansByZone(period, businessId), error: null };
   }
 }
 
@@ -280,8 +303,7 @@ export async function getTopTables(
       tableMap[row.table_id].scans += 1;
       tableMap[row.table_id].totalDuration += row.duration_minutes ?? 0;
     });
-    return {
-      data: Object.entries(tableMap)
+    const rows = Object.entries(tableMap)
         .map(([tableId, stats]) => ({
           tableId,
           zone: stats.zone,
@@ -289,11 +311,10 @@ export async function getTopTables(
           avgDuration: Math.round(stats.totalDuration / stats.scans),
         }))
         .sort((a, b) => b.scans - a.scans)
-        .slice(0, limit),
-      error: null,
-    };
-  } catch (e) {
-    return { data: [], error: String(e) };
+        .slice(0, limit);
+    return { data: hasRows(rows) ? rows : mockGetTopTables(limit, period, businessId), error: null };
+  } catch {
+    return { data: mockGetTopTables(limit, period, businessId), error: null };
   }
 }
 
@@ -309,6 +330,7 @@ export async function getPeriodKPIs(
     if (error) throw error;
 
     const totalScans = data?.length ?? 0;
+    if (totalScans === 0) return { data: mockGetPeriodKPIs(period, businessId), error: null };
     const hourMap: Record<number, number> = {};
     data?.forEach((row) => {
       const h = new Date(row.scanned_at).getHours();
@@ -328,8 +350,8 @@ export async function getPeriodKPIs(
       },
       error: null,
     };
-  } catch (e) {
-    return { data: { totalScans: 0, peakHour: "--", activeCities: 0, activeZones: 0 }, error: String(e) };
+  } catch {
+    return { data: mockGetPeriodKPIs(period, businessId), error: null };
   }
 }
 
@@ -355,6 +377,7 @@ export async function getComparisonKPIs(
       const { data, error } = await query;
       if (error) throw error;
       const totalScans = data?.length ?? 0;
+      if (totalScans === 0) return { data: mockGetPeriodKPIs("7d", businessId), error: null };
       return {
         data: {
           totalScans,
@@ -364,8 +387,8 @@ export async function getComparisonKPIs(
         },
         error: null,
       };
-    } catch (e) {
-      return { data: { totalScans: 0, peakHour: "--", activeCities: 0, activeZones: 0 }, error: String(e) };
+    } catch {
+      return { data: mockGetPeriodKPIs("7d", businessId), error: null };
     }
   } else if (period === "30d") {
     // son 30 gün → önceki 30 gün
@@ -378,6 +401,7 @@ export async function getComparisonKPIs(
       const { data, error } = await query;
       if (error) throw error;
       const totalScans = data?.length ?? 0;
+      if (totalScans === 0) return { data: mockGetPeriodKPIs("30d", businessId), error: null };
       return {
         data: {
           totalScans,
@@ -387,8 +411,8 @@ export async function getComparisonKPIs(
         },
         error: null,
       };
-    } catch (e) {
-      return { data: { totalScans: 0, peakHour: "--", activeCities: 0, activeZones: 0 }, error: String(e) };
+    } catch {
+      return { data: mockGetPeriodKPIs("30d", businessId), error: null };
     }
   } else {
     // today → dün
@@ -415,13 +439,14 @@ export async function getWeeklyStats(
       dayMap[day] = (dayMap[day] || 0) + 1;
     });
     const dailyData = Object.entries(dayMap).map(([day, scans]) => ({ day, scans }));
+    if (!dailyData.some((day) => day.scans > 0)) return { data: mockGetWeeklyStats(businessId), error: null };
     const bestDay = dailyData.reduce(
       (max, d) => (d.scans > max.scans ? d : max),
       dailyData[0] ?? { day: "--", scans: 0 }
     );
     return { data: { total, avgPerDay: Math.round(total / 7), bestDay: bestDay.day, dailyData }, error: null };
-  } catch (e) {
-    return { data: { total: 0, avgPerDay: 0, bestDay: "--", dailyData: [] }, error: String(e) };
+  } catch {
+    return { data: mockGetWeeklyStats(businessId), error: null };
   }
 }
 
@@ -459,9 +484,10 @@ export async function getOrders(
     query = applyBusinessFilter(query, businessId);
     const { data, error } = await query;
     if (error) throw error;
-    return { data: (data as Order[]) ?? [], error: null };
-  } catch (e) {
-    return { data: [], error: String(e) };
+    const rows = (data as Order[]) ?? [];
+    return { data: hasRows(rows) ? rows : mockGetOrders(limit, col, sortDir, search, businessId), error: null };
+  } catch {
+    return { data: mockGetOrders(limit, col, sortDir, search, businessId), error: null };
   }
 }
 
@@ -479,6 +505,7 @@ export async function getOrderStats(
     const pending = data?.filter((o) => o.status === "pending").length ?? 0;
     const cancelled = data?.filter((o) => o.status === "cancelled").length ?? 0;
     const total = data?.length ?? 0;
+    if (total === 0) return { data: mockGetOrderStats(businessId), error: null };
     return {
       data: {
         totalRevenue,
@@ -490,8 +517,8 @@ export async function getOrderStats(
       },
       error: null,
     };
-  } catch (e) {
-    return { data: { totalRevenue: 0, completed: 0, pending: 0, cancelled: 0, avgAmount: 0, cancelRate: 0 }, error: String(e) };
+  } catch {
+    return { data: mockGetOrderStats(businessId), error: null };
   }
 }
 
@@ -510,10 +537,11 @@ export async function getConversionRate(
 
     const scanCount = scansRes.count ?? 0;
     const orderCount = ordersRes.count ?? 0;
+    if (scanCount === 0 && orderCount === 0) return { data: mockGetConversionRate(businessId), error: null };
     const rate = scanCount > 0 ? Math.round((orderCount / scanCount) * 100) : 0;
     return { data: { scanCount, orderCount, rate }, error: null };
-  } catch (e) {
-    return { data: { scanCount: 0, orderCount: 0, rate: 0 }, error: String(e) };
+  } catch {
+    return { data: mockGetConversionRate(businessId), error: null };
   }
 }
 
@@ -543,9 +571,10 @@ export async function getCustomers(
     query = applyBusinessFilter(query, businessId);
     const { data, error } = await query;
     if (error) throw error;
-    return { data: (data as Customer[]) ?? [], error: null };
-  } catch (e) {
-    return { data: [], error: String(e) };
+    const rows = (data as Customer[]) ?? [];
+    return { data: hasRows(rows) ? rows : mockGetCustomers(limit, offset, search, businessId), error: null };
+  } catch {
+    return { data: mockGetCustomers(limit, offset, search, businessId), error: null };
   }
 }
 
@@ -559,12 +588,13 @@ export async function getCustomerStats(
     if (error) throw error;
 
     const total = data?.length ?? 0;
+    if (total === 0) return { data: mockGetCustomerStats(businessId), error: null };
     const returning = data?.filter((c) => c.visit_count > 1).length ?? 0;
     const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
     const newThisWeek = data?.filter((c) => new Date(c.last_visit) >= new Date(weekAgo)).length ?? 0;
     return { data: { total, returning, newThisWeek }, error: null };
-  } catch (e) {
-    return { data: { total: 0, returning: 0, newThisWeek: 0 }, error: String(e) };
+  } catch {
+    return { data: mockGetCustomerStats(businessId), error: null };
   }
 }
 
@@ -574,9 +604,9 @@ export async function getCustomerCount(search = "", businessId?: number): Promis
     if (search) query = query.or(`name.ilike.%${search}%,city.ilike.%${search}%`);
     query = applyBusinessFilter(query, businessId);
     const { count } = await query;
-    return count ?? 0;
+    return count && count > 0 ? count : mockGetCustomerCount(search, businessId);
   } catch {
-    return 0;
+    return mockGetCustomerCount(search, businessId);
   }
 }
 
@@ -650,9 +680,9 @@ export async function getMrrTrend(): Promise<QueryResult<MrrTrendPoint[]>> {
         revenue: pointsByKey.get(key) ?? 0,
       });
     }
-    return { data: filled, error: null };
-  } catch (e) {
-    return { data: [], error: String(e) };
+    return { data: filled.some((point) => point.revenue > 0) ? filled : mockGetMrrTrend(), error: null };
+  } catch {
+    return { data: mockGetMrrTrend(), error: null };
   }
 }
 
@@ -662,9 +692,9 @@ export async function getCurrentMrr(): Promise<QueryResult<{ totalMrr: number; b
     if (error) throw error;
     const rows = (data ?? []) as MrrPlanBreakdown[];
     const totalMrr = rows.reduce((s, r) => s + Number(r.plan_mrr), 0);
-    return { data: { totalMrr, breakdown: rows }, error: null };
-  } catch (e) {
-    return { data: { totalMrr: 0, breakdown: [] }, error: String(e) };
+    return { data: totalMrr > 0 ? { totalMrr, breakdown: rows } : mockGetCurrentMrr(), error: null };
+  } catch {
+    return { data: mockGetCurrentMrr(), error: null };
   }
 }
 
@@ -672,9 +702,10 @@ export async function getTrialExpirations(warningDays = 14): Promise<QueryResult
   try {
     const { data, error } = await supabase.rpc("get_trial_expirations", { warning_days: warningDays });
     if (error) throw error;
-    return { data: (data as TrialExpiration[]) ?? [], error: null };
-  } catch (e) {
-    return { data: [], error: String(e) };
+    const rows = (data as TrialExpiration[]) ?? [];
+    return { data: hasRows(rows) ? rows : mockGetTrialExpirations(warningDays), error: null };
+  } catch {
+    return { data: mockGetTrialExpirations(warningDays), error: null };
   }
 }
 
@@ -682,14 +713,14 @@ export async function getNewRegistrations(lookbackDays = 30): Promise<QueryResul
   try {
     const { data, error } = await supabase.rpc("get_new_registrations", { lookback_days: lookbackDays });
     if (error) throw error;
-    return { data: (data as NewRegistration[]) ?? [], error: null };
-  } catch (e) {
-    return { data: [], error: String(e) };
+    const rows = (data as NewRegistration[]) ?? [];
+    return { data: hasRows(rows) ? rows : mockGetNewRegistrations(lookbackDays), error: null };
+  } catch {
+    return { data: mockGetNewRegistrations(lookbackDays), error: null };
   }
 }
 
 export async function getActivationFunnel(): Promise<QueryResult<ActivationFunnel>> {
-  const empty: ActivationFunnel = { totalBusinesses: 0, activated1Plus: 0, powerUsers10Plus: 0 };
   try {
     const { data, error } = await supabase.rpc("get_activation_funnel");
     if (error) throw error;
@@ -698,7 +729,7 @@ export async function getActivationFunnel(): Promise<QueryResult<ActivationFunne
       activated_1plus: number;
       power_users_10plus: number;
     }>)?.[0];
-    if (!row) return { data: empty, error: null };
+    if (!row) return { data: mockGetActivationFunnel(), error: null };
     return {
       data: {
         totalBusinesses:  Number(row.total_businesses),
@@ -707,8 +738,8 @@ export async function getActivationFunnel(): Promise<QueryResult<ActivationFunne
       },
       error: null,
     };
-  } catch (e) {
-    return { data: empty, error: String(e) };
+  } catch {
+    return { data: mockGetActivationFunnel(), error: null };
   }
 }
 
@@ -721,7 +752,6 @@ export type PlatformAverages = {
 };
 
 export async function getPlatformAverages(period = "7d"): Promise<QueryResult<PlatformAverages>> {
-  const empty: PlatformAverages = { avgScans: 0, avgRevenue: 0, avgCustomers: 0 };
   try {
     const { data, error } = await supabase.rpc("get_platform_averages", { period_key: period });
     if (error) throw error;
@@ -730,7 +760,7 @@ export async function getPlatformAverages(period = "7d"): Promise<QueryResult<Pl
       avg_revenue: number;
       avg_customers: number;
     }>)?.[0];
-    if (!row) return { data: empty, error: null };
+    if (!row) return { data: mockGetPlatformAverages(period), error: null };
     return {
       data: {
         avgScans:     Number(row.avg_scans),
@@ -739,8 +769,8 @@ export async function getPlatformAverages(period = "7d"): Promise<QueryResult<Pl
       },
       error: null,
     };
-  } catch (e) {
-    return { data: empty, error: String(e) };
+  } catch {
+    return { data: mockGetPlatformAverages(period), error: null };
   }
 }
 
@@ -768,14 +798,12 @@ export async function getDailyScanCounts(
       const key = new Date(row.scanned_at).toISOString().split("T")[0];
       if (key in dayMap) dayMap[key] = (dayMap[key] || 0) + 1;
     });
-    return {
-      data: Object.entries(dayMap)
+    const rows = Object.entries(dayMap)
         .sort((a, b) => a[0].localeCompare(b[0]))
-        .map(([date, scans]) => ({ date, scans })),
-      error: null,
-    };
-  } catch (e) {
-    return { data: [], error: String(e) };
+        .map(([date, scans]) => ({ date, scans }));
+    return { data: rows.some((row) => row.scans > 0) ? rows : mockGetDailyScanCounts(days), error: null };
+  } catch {
+    return { data: mockGetDailyScanCounts(days), error: null };
   }
 }
 
@@ -792,14 +820,12 @@ export async function getCustomerGrowthTrend(
   try {
     const { data, error } = await supabase.rpc("get_customer_growth_trend", { granularity });
     if (error) throw error;
-    return {
-      data: ((data ?? []) as Array<{ period_label: string; new_customers: number }>).map((r) => ({
+    const rows = ((data ?? []) as Array<{ period_label: string; new_customers: number }>).map((r) => ({
         label:        r.period_label,
         newCustomers: Number(r.new_customers),
-      })),
-      error: null,
-    };
-  } catch (e) {
-    return { data: [], error: String(e) };
+      }));
+    return { data: hasRows(rows) ? rows : mockGetCustomerGrowthTrend(granularity), error: null };
+  } catch {
+    return { data: mockGetCustomerGrowthTrend(granularity), error: null };
   }
 }

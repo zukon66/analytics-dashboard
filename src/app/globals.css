@@ -42,25 +42,6 @@
   --shadow-soft: 0 24px 70px rgba(0, 0, 0, 0.42);
 }
 
-.light {
-  --bg-page:    #FAFAFD;
-  --bg-card:    rgba(255, 255, 255, 0.86);
-  --bg-sidebar: rgba(246, 246, 251, 0.9);
-  --border:     #E9E9F2;
-  --text-1:     #1F2430;
-  --text-2:     #6B7280;
-  --text-muted: #9AA3B2;
-  --accent:     #7C6CF6;
-  --accent-bg:  #EEEAFE;
-  --accent-2:   #B56AF3;
-  --success:    #16A34A;
-  --warning:    #D97706;
-  --danger:     #DC2626;
-  --glow-1:     rgba(124, 108, 246, 0.18);
-  --glow-2:     rgba(96, 165, 250, 0.14);
-  --shadow-soft: 0 24px 70px rgba(39, 36, 80, 0.12);
-}
-
 /* ── Base ────────────────────────────────────────────────── */
 body {
   font-family: "Inter", sans-serif;
