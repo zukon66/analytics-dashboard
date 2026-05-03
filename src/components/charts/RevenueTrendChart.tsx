@@ -11,6 +11,7 @@ import {
   CartesianGrid,
 } from "recharts";
 import type { RevenueDayPoint } from "@/lib/queries";
+import { useIsClient } from "./useIsClient";
 
 interface Props {
   data: RevenueDayPoint[];
@@ -45,6 +46,7 @@ function CustomTooltip({
 }
 
 export default function RevenueTrendChart({ data, title = "Günlük Ciro", subtitle = "Son 14 günün ciro trendi" }: Props) {
+  const isClient = useIsClient();
   const hasData = data.some((d) => d.revenue > 0);
   const maxRevenue = Math.max(...data.map((d) => d.revenue), 1);
 
@@ -70,7 +72,7 @@ export default function RevenueTrendChart({ data, title = "Günlük Ciro", subti
         </div>
       </div>
 
-      {!hasData ? (
+      {!hasData || !isClient ? (
         <div className="flex flex-col items-center justify-center h-40 text-center">
           <span className="material-symbols-outlined text-4xl text-[var(--text-muted)] mb-2">bar_chart</span>
           <p className="text-sm text-[var(--text-muted)]">Bu dönem henüz sipariş yok</p>

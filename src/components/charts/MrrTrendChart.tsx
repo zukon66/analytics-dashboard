@@ -12,6 +12,7 @@ import {
 } from "recharts";
 import type { MrrTrendPoint, MrrPlanBreakdown } from "@/lib/queries";
 import PlanDistributionChart from "./PlanDistributionChart";
+import { useIsClient } from "./useIsClient";
 import t from "@/lib/i18n";
 
 interface Props {
@@ -37,6 +38,7 @@ function CustomTooltip({ active, payload, label }: {
 }
 
 export default function MrrTrendChart({ data, currentMrr, breakdown }: Props) {
+  const isClient = useIsClient();
   const hasData = data.some((d) => d.revenue > 0);
   const maxRevenue = Math.max(...data.map((d) => d.revenue), 1);
 
@@ -63,7 +65,7 @@ export default function MrrTrendChart({ data, currentMrr, breakdown }: Props) {
       </div>
 
       {/* Grafik */}
-      {!hasData ? (
+      {!hasData || !isClient ? (
         <div className="flex flex-col items-center justify-center h-48 text-center">
           <span className="material-symbols-outlined text-4xl text-[var(--text-muted)] mb-2">bar_chart</span>
           <p className="text-sm text-[var(--text-muted)]">{t.growth.mrr.noData}</p>

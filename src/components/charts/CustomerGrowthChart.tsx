@@ -11,6 +11,7 @@ import {
   CartesianGrid,
 } from "recharts";
 import type { CustomerGrowthPoint } from "@/lib/queries";
+import { useIsClient } from "./useIsClient";
 
 interface Props {
   data:        CustomerGrowthPoint[];
@@ -20,6 +21,7 @@ interface Props {
 export default function CustomerGrowthChart({ data, granularity }: Props) {
   const router   = useRouter();
   const pathname = usePathname();
+  const isClient = useIsClient();
 
   function toggle(g: "weekly" | "monthly") {
     router.push(`${pathname}?trend=${g}`);
@@ -57,7 +59,7 @@ export default function CustomerGrowthChart({ data, granularity }: Props) {
         </div>
       </div>
 
-      {!hasData ? (
+      {!hasData || !isClient ? (
         <div className="kok-empty flex flex-col items-center justify-center h-48 text-center rounded-3xl">
           <span className="material-symbols-outlined kok-pulse-soft text-4xl text-[var(--accent)] mb-2">
             trending_up

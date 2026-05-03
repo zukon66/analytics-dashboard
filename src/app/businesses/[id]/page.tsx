@@ -17,6 +17,7 @@ import CityMapChart from "@/components/charts/CityMapChart";
 import ZoneChart from "@/components/charts/ZoneChart";
 import DateFilterBar from "@/components/DateFilterBar";
 import PlatformComparisonBadge from "@/components/PlatformComparisonBadge";
+import { extendBusinessTrial } from "@/app/actions/admin-business";
 import t from "@/lib/i18n";
 
 export const revalidate = 60;
@@ -50,12 +51,30 @@ function DeltaBadge({ current, previous }: { current: number; previous: number }
   );
 }
 
+function formatTrialDate(value?: string | null): string {
+  if (!value) return "Belirtilmemiş";
+  return new Date(value).toLocaleString("tr-TR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function trialDaysLeft(value?: string | null): string {
+  if (!value) return "--";
+  const days = Math.ceil((new Date(value).getTime() - Date.now()) / 86400000);
+  if (days <= 0) return "Süresi doldu";
+  return `${days} gün kaldı`;
+}
+
 export default async function BusinessDetailPage({
   params,
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ period?: string; date?: string }>;
+  searchParams: Promise<{ period?: string; date?: string; trial?: string; trial_error?: string }>;
 }) {
   const { id } = await params;
   const businessId = Number(id);
@@ -64,7 +83,8 @@ export default async function BusinessDetailPage({
   const { data: business } = await getBusinessById(businessId);
   if (!business) notFound();
 
-  const { period = "7d", date } = await searchParams;
+  const pageParams = await searchParams;
+  const { period = "7d", date } = pageParams;
   const isValidDate = date && /^\d{4}-\d{2}-\d{2}$/.test(date);
   const activePeriod = VALID_PERIODS.includes(period) ? period : "7d";
   const queryKey = isValidDate ? date : activePeriod;
@@ -127,6 +147,54 @@ export default async function BusinessDetailPage({
       </div>
 
       {/* KPI Şeridi */}
+      {(pageParams.trial || pageParams.trial_error) && (
+        <div
+          className={`mb-6 rounded-2xl border px-4 py-3 text-sm font-semibold ${
+            pageParams.trial === "extended"
+              ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-300"
+              : "border-amber-400/20 bg-amber-500/10 text-amber-300"
+          }`}
+        >
+          {pageParams.trial === "extended"
+            ? "Trial süresi güncellendi."
+            : "Trial süresi gerçek Supabase verisine uygulanamadı. Migration çalışmadıysa veya mock fallback aktifse bu beklenen bir durumdur."}
+        </div>
+      )}
+
+      <section className="kok-card rounded-3xl p-5 md:p-6 mb-8">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="material-symbols-outlined text-[var(--accent)]">hourglass_top</span>
+              <h2 className="text-base font-bold text-[var(--text-1)]">Trial Yönetimi</h2>
+            </div>
+            <p className="text-sm text-[var(--text-2)]">
+              Bitiş: <span className="font-bold text-[var(--text-1)]">{formatTrialDate(business.trial_ends_at)}</span>
+              <span className="mx-2 text-[var(--text-muted)]">•</span>
+              {trialDaysLeft(business.trial_ends_at)}
+            </p>
+            <p className="mt-1 text-xs text-[var(--text-muted)]">
+              Admin uzatması işlem anından itibaren en fazla 7 güne kadar sınırlandırılır.
+            </p>
+          </div>
+
+          <form action={extendBusinessTrial} className="flex flex-wrap gap-2">
+            <input type="hidden" name="businessId" value={business.id} />
+            {[1, 3, 7].map((days) => (
+              <button
+                key={days}
+                type="submit"
+                name="extendDays"
+                value={days}
+                className="kok-soft-button rounded-full px-4 py-2 text-xs font-bold text-[var(--accent)] hover:border-[#7C6CF6]/60 transition-colors"
+              >
+                +{days} gün
+              </button>
+            ))}
+          </form>
+        </div>
+      </section>
+
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {kpiCards.map((kpi) => (
           <div key={kpi.label} className="kok-card kok-card-hover rounded-3xl p-5 flex items-center gap-4">

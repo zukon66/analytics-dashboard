@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, Sector } from "recharts";
+import { useIsClient } from "./useIsClient";
 
 // Recharts 3.x types don't expose activeIndex/activeShape on Pie — cast to use them
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -68,8 +69,9 @@ function ActiveShape(props: any) {
 
 export default function PlanDistributionChart({ breakdown }: Props) {
   const [activeIndex, setActiveIndex] = useState<number | undefined>(undefined);
+  const isClient = useIsClient();
 
-  if (!breakdown.length) return null;
+  if (!breakdown.length || !isClient) return null;
 
   const chartData = breakdown.map((b) => ({
     ...b,

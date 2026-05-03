@@ -8,6 +8,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
+import { useIsClient } from "./useIsClient";
 
 type CityData = { city: string; scans: number };
 
@@ -27,6 +28,8 @@ const COLORS = [
 ];
 
 export default function CityScansChart({ data }: Props) {
+  const isClient = useIsClient();
+
   return (
     <div className="kok-card kok-card-hover rounded-3xl p-6 md:p-8 flex flex-col justify-between">
       <div className="mb-6">
@@ -37,25 +40,29 @@ export default function CityScansChart({ data }: Props) {
         <p className="text-[var(--text-2)] text-sm mt-1">Son 7 gün</p>
       </div>
 
-      <div style={{ width: "100%", height: 220 }}>
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} layout="vertical" barSize={14}>
-          <XAxis type="number" hide />
-          <YAxis
-            type="category"
-            dataKey="city"
-            tick={{ fontSize: 11, fill: "#B7BCD0", fontWeight: 600 }}
-            axisLine={false}
-            tickLine={false}
-            width={80}
-          />
-          <Bar dataKey="scans" radius={[0, 10, 10, 0]} fill={COLORS[0]} isAnimationActive={false}>
-            {data.map((_, index) => (
-              <Cell key={index} fill={COLORS[index % COLORS.length]} />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+      <div style={{ width: "100%", height: 220, minWidth: 0 }}>
+        {isClient ? (
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data} layout="vertical" barSize={14}>
+              <XAxis type="number" hide />
+              <YAxis
+                type="category"
+                dataKey="city"
+                tick={{ fontSize: 11, fill: "#B7BCD0", fontWeight: 600 }}
+                axisLine={false}
+                tickLine={false}
+                width={80}
+              />
+              <Bar dataKey="scans" radius={[0, 10, 10, 0]} fill={COLORS[0]} isAnimationActive={false}>
+                {data.map((_, index) => (
+                  <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="h-full rounded-2xl bg-white/[0.025]" />
+        )}
       </div>
     </div>
   );

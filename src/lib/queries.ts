@@ -81,6 +81,9 @@ export type Business = {
   owner_email: string | null;
   created_at: string;
   last_active_at: string | null;
+  trial_started_at?: string | null;
+  trial_ends_at?: string | null;
+  trial_max_days?: number | null;
 };
 
 export async function getBusinesses(search = ""): Promise<QueryResult<Business[]>> {

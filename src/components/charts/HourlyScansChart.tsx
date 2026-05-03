@@ -8,6 +8,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
+import { useIsClient } from "./useIsClient";
 
 type HourlyData = { hour: string; scans: number };
 
@@ -29,6 +30,7 @@ interface Props {
 }
 
 export default function HourlyScansChart({ data, period = "today" }: Props) {
+  const isClient = useIsClient();
   const maxScans = Math.max(...data.map((d) => d.scans), 1);
   const total = data.reduce((s, d) => s + d.scans, 0);
   const days = PERIOD_DAYS[period] ?? 1;
@@ -61,34 +63,38 @@ export default function HourlyScansChart({ data, period = "today" }: Props) {
         </div>
       </div>
 
-      <div style={{ width: "100%", height: 200 }}>
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} barSize={18}>
-          <XAxis
-            dataKey="hour"
-            tick={{ fontSize: 10, fill: "#9AA3B2", fontWeight: 700 }}
-            tickFormatter={(v: string) => v.slice(0, 5)}
-            interval={2}
-            axisLine={false}
-            tickLine={false}
-          />
-          <YAxis hide />
-          <Bar dataKey="scans" radius={[10, 10, 2, 2]} fill="#C4B5FD" isAnimationActive={false}>
-            {data.map((entry, index) => (
-              <Cell
-                key={index}
-                fill={
-                  entry.scans === maxScans && entry.scans > 0
-                    ? "#7C6CF6"
-                    : entry.scans > maxScans * 0.6
-                    ? "#A78BFA"
-                    : "#C4B5FD"
-                }
+      <div style={{ width: "100%", height: 200, minWidth: 0 }}>
+        {isClient ? (
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data} barSize={18}>
+              <XAxis
+                dataKey="hour"
+                tick={{ fontSize: 10, fill: "#9AA3B2", fontWeight: 700 }}
+                tickFormatter={(v: string) => v.slice(0, 5)}
+                interval={2}
+                axisLine={false}
+                tickLine={false}
               />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+              <YAxis hide />
+              <Bar dataKey="scans" radius={[10, 10, 2, 2]} fill="#C4B5FD" isAnimationActive={false}>
+                {data.map((entry, index) => (
+                  <Cell
+                    key={index}
+                    fill={
+                      entry.scans === maxScans && entry.scans > 0
+                        ? "#7C6CF6"
+                        : entry.scans > maxScans * 0.6
+                        ? "#A78BFA"
+                        : "#C4B5FD"
+                    }
+                  />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="h-full rounded-2xl bg-white/[0.025]" />
+        )}
       </div>
 
       <div className="flex gap-4 mt-4">
