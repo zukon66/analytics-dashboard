@@ -9,9 +9,10 @@ interface Props {
 
 export default function GrowthSummaryCard({ trialCount, newBizCount, activationRate }: Props) {
   return (
-    <div className="bg-[var(--accent-bg)] rounded-xl p-6 flex flex-wrap items-center justify-between gap-4">
+    <div className="kok-card rounded-3xl p-6 flex flex-wrap items-center justify-between gap-4 overflow-hidden relative">
+      <div className="absolute right-0 top-0 h-28 w-44 bg-[var(--glow-1)] blur-3xl" />
       <div className="flex items-center gap-3 flex-shrink-0">
-        <div className="p-2.5 bg-[#7C6CF6] rounded-xl">
+        <div className="kok-icon-tile p-2.5 rounded-2xl">
           <span className="material-symbols-outlined text-white text-lg">trending_up</span>
         </div>
         <div>
@@ -43,7 +44,7 @@ export default function GrowthSummaryCard({ trialCount, newBizCount, activationR
 
       <Link
         href="/growth"
-        className="bg-[#7C6CF6] text-white px-5 py-2.5 rounded-full text-xs font-bold flex items-center gap-2 hover:bg-[#6D5DF0] transition-colors flex-shrink-0"
+        className="kok-gradient-button text-white px-5 py-2.5 rounded-full text-xs font-bold flex items-center gap-2 hover:opacity-95 transition-opacity flex-shrink-0"
       >
         <span className="material-symbols-outlined text-sm">trending_up</span>
         {t.growth.summaryCard.viewAll}

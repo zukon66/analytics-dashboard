@@ -2,7 +2,7 @@ import { SkeletonBlock, SkeletonKPICard, SkeletonTableRow } from "@/components/S
 
 export default function OrdersLoading() {
   return (
-    <main className="pt-24 pb-12 px-4 md:px-8 min-h-screen bg-[#FAFAFD]">
+    <main className="kok-page pt-24 pb-12 px-4 md:px-8 min-h-screen">
       <div className="mb-8 flex justify-between items-end">
         <div className="space-y-2">
           <SkeletonBlock className="h-4 w-20 rounded" />
@@ -24,7 +24,7 @@ export default function OrdersLoading() {
       </div>
 
       {/* Tablo */}
-      <div className="bg-white rounded-xl border border-[#E9E9F2] overflow-hidden">
+      <div className="kok-card rounded-3xl overflow-hidden">
         <div className="px-6 py-4 border-b border-[#E9E9F2]">
           <SkeletonBlock className="h-5 w-24 rounded" />
         </div>

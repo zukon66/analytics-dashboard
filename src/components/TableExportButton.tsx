@@ -29,7 +29,7 @@ export default function TableExportButton({ headers, rows, filename, label = "DÄ
   return (
     <button
       onClick={handleExport}
-      className="bg-[#FFFFFF] border border-[#E9E9F2] px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2 text-[#1F2430] hover:border-[#7C6CF6] hover:text-[#7C6CF6] transition-colors"
+      className="kok-soft-button px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2 text-[var(--text-1)] hover:border-[#7C6CF6] hover:text-[var(--accent)] transition-colors"
     >
       <span className="material-symbols-outlined text-sm">download</span>
       {label}

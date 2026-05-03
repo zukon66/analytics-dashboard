@@ -60,7 +60,7 @@ function EventRow({ event }: { event: ActivityEvent }) {
   if (event.type === "new_reg") {
     const biz = event.biz;
     return (
-      <div className="flex items-start gap-3 py-3 px-4 hover:bg-[var(--bg-page)] transition-colors">
+      <div className="flex items-start gap-3 py-3 px-4 hover:bg-white/[0.035] transition-colors">
         <div className={`mt-0.5 p-2 rounded-lg ${cfg.bg} ${cfg.color} shrink-0`}>
           <span className="material-symbols-outlined text-sm">{cfg.icon}</span>
         </div>
@@ -83,7 +83,7 @@ function EventRow({ event }: { event: ActivityEvent }) {
   if (event.type === "trial_warn") {
     const biz = event.biz;
     return (
-      <div className="flex items-start gap-3 py-3 px-4 hover:bg-[var(--bg-page)] transition-colors">
+      <div className="flex items-start gap-3 py-3 px-4 hover:bg-white/[0.035] transition-colors">
         <div className={`mt-0.5 p-2 rounded-lg ${cfg.bg} ${cfg.color} shrink-0`}>
           <span className="material-symbols-outlined text-sm">{cfg.icon}</span>
         </div>
@@ -112,7 +112,7 @@ function EventRow({ event }: { event: ActivityEvent }) {
   // churn_risk
   const biz = event.biz;
   return (
-    <div className="flex items-start gap-3 py-3 px-4 hover:bg-[var(--bg-page)] transition-colors">
+    <div className="flex items-start gap-3 py-3 px-4 hover:bg-white/[0.035] transition-colors">
       <div className={`mt-0.5 p-2 rounded-lg ${cfg.bg} ${cfg.color} shrink-0`}>
         <span className="material-symbols-outlined text-sm">{cfg.icon}</span>
       </div>
@@ -144,7 +144,7 @@ export default function ActivityLog({
   const events = buildEvents(newRegs, trials, churnList);
 
   return (
-    <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] overflow-hidden">
+    <div className="kok-card rounded-3xl overflow-hidden">
       <div className="px-6 py-5 border-b border-[var(--border)] flex items-center gap-3">
         <span className="material-symbols-outlined text-[#7C6CF6]">history</span>
         <div>
@@ -156,8 +156,8 @@ export default function ActivityLog({
         </span>
       </div>
       {events.length === 0 ? (
-        <div className="py-12 text-center text-sm text-[var(--text-muted)]">
-          <span className="material-symbols-outlined text-3xl mb-2 block">check_circle</span>
+        <div className="kok-empty py-12 text-center text-sm text-[var(--text-muted)]">
+          <span className="material-symbols-outlined kok-pulse-soft text-3xl mb-2 block text-[var(--accent)]">check_circle</span>
           Henüz kayda değer bir olay yok
         </div>
       ) : (

@@ -28,10 +28,10 @@ export default function CustomerGrowthChart({ data, granularity }: Props) {
   const hasData = data.some((d) => d.newCustomers > 0);
 
   return (
-    <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-8 mb-8">
+    <div className="kok-card kok-card-hover rounded-3xl p-6 md:p-8 mb-8">
       <div className="flex flex-wrap justify-between items-start gap-4 mb-6">
         <div>
-          <span className="px-3 py-1 bg-[#EDE9FE] text-[#6D28D9] rounded-sm text-[10px] font-bold tracking-widest uppercase mb-3 inline-block">
+          <span className="kok-soft-button px-3 py-1 text-[var(--accent)] rounded-full text-[10px] font-bold tracking-widest uppercase mb-3 inline-block">
             Büyüme Trendi
           </span>
           <h3 className="text-lg font-bold text-[var(--text-1)]">Müşteri Büyüme Trendi</h3>
@@ -40,15 +40,15 @@ export default function CustomerGrowthChart({ data, granularity }: Props) {
           </p>
         </div>
 
-        <div className="flex bg-[#F6F6FB] border border-[#E9E9F2] rounded-full p-1 gap-1">
+        <div className="flex bg-black/20 border border-[var(--border)] rounded-full p-1 gap-1">
           {(["weekly", "monthly"] as const).map((g) => (
             <button
               key={g}
               onClick={() => toggle(g)}
               className={`px-4 py-1.5 rounded-full text-xs font-bold transition-colors ${
                 granularity === g
-                  ? "bg-[#7C6CF6] text-white shadow-sm"
-                  : "text-[#6B7280] hover:text-[#1F2430]"
+                  ? "kok-gradient-button text-white"
+                  : "text-[var(--text-2)] hover:text-[var(--text-1)]"
               }`}
             >
               {g === "weekly" ? "Haftalık" : "Aylık"}
@@ -58,8 +58,8 @@ export default function CustomerGrowthChart({ data, granularity }: Props) {
       </div>
 
       {!hasData ? (
-        <div className="flex flex-col items-center justify-center h-48 text-center">
-          <span className="material-symbols-outlined text-4xl text-[#9AA3B2] mb-2">
+        <div className="kok-empty flex flex-col items-center justify-center h-48 text-center rounded-3xl">
+          <span className="material-symbols-outlined kok-pulse-soft text-4xl text-[var(--accent)] mb-2">
             trending_up
           </span>
           <p className="text-sm text-[#9AA3B2]">Henüz müşteri trendi verisi yok.</p>
@@ -74,7 +74,7 @@ export default function CustomerGrowthChart({ data, granularity }: Props) {
                 <stop offset="95%" stopColor="#7C6CF6" stopOpacity={0}    />
               </linearGradient>
             </defs>
-            <CartesianGrid vertical={false} stroke="#F3F4F6" />
+            <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.10)" />
             <XAxis
               dataKey="label"
               tick={{ fontSize: 10, fill: "#9AA3B2", fontWeight: 600 }}
@@ -90,10 +90,11 @@ export default function CustomerGrowthChart({ data, granularity }: Props) {
             />
             <Tooltip
               contentStyle={{
-                background: "#FFFFFF",
-                border: "1px solid #E9E9F2",
-                borderRadius: "12px",
+                background: "rgba(13, 14, 22, 0.94)",
+                border: "1px solid rgba(139,124,251,0.28)",
+                borderRadius: "16px",
                 fontSize: 12,
+                color: "#F7F7FF",
               }}
               cursor={{ stroke: "#7C6CF6", strokeWidth: 1, strokeDasharray: "4 4" }}
             />
@@ -105,7 +106,7 @@ export default function CustomerGrowthChart({ data, granularity }: Props) {
               strokeWidth={2}
               fill="url(#customerGradient)"
               dot={false}
-              isAnimationActive={false}
+              isAnimationActive
             />
           </AreaChart>
         </ResponsiveContainer>

@@ -51,7 +51,7 @@ export default function NewRegistrationsList({ items }: Props) {
               {items.map((biz) => (
                 <tr
                   key={biz.id}
-                  className="hover:bg-[var(--bg-page)] transition-colors border-t border-[var(--border)]"
+                  className="hover:bg-white/[0.035] transition-colors border-t border-[var(--border)]"
                 >
                   <td className="px-8 py-4">
                     <div className="flex items-center gap-2">

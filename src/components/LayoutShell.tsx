@@ -24,7 +24,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
       {/* Mobil overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/40 z-40 md:hidden"
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}

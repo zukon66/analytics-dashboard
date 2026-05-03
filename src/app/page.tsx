@@ -41,8 +41,8 @@ function KPICard({
   iconBg: string; iconColor: string; sub?: string;
 }) {
   return (
-    <div className="bg-[var(--bg-card)] rounded-xl p-6 flex items-center gap-4 border border-[var(--border)]">
-      <div className={`p-3 rounded-xl ${iconBg} ${iconColor}`}>
+    <div className="kok-card kok-card-hover rounded-3xl p-6 flex items-center gap-4">
+      <div className={`kok-icon-tile p-3 rounded-2xl ${iconBg} ${iconColor}`}>
         <span className="material-symbols-outlined">{icon}</span>
       </div>
       <div className="flex-1 min-w-0">
@@ -97,11 +97,11 @@ export default async function PlatformOverviewPage() {
   ];
 
   return (
-    <main className="pt-20 md:pt-24 pb-12 px-4 md:px-8 min-h-screen bg-[var(--bg-page)]">
+    <main className="kok-page kok-fade-in pt-20 md:pt-24 pb-12 px-4 md:px-8 min-h-screen">
       {/* Başlık */}
       <div className="mb-6 md:mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4">
         <div>
-          <span className="px-3 py-1 bg-[var(--accent-bg)] text-[#7C6CF6] rounded-sm text-[10px] font-bold tracking-widest uppercase mb-3 inline-block">
+          <span className="kok-soft-button px-3 py-1 text-[var(--accent)] rounded-full text-[10px] font-bold tracking-widest uppercase mb-3 inline-block">
             Internal Dashboard
           </span>
           <h1 className="text-3xl font-extrabold tracking-tight text-[var(--text-1)] mb-1">{t.platform.title}</h1>
@@ -109,7 +109,7 @@ export default async function PlatformOverviewPage() {
         </div>
         <Link
           href="/businesses"
-          className="bg-[#7C6CF6] text-white px-5 py-2.5 rounded-full text-xs font-bold flex items-center gap-2 hover:bg-[#6D5DF0] transition-colors"
+          className="kok-gradient-button text-white px-5 py-2.5 rounded-full text-xs font-bold flex items-center gap-2 hover:opacity-95 transition-opacity"
         >
           <span className="material-symbols-outlined text-sm">store</span>
           {t.platform.viewAll}
@@ -138,7 +138,7 @@ export default async function PlatformOverviewPage() {
 
       <div className="grid grid-cols-12 gap-6">
         {/* Sol: En Aktif İşletmeler */}
-        <div className="col-span-12 lg:col-span-7 bg-[var(--bg-card)] rounded-xl border border-[var(--border)] overflow-hidden">
+        <div className="col-span-12 lg:col-span-7 kok-card rounded-3xl overflow-hidden">
           <div className="px-8 py-6 flex justify-between items-center border-b border-[var(--border)]">
             <h3 className="text-base font-bold text-[var(--text-1)]">{t.platform.topBusinesses}</h3>
             <Link href="/businesses" className="text-xs text-[var(--accent)] font-semibold hover:underline">
@@ -160,7 +160,7 @@ export default async function PlatformOverviewPage() {
               {topBusinesses.map((biz) => {
                 const scans = scanCounts[biz.id] ?? 0;
                 return (
-                  <tr key={biz.id} className="hover:bg-[var(--bg-page)] transition-colors border-t border-[var(--border)]">
+                  <tr key={biz.id} className="hover:bg-white/[0.035] transition-colors border-t border-[var(--border)]">
                     <td className="px-8 py-4">
                       <p className="font-bold text-[var(--text-1)] text-sm">{biz.name}</p>
                       <p className="text-xs text-[var(--text-muted)]">{biz.city}</p>
@@ -192,17 +192,20 @@ export default async function PlatformOverviewPage() {
         </div>
 
         {/* Sağ: Churn Riski */}
-        <div className="col-span-12 lg:col-span-5 bg-[var(--bg-card)] rounded-xl border border-[var(--border)] overflow-hidden">
+        <div className="col-span-12 lg:col-span-5 kok-card rounded-3xl overflow-hidden">
           <div className="px-6 py-5 border-b border-[var(--border)] flex items-center gap-3">
             <span className="material-symbols-outlined text-[#F59E0B]">warning</span>
             <h3 className="text-base font-bold text-[var(--text-1)]">{t.platform.churnSection}</h3>
           </div>
           <div className="divide-y divide-[var(--border)]">
             {churnList.length === 0 ? (
-              <p className="px-6 py-10 text-sm text-[var(--text-muted)] text-center">{t.platform.churnEmpty}</p>
+              <div className="kok-empty px-6 py-12 text-sm text-[var(--text-muted)] text-center">
+                <span className="material-symbols-outlined kok-pulse-soft text-4xl mb-2 block text-[var(--accent)]">verified</span>
+                {t.platform.churnEmpty}
+              </div>
             ) : (
               churnList.map((biz) => (
-                <div key={biz.id} className="px-6 py-4 flex items-center justify-between hover:bg-[var(--bg-page)] transition-colors">
+                <div key={biz.id} className="px-6 py-4 flex items-center justify-between hover:bg-white/[0.035] transition-colors">
                   <div>
                     <p className="font-bold text-[var(--text-1)] text-sm">{biz.name}</p>
                     <p className="text-xs text-[var(--text-muted)]">{biz.city} · {biz.plan}</p>

@@ -68,9 +68,9 @@ export default function ZoneChart({ data, badge, title, subtitle, totalLabel }: 
   }, []);
 
   return (
-    <div className="bg-[var(--bg-card)] rounded-xl p-8 border border-[var(--border)]">
+    <div className="kok-card kok-card-hover rounded-3xl p-6 md:p-8">
       <div className="mb-6">
-        <span className="px-3 py-1 bg-[#EEEAFE] text-[#7C6CF6] rounded-sm text-[10px] font-bold tracking-widest uppercase mb-3 inline-block">
+        <span className="kok-soft-button px-3 py-1 text-[var(--accent)] rounded-full text-[10px] font-bold tracking-widest uppercase mb-3 inline-block">
           {badge ?? t.dashboard.zone.badge}
         </span>
         <h3 className="text-lg font-bold text-[var(--text-1)]">{title ?? t.dashboard.zone.title}</h3>
@@ -116,7 +116,7 @@ export default function ZoneChart({ data, badge, title, subtitle, totalLabel }: 
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none">
           {activeItem ? (
             <>
-              <p className="text-2xl font-extrabold text-[#1F2430] leading-tight">
+              <p className="text-2xl font-extrabold text-[var(--text-1)] leading-tight">
                 {activePct}%
               </p>
               <p
@@ -125,13 +125,13 @@ export default function ZoneChart({ data, badge, title, subtitle, totalLabel }: 
               >
                 {activeItem.zone}
               </p>
-              <p className="text-[11px] text-[#6B7280] mt-0.5">
+              <p className="text-[11px] text-[var(--text-2)] mt-0.5">
                 {activeItem.scans.toLocaleString("tr-TR")}
               </p>
             </>
           ) : (
             <>
-              <p className="text-2xl font-extrabold text-[#7C6CF6]">
+              <p className="text-2xl font-extrabold text-[var(--accent)]">
                 {total.toLocaleString("tr-TR")}
               </p>
               <p className="text-[10px] font-bold text-[#9AA3B2] uppercase tracking-tighter">
@@ -158,7 +158,7 @@ export default function ZoneChart({ data, badge, title, subtitle, totalLabel }: 
               className="w-2 h-2 rounded-full flex-shrink-0"
               style={{ backgroundColor: COLORS[i % COLORS.length] }}
             />
-            <span className="text-[11px] font-semibold text-[#6B7280]">
+            <span className="text-[11px] font-semibold text-[var(--text-2)]">
               {item.zone}
             </span>
           </button>

@@ -95,7 +95,7 @@ export default async function BusinessDetailPage({
   ];
 
   return (
-    <main className="pt-24 pb-12 px-4 md:px-8 min-h-screen bg-[var(--bg-page)]">
+    <main className="kok-page kok-fade-in pt-24 pb-12 px-4 md:px-8 min-h-screen">
       {/* Geri + Başlık */}
       <div className="mb-8">
         <Link href="/businesses" className="text-xs text-[#7C6CF6] font-semibold flex items-center gap-1 mb-4 hover:underline w-fit">
@@ -105,7 +105,7 @@ export default async function BusinessDetailPage({
         <div className="flex flex-wrap justify-between items-end gap-4">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-[var(--accent-bg)] flex items-center justify-center text-[#7C6CF6] font-extrabold text-lg">
+              <div className="w-10 h-10 rounded-2xl kok-icon-tile flex items-center justify-center text-[var(--accent)] font-extrabold text-lg">
                 {business.name.charAt(0)}
               </div>
               <div>
@@ -129,8 +129,8 @@ export default async function BusinessDetailPage({
       {/* KPI Şeridi */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {kpiCards.map((kpi) => (
-          <div key={kpi.label} className="bg-[var(--bg-card)] rounded-xl p-5 flex items-center gap-4 border border-[var(--border)]">
-            <div className={`p-3 rounded-xl ${kpi.iconBg} ${kpi.iconColor}`}>
+          <div key={kpi.label} className="kok-card kok-card-hover rounded-3xl p-5 flex items-center gap-4">
+            <div className={`kok-icon-tile p-3 rounded-2xl ${kpi.iconBg} ${kpi.iconColor}`}>
               <span className="material-symbols-outlined">{kpi.icon}</span>
             </div>
             <div className="flex-1 min-w-0">
@@ -164,7 +164,7 @@ export default async function BusinessDetailPage({
         <div className="col-span-12 lg:col-span-4">
           <ZoneChart data={zoneRes.data} />
         </div>
-        <div className="col-span-12 lg:col-span-8 bg-[var(--bg-card)] rounded-xl overflow-hidden border border-[var(--border)]">
+        <div className="col-span-12 lg:col-span-8 kok-card rounded-3xl overflow-hidden">
           <div className="px-8 py-6 border-b border-[var(--border)]">
             <h3 className="text-base font-bold text-[var(--text-1)]">{t.dashboard.topTables.title}</h3>
           </div>
@@ -180,13 +180,13 @@ export default async function BusinessDetailPage({
               </thead>
               <tbody>
                 {topTablesRes.data.length === 0 ? (
-                  <tr><td colSpan={4} className="px-8 py-12 text-center text-[var(--text-muted)] text-sm">{periodDisplayLabel} için tarama verisi yok.</td></tr>
+                  <tr><td colSpan={4} className="kok-empty px-8 py-12 text-center text-[var(--text-muted)] text-sm">{periodDisplayLabel} için tarama verisi yok.</td></tr>
                 ) : (
                   topTablesRes.data.map((table) => {
                     const maxScans = topTablesRes.data[0]?.scans ?? 1;
                     const pct = Math.round((table.scans / maxScans) * 100);
                     return (
-                      <tr key={table.tableId} className="hover:bg-[var(--bg-page)] transition-colors border-t border-[var(--border)]">
+                      <tr key={table.tableId} className="hover:bg-white/[0.035] transition-colors border-t border-[var(--border)]">
                         <td className="px-8 py-5"><span className="font-bold text-[var(--text-1)]">{table.tableId}</span></td>
                         <td className="px-8 py-5"><span className="text-sm text-[var(--text-2)]">{table.zone}</span></td>
                         <td className="px-8 py-5">

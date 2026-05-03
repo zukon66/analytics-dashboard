@@ -2,7 +2,7 @@ import { SkeletonBlock, SkeletonAreaChart, SkeletonTableRow } from "@/components
 
 export default function GrowthLoading() {
   return (
-    <main className="pt-24 pb-12 px-4 md:px-8 min-h-screen bg-[#FAFAFD]">
+    <main className="kok-page pt-24 pb-12 px-4 md:px-8 min-h-screen">
       {/* Başlık */}
       <div className="mb-8 flex justify-between items-end">
         <div className="space-y-2">
@@ -14,7 +14,7 @@ export default function GrowthLoading() {
       </div>
 
       {/* MRR Trend chart */}
-      <div className="bg-white rounded-xl border border-[#E9E9F2] p-8 mb-6">
+      <div className="kok-card rounded-3xl p-8 mb-6">
         <div className="flex justify-between items-start mb-6">
           <div className="space-y-2">
             <SkeletonBlock className="h-4 w-24 rounded" />
@@ -34,7 +34,7 @@ export default function GrowthLoading() {
 
       {/* Satır 2: Trial + Aktivasyon */}
       <div className="grid grid-cols-12 gap-6 mb-6">
-        <div className="col-span-12 lg:col-span-7 bg-white rounded-xl border border-[#E9E9F2] overflow-hidden min-h-[340px]">
+        <div className="col-span-12 lg:col-span-7 kok-card rounded-3xl overflow-hidden min-h-[340px]">
           <div className="px-6 py-5 border-b border-[#E9E9F2]">
             <SkeletonBlock className="h-5 w-40 rounded" />
           </div>
@@ -46,7 +46,7 @@ export default function GrowthLoading() {
             </tbody>
           </table>
         </div>
-        <div className="col-span-12 lg:col-span-5 bg-white rounded-xl border border-[#E9E9F2] min-h-[340px] p-6">
+        <div className="col-span-12 lg:col-span-5 kok-card rounded-3xl min-h-[340px] p-6">
           <SkeletonBlock className="h-5 w-36 rounded mb-6" />
           <div className="space-y-4">
             {[80, 55, 30].map((w, i) => (
@@ -61,7 +61,7 @@ export default function GrowthLoading() {
 
       {/* Satır 3: Yeni kayıtlar + Rapor */}
       <div className="grid grid-cols-12 gap-6">
-        <div className="col-span-12 lg:col-span-8 bg-white rounded-xl border border-[#E9E9F2] overflow-hidden">
+        <div className="col-span-12 lg:col-span-8 kok-card rounded-3xl overflow-hidden">
           <div className="px-6 py-5 border-b border-[#E9E9F2]">
             <SkeletonBlock className="h-5 w-36 rounded" />
           </div>
@@ -73,7 +73,7 @@ export default function GrowthLoading() {
             </tbody>
           </table>
         </div>
-        <div className="col-span-12 lg:col-span-4 bg-white rounded-xl border border-[#E9E9F2] p-6 space-y-4">
+        <div className="col-span-12 lg:col-span-4 kok-card rounded-3xl p-6 space-y-4">
           <SkeletonBlock className="h-5 w-32 rounded" />
           <SkeletonBlock className="h-24 rounded-xl" />
           <SkeletonBlock className="h-12 rounded-xl" />

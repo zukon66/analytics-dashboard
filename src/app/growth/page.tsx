@@ -27,11 +27,11 @@ export default async function GrowthPage() {
   ]);
 
   return (
-    <main className="pt-20 md:pt-24 pb-12 px-4 md:px-8 min-h-screen bg-[var(--bg-page)]">
+    <main className="kok-page kok-fade-in pt-20 md:pt-24 pb-12 px-4 md:px-8 min-h-screen">
       {/* Başlık */}
       <div className="mb-8 flex justify-between items-end">
         <div>
-          <span className="px-3 py-1 bg-[var(--accent-bg)] text-[#7C6CF6] rounded-sm text-[10px] font-bold tracking-widest uppercase mb-3 inline-block">
+          <span className="kok-soft-button px-3 py-1 text-[var(--accent)] rounded-full text-[10px] font-bold tracking-widest uppercase mb-3 inline-block">
             Büyüme Paneli
           </span>
           <h1 className="text-3xl font-extrabold tracking-tight text-[var(--text-1)] mb-1">
@@ -59,17 +59,17 @@ export default async function GrowthPage() {
 
       {/* Satır 2: Trial Uyarıları + Aktivasyon Hunisi */}
       <div className="grid grid-cols-12 gap-6 mb-6">
-        <div className="col-span-12 lg:col-span-7 bg-[var(--bg-card)] rounded-xl border border-[var(--border)] overflow-hidden min-h-[340px]">
+        <div className="col-span-12 lg:col-span-7 kok-card rounded-3xl overflow-hidden min-h-[340px]">
           <TrialExpirationList items={trialRes.data} />
         </div>
-        <div className="col-span-12 lg:col-span-5 bg-[var(--bg-card)] rounded-xl border border-[var(--border)] min-h-[340px]">
+        <div className="col-span-12 lg:col-span-5 kok-card rounded-3xl min-h-[340px]">
           <ActivationFunnelChart funnel={funnelRes.data} />
         </div>
       </div>
 
       {/* Satır 3: Yeni Kayıtlar + Rapor indirme */}
       <div className="grid grid-cols-12 gap-6">
-        <div className="col-span-12 lg:col-span-8 bg-[var(--bg-card)] rounded-xl border border-[var(--border)] overflow-hidden">
+        <div className="col-span-12 lg:col-span-8 kok-card rounded-3xl overflow-hidden">
           <NewRegistrationsList items={newBizRes.data} />
         </div>
         <div className="col-span-12 lg:col-span-4">

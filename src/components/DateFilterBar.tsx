@@ -38,15 +38,15 @@ export default function DateFilterBar({ activePeriod, activeDate }: Props) {
   return (
     <div className="flex items-center gap-2">
       {/* Period butonları */}
-      <div className="flex bg-[#F6F6FB] border border-[#E9E9F2] rounded-full p-1 gap-1">
+      <div className="flex bg-black/20 border border-[var(--border)] rounded-full p-1 gap-1">
         {PERIODS.map((p) => (
           <Link
             key={p.key}
             href={`${pathname}?period=${p.key}`}
             className={`px-4 py-1.5 rounded-full text-xs font-bold transition-colors ${
               !isCustomDate && activePeriod === p.key
-                ? "bg-[#7C6CF6] text-white shadow-sm"
-                : "text-[#6B7280] hover:text-[#1F2430]"
+                ? "kok-gradient-button text-white"
+                : "text-[var(--text-2)] hover:text-[var(--text-1)]"
             }`}
           >
             {p.label}
@@ -60,8 +60,8 @@ export default function DateFilterBar({ activePeriod, activeDate }: Props) {
         onClick={openPicker}
         className={`flex items-center gap-2 border rounded-full px-3 py-1.5 text-xs font-bold transition-colors ${
           isCustomDate
-            ? "bg-[#7C6CF6] border-[#7C6CF6] text-white"
-            : "bg-[#F6F6FB] border-[#E9E9F2] text-[#6B7280] hover:border-[#7C6CF6] hover:text-[#7C6CF6]"
+            ? "kok-gradient-button border-[#7C6CF6] text-white"
+            : "bg-black/20 border-[var(--border)] text-[var(--text-2)] hover:border-[#7C6CF6] hover:text-[#7C6CF6]"
         }`}
       >
         <span className="material-symbols-outlined text-sm leading-none">

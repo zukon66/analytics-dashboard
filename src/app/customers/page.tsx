@@ -39,7 +39,7 @@ export default async function CustomersPage({
   }));
 
   return (
-    <main className="pt-24 pb-12 px-4 md:px-8 min-h-screen bg-[var(--bg-page)]">
+    <main className="kok-page kok-fade-in pt-24 pb-12 px-4 md:px-8 min-h-screen">
       {/* Başlık */}
       <div className="mb-8 flex justify-between items-end">
         <div>
@@ -57,23 +57,23 @@ export default async function CustomersPage({
       </div>
 
       {/* KPI Şeridi */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
-        <div className="bg-[var(--bg-card)] rounded-xl p-6 flex items-center gap-4 border border-[var(--border)]">
-          <div className="p-3 rounded-xl bg-[var(--accent-bg)] text-[#7C6CF6]"><span className="material-symbols-outlined">group</span></div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <div className="kok-card kok-card-hover rounded-3xl p-6 flex items-center gap-4">
+          <div className="kok-icon-tile p-3 rounded-2xl text-[var(--accent)]"><span className="material-symbols-outlined">group</span></div>
           <div>
             <p className="text-2xl font-extrabold text-[var(--text-1)]">{stats.total}</p>
             <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">{t.customers.totalCustomers}</p>
           </div>
         </div>
-        <div className="bg-[var(--bg-card)] rounded-xl p-6 flex items-center gap-4 border border-[var(--border)]">
-          <div className="p-3 rounded-xl bg-[#DBEAFE] text-[#1E40AF]"><span className="material-symbols-outlined">repeat</span></div>
+        <div className="kok-card kok-card-hover rounded-3xl p-6 flex items-center gap-4">
+          <div className="kok-icon-tile p-3 rounded-2xl text-sky-300"><span className="material-symbols-outlined">repeat</span></div>
           <div>
             <p className="text-2xl font-extrabold text-[var(--text-1)]">{stats.returning}</p>
             <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">{t.customers.returningCustomers}</p>
           </div>
         </div>
-        <div className="bg-[var(--bg-card)] rounded-xl p-6 flex items-center gap-4 border border-[var(--border)]">
-          <div className="p-3 rounded-xl bg-[#EDE9FE] text-[#6D28D9]"><span className="material-symbols-outlined">person_add</span></div>
+        <div className="kok-card kok-card-hover rounded-3xl p-6 flex items-center gap-4">
+          <div className="kok-icon-tile p-3 rounded-2xl text-fuchsia-300"><span className="material-symbols-outlined">person_add</span></div>
           <div>
             <p className="text-2xl font-extrabold text-[var(--text-1)]">{stats.newThisWeek}</p>
             <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">{t.customers.newThisWeek}</p>
@@ -85,7 +85,7 @@ export default async function CustomersPage({
       <CustomerGrowthChart data={trendRes.data} granularity={granularity} />
 
       {/* Arama + Liste */}
-      <div className="bg-[var(--bg-card)] rounded-xl overflow-hidden border border-[var(--border)]">
+      <div className="kok-card rounded-3xl overflow-hidden">
         <div className="px-8 py-6 border-b border-[var(--border)] flex justify-between items-center gap-4">
           <h3 className="text-lg font-bold text-[var(--text-1)] shrink-0">{t.customers.title}</h3>
           <form method="get" className="flex items-center gap-2 flex-1 max-w-sm">
@@ -104,9 +104,9 @@ export default async function CustomersPage({
         </div>
 
         {isEmpty ? (
-          <div className="flex flex-col items-center justify-center py-24 text-center px-8">
-            <div className="p-4 bg-[var(--bg-sidebar)] rounded-full mb-4">
-              <span className="material-symbols-outlined text-4xl text-[var(--text-muted)]">group</span>
+          <div className="kok-empty flex flex-col items-center justify-center py-24 text-center px-8">
+            <div className="kok-icon-tile p-4 rounded-full mb-4 kok-pulse-soft">
+              <span className="material-symbols-outlined text-4xl text-[var(--accent)]">group</span>
             </div>
             <h3 className="text-lg font-bold text-[var(--text-1)] mb-2">{q ? `"${q}" için sonuç bulunamadı` : "Henüz müşteri verisi yok"}</h3>
             <p className="text-sm text-[var(--text-2)] max-w-sm">{q ? "Farklı bir arama terimi deneyin." : "Restoranınızı ziyaret eden müşteriler QR menüyü taradığında buraya yansıyacak."}</p>
@@ -125,10 +125,10 @@ export default async function CustomersPage({
                 </thead>
                 <tbody>
                   {customers.map((customer) => (
-                    <tr key={customer.id} className="hover:bg-[var(--bg-page)] transition-colors border-t border-[var(--border)]">
+                    <tr key={customer.id} className="hover:bg-white/[0.035] transition-colors border-t border-[var(--border)]">
                       <td className="px-8 py-5">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-[var(--accent-bg)] flex items-center justify-center text-[#7C6CF6] font-bold text-xs">
+                          <div className="w-8 h-8 rounded-2xl kok-icon-tile flex items-center justify-center text-[var(--accent)] font-bold text-xs">
                             {customer.name.charAt(0).toUpperCase()}
                           </div>
                           <span className="font-semibold text-[var(--text-1)]">{customer.name}</span>

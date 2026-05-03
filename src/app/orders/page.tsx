@@ -73,7 +73,7 @@ export default async function OrdersPage({
   void orders;
 
   return (
-    <main className="pt-24 pb-12 px-4 md:px-8 min-h-screen bg-[var(--bg-page)]">
+    <main className="kok-page kok-fade-in pt-24 pb-12 px-4 md:px-8 min-h-screen">
       {/* Başlık */}
       <div className="mb-8 flex justify-between items-end">
         <div>
@@ -91,37 +91,37 @@ export default async function OrdersPage({
       </div>
 
       {/* KPI Şeridi — 5 kart */}
-      <div className="grid grid-cols-5 gap-4 mb-8">
-        <div className="bg-[var(--bg-card)] rounded-xl p-6 flex items-center gap-4 border border-[var(--border)]">
-          <div className="p-3 rounded-xl bg-[var(--accent-bg)] text-[#7C6CF6]"><span className="material-symbols-outlined">payments</span></div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4 mb-8">
+        <div className="kok-card kok-card-hover rounded-3xl p-6 flex items-center gap-4">
+          <div className="kok-icon-tile p-3 rounded-2xl text-[var(--accent)]"><span className="material-symbols-outlined">payments</span></div>
           <div>
             <p className="text-2xl font-extrabold text-[var(--text-1)]">₺{stats.totalRevenue.toLocaleString("tr-TR")}</p>
             <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">{t.orders.totalRevenue}</p>
           </div>
         </div>
-        <div className="bg-[var(--bg-card)] rounded-xl p-6 flex items-center gap-4 border border-[var(--border)]">
-          <div className="p-3 rounded-xl bg-[var(--accent-bg)] text-[#7C6CF6]"><span className="material-symbols-outlined">receipt</span></div>
+        <div className="kok-card kok-card-hover rounded-3xl p-6 flex items-center gap-4">
+          <div className="kok-icon-tile p-3 rounded-2xl text-[var(--accent)]"><span className="material-symbols-outlined">receipt</span></div>
           <div>
             <p className="text-2xl font-extrabold text-[var(--text-1)]">₺{stats.avgAmount.toLocaleString("tr-TR")}</p>
             <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">Ort. Sipariş Tutarı</p>
           </div>
         </div>
-        <div className="bg-[var(--bg-card)] rounded-xl p-6 flex items-center gap-4 border border-[var(--border)]">
-          <div className="p-3 rounded-xl bg-[#DCFCE7] text-[#15803D]"><span className="material-symbols-outlined">check_circle</span></div>
+        <div className="kok-card kok-card-hover rounded-3xl p-6 flex items-center gap-4">
+          <div className="p-3 rounded-2xl bg-emerald-500/10 text-emerald-300 border border-emerald-300/20"><span className="material-symbols-outlined">check_circle</span></div>
           <div>
             <p className="text-2xl font-extrabold text-[var(--text-1)]">{stats.completed}</p>
             <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">{t.orders.completedOrders}</p>
           </div>
         </div>
-        <div className="bg-[var(--bg-card)] rounded-xl p-6 flex items-center gap-4 border border-[var(--border)]">
-          <div className="p-3 rounded-xl bg-[#FEF3C7] text-[#92400E]"><span className="material-symbols-outlined">hourglass_empty</span></div>
+        <div className="kok-card kok-card-hover rounded-3xl p-6 flex items-center gap-4">
+          <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-300 border border-amber-300/20"><span className="material-symbols-outlined">hourglass_empty</span></div>
           <div>
             <p className="text-2xl font-extrabold text-[var(--text-1)]">{stats.pending}</p>
             <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">{t.orders.pendingOrders}</p>
           </div>
         </div>
-        <div className="bg-[var(--bg-card)] rounded-xl p-6 flex items-center gap-4 border border-[var(--border)]">
-          <div className={`p-3 rounded-xl ${stats.cancelRate > 15 ? "bg-[#FEE2E2] text-[#991B1B]" : "bg-[var(--bg-sidebar)] text-[var(--text-2)]"}`}>
+        <div className="kok-card kok-card-hover rounded-3xl p-6 flex items-center gap-4">
+          <div className={`p-3 rounded-2xl ${stats.cancelRate > 15 ? "bg-red-500/10 text-red-300 border border-red-300/20" : "kok-icon-tile text-[var(--text-2)]"}`}>
             <span className="material-symbols-outlined">cancel</span>
           </div>
           <div>
@@ -132,7 +132,7 @@ export default async function OrdersPage({
       </div>
 
       {/* Dönüşüm Oranı Banner */}
-      <div className="bg-[var(--accent-bg)] border border-[#D4CFFE] rounded-xl px-8 py-5 mb-8 flex items-center justify-between">
+      <div className="kok-card rounded-3xl px-8 py-5 mb-8 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <span className="material-symbols-outlined text-[#7C6CF6] text-2xl">conversion_path</span>
           <div>
@@ -144,7 +144,7 @@ export default async function OrdersPage({
       </div>
 
       {/* Arama + Tablo */}
-      <div className="bg-[var(--bg-card)] rounded-xl overflow-hidden border border-[var(--border)]">
+      <div className="kok-card rounded-3xl overflow-hidden">
         <div className="px-8 py-6 border-b border-[var(--border)] flex justify-between items-center gap-4">
           <h3 className="text-lg font-bold text-[var(--text-1)] shrink-0">{t.orders.title}</h3>
           <form method="get" className="flex items-center gap-2 flex-1 max-w-sm">
@@ -166,9 +166,9 @@ export default async function OrdersPage({
         </div>
 
         {isEmpty ? (
-          <div className="flex flex-col items-center justify-center py-24 text-center px-8">
-            <div className="p-4 bg-[var(--bg-sidebar)] rounded-full mb-4">
-              <span className="material-symbols-outlined text-4xl text-[var(--text-muted)]">receipt_long</span>
+          <div className="kok-empty flex flex-col items-center justify-center py-24 text-center px-8">
+            <div className="kok-icon-tile p-4 rounded-full mb-4 kok-pulse-soft">
+              <span className="material-symbols-outlined text-4xl text-[var(--accent)]">receipt_long</span>
             </div>
             <h3 className="text-lg font-bold text-[var(--text-1)] mb-2">{q ? `"${q}" için sonuç bulunamadı` : "Henüz sipariş yok"}</h3>
             <p className="text-sm text-[var(--text-2)] max-w-sm">{q ? "Farklı bir arama terimi deneyin." : "Müşterileriniz QR menüden sipariş verdiğinde burada görüntülenecek."}</p>
@@ -189,7 +189,7 @@ export default async function OrdersPage({
                 </thead>
                 <tbody>
                   {pagedOrders.map((order) => (
-                    <tr key={order.id} className="hover:bg-[var(--bg-page)] transition-colors border-t border-[var(--border)]">
+                    <tr key={order.id} className="hover:bg-white/[0.035] transition-colors border-t border-[var(--border)]">
                       <td className="px-8 py-5"><span className="font-bold text-[var(--text-1)]">#{order.id}</span></td>
                       <td className="px-8 py-5"><span className="font-semibold text-[var(--text-1)]">{order.table_id}</span></td>
                       <td className="px-8 py-5"><span className="text-sm text-[var(--text-2)]">{order.zone}</span></td>

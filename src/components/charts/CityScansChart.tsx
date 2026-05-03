@@ -29,9 +29,9 @@ const COLORS = [
 
 export default function CityScansChart({ data }: Props) {
   return (
-    <div className="bg-[var(--bg-card)] rounded-xl p-8 flex flex-col justify-between border border-[var(--border)]">
+    <div className="kok-card kok-card-hover rounded-3xl p-6 md:p-8 flex flex-col justify-between">
       <div className="mb-6">
-        <span className="px-3 py-1 bg-[#DBEAFE] text-[#1E40AF] rounded-sm text-[10px] font-bold tracking-widest uppercase mb-3 inline-block">
+        <span className="kok-soft-button px-3 py-1 text-[var(--accent)] rounded-full text-[10px] font-bold tracking-widest uppercase mb-3 inline-block">
           Coğrafi Analiz
         </span>
         <h3 className="text-lg font-bold text-[var(--text-1)]">Şehire Göre Tarama</h3>
@@ -45,22 +45,23 @@ export default function CityScansChart({ data }: Props) {
           <YAxis
             type="category"
             dataKey="city"
-            tick={{ fontSize: 11, fill: "#6B7280", fontWeight: 600 }}
+            tick={{ fontSize: 11, fill: "#B7BCD0", fontWeight: 600 }}
             axisLine={false}
             tickLine={false}
             width={80}
           />
           <Tooltip
             contentStyle={{
-              background: "#FFFFFF",
-              border: "1px solid #E9E9F2",
-              borderRadius: "12px",
-              boxShadow: "0 8px 32px rgba(124,108,246,0.08)",
+              background: "rgba(13, 14, 22, 0.94)",
+              border: "1px solid rgba(139,124,251,0.28)",
+              borderRadius: "16px",
+              boxShadow: "0 18px 44px rgba(0,0,0,0.35)",
               fontSize: 12,
+              color: "#F7F7FF",
             }}
-            cursor={{ fill: "#EEEAFE" }}
+            cursor={{ fill: "rgba(139,124,251,0.08)" }}
           />
-          <Bar dataKey="scans" radius={[0, 4, 4, 0]} fill={COLORS[0]} isAnimationActive={false}>
+          <Bar dataKey="scans" radius={[0, 10, 10, 0]} fill={COLORS[0]} isAnimationActive>
             {data.map((_, index) => (
               <Cell key={index} fill={COLORS[index % COLORS.length]} />
             ))}

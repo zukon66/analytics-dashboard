@@ -2,7 +2,7 @@ import { SkeletonBlock, SkeletonTableRow } from "@/components/SkeletonBlock";
 
 export default function BusinessesLoading() {
   return (
-    <main className="pt-24 pb-12 px-4 md:px-8 min-h-screen bg-[#FAFAFD]">
+    <main className="kok-page pt-24 pb-12 px-4 md:px-8 min-h-screen">
       {/* Başlık */}
       <div className="mb-8 flex justify-between items-end">
         <div className="space-y-2">
@@ -21,7 +21,7 @@ export default function BusinessesLoading() {
       </div>
 
       {/* Tablo */}
-      <div className="bg-white rounded-xl border border-[#E9E9F2] overflow-hidden">
+      <div className="kok-card rounded-3xl overflow-hidden">
         {/* Header */}
         <div className="grid grid-cols-6 px-6 py-4 border-b border-[#E9E9F2] gap-4">
           {Array.from({ length: 6 }).map((_, i) => (

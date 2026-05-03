@@ -2,7 +2,7 @@ import { SkeletonKPICard, SkeletonBlock, SkeletonTableRow, SkeletonChartBar } fr
 
 export default function HomeLoading() {
   return (
-    <main className="pt-24 pb-12 px-4 md:px-8 min-h-screen bg-[#FAFAFD]">
+    <main className="kok-page pt-24 pb-12 px-4 md:px-8 min-h-screen">
       {/* Başlık */}
       <div className="mb-8 flex justify-between items-end">
         <div className="space-y-2">
@@ -24,8 +24,8 @@ export default function HomeLoading() {
       {/* İki kolon */}
       <div className="grid grid-cols-12 gap-6">
         {/* Sol: tablo */}
-        <div className="col-span-12 lg:col-span-7 bg-white rounded-xl border border-[#E9E9F2] overflow-hidden">
-          <div className="px-8 py-6 border-b border-[#E9E9F2]">
+        <div className="col-span-12 lg:col-span-7 kok-card rounded-3xl overflow-hidden">
+          <div className="px-8 py-6 border-b border-[var(--border)]">
             <SkeletonBlock className="h-5 w-40 rounded" />
           </div>
           <table className="w-full">
@@ -36,11 +36,11 @@ export default function HomeLoading() {
         </div>
 
         {/* Sağ: churn listesi */}
-        <div className="col-span-12 lg:col-span-5 bg-white rounded-xl border border-[#E9E9F2] overflow-hidden">
-          <div className="px-6 py-5 border-b border-[#E9E9F2]">
+        <div className="col-span-12 lg:col-span-5 kok-card rounded-3xl overflow-hidden">
+          <div className="px-6 py-5 border-b border-[var(--border)]">
             <SkeletonBlock className="h-5 w-32 rounded" />
           </div>
-          <div className="divide-y divide-[#E9E9F2]">
+          <div className="divide-y divide-[var(--border)]">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="px-6 py-4 flex items-center justify-between">
                 <div className="space-y-2">
@@ -55,7 +55,7 @@ export default function HomeLoading() {
       </div>
 
       {/* Chart alanı */}
-      <div className="mt-8 bg-white rounded-xl p-8 border border-[#E9E9F2]">
+      <div className="mt-8 kok-card rounded-3xl p-8">
         <div className="flex justify-between mb-6">
           <div className="space-y-2">
             <SkeletonBlock className="h-4 w-24 rounded" />

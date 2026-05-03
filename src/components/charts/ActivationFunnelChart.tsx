@@ -14,7 +14,7 @@ const STAGES = [
     icon: "store",
     color: "#7C6CF6",
     bg: "#EEEAFE",
-    getText: (f: ActivationFunnel) => t.growth.funnel.stages.registered,
+    getText: () => t.growth.funnel.stages.registered,
     getCount: (f: ActivationFunnel) => f.totalBusinesses,
     getPct: () => 100,
   },
@@ -23,7 +23,7 @@ const STAGES = [
     icon: "qr_code_scanner",
     color: "#3B82F6",
     bg: "#DBEAFE",
-    getText: (f: ActivationFunnel) => t.growth.funnel.stages.activated,
+    getText: () => t.growth.funnel.stages.activated,
     getCount: (f: ActivationFunnel) => f.activated1Plus,
     getPct: (f: ActivationFunnel) =>
       f.totalBusinesses > 0
@@ -35,7 +35,7 @@ const STAGES = [
     icon: "bolt",
     color: "#059669",
     bg: "#DCFCE7",
-    getText: (f: ActivationFunnel) => t.growth.funnel.stages.powerUser,
+    getText: () => t.growth.funnel.stages.powerUser,
     getCount: (f: ActivationFunnel) => f.powerUsers10Plus,
     getPct: (f: ActivationFunnel) =>
       f.totalBusinesses > 0
@@ -51,7 +51,7 @@ export default function ActivationFunnelChart({ funnel }: Props) {
     <div className="h-full flex flex-col p-6">
       {/* Başlık */}
       <div className="mb-5">
-        <span className="px-3 py-1 bg-[#EEEAFE] text-[#7C6CF6] rounded-sm text-[10px] font-bold tracking-widest uppercase mb-2 inline-block">
+        <span className="kok-soft-button px-3 py-1 text-[var(--accent)] rounded-full text-[10px] font-bold tracking-widest uppercase mb-2 inline-block">
           {t.growth.funnel.badge}
         </span>
         <h3 className="text-base font-bold text-[var(--text-1)]">{t.growth.funnel.title}</h3>
@@ -74,10 +74,10 @@ export default function ActivationFunnelChart({ funnel }: Props) {
                 onMouseLeave={() => setHoveredStage(null)}
               >
                 {/* Bar container */}
-                <div className="bg-[var(--bg-page)] rounded-xl h-14 overflow-hidden relative">
+                <div className="bg-black/20 rounded-2xl h-14 overflow-hidden relative border border-[var(--border)]">
                   {/* Dolu kısım */}
                   <div
-                    className="h-full rounded-xl transition-all duration-300 flex items-center px-4"
+                    className="h-full rounded-2xl transition-all duration-300 flex items-center px-4"
                     style={{
                       width: barWidth,
                       backgroundColor: isHovered ? stage.color : stage.bg,
@@ -98,7 +98,7 @@ export default function ActivationFunnelChart({ funnel }: Props) {
                       className="text-xs font-bold truncate ml-8"
                       style={{ color: isHovered ? "white" : "var(--text-1)" }}
                     >
-                      {stage.getText(funnel)}
+                      {stage.getText()}
                     </span>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <span
@@ -124,7 +124,7 @@ export default function ActivationFunnelChart({ funnel }: Props) {
               {/* Ok bağlayıcı */}
               {idx < STAGES.length - 1 && (
                 <div className="flex justify-center my-1">
-                  <span className="material-symbols-outlined text-base text-[#D1D5DB]">
+                  <span className="material-symbols-outlined text-base text-[var(--text-muted)]">
                     arrow_downward
                   </span>
                 </div>

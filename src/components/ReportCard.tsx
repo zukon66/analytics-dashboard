@@ -90,7 +90,7 @@ export default function ReportCard(props: ReportCardProps) {
       : null;
 
   return (
-    <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] overflow-hidden">
+    <div className="kok-card rounded-3xl overflow-hidden">
       {/* Başlık */}
       <div className="px-6 py-5 border-b border-[var(--border)] flex items-center gap-3">
         <span className="material-symbols-outlined text-[#7C6CF6]">summarize</span>
@@ -112,7 +112,7 @@ export default function ReportCard(props: ReportCardProps) {
           ].map((item) => (
             <div
               key={item.label}
-              className="flex items-center gap-3 p-3 bg-[var(--bg-page)] rounded-lg border border-[var(--border)]"
+              className="flex items-center gap-3 p-3 bg-white/[0.035] rounded-2xl border border-[var(--border)]"
             >
               <span className="material-symbols-outlined text-sm text-[#7C6CF6]">{item.icon}</span>
               <div>
@@ -124,7 +124,7 @@ export default function ReportCard(props: ReportCardProps) {
         </div>
 
         {/* MRR özeti */}
-        <div className="bg-[var(--bg-sidebar)] rounded-lg p-4 mb-5 flex items-center justify-between">
+        <div className="bg-white/[0.035] rounded-2xl p-4 mb-5 flex items-center justify-between border border-[var(--border)]">
           <div>
             <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">Güncel MRR</p>
             <p className="text-2xl font-extrabold text-[var(--text-1)]">
@@ -148,7 +148,7 @@ export default function ReportCard(props: ReportCardProps) {
         {/* İndir butonu */}
         <button
           onClick={handleDownload}
-          className="w-full flex items-center justify-center gap-2 bg-[#7C6CF6] hover:bg-[#6D5DF0] text-white text-sm font-bold py-3 px-5 rounded-xl transition-colors"
+          className="kok-gradient-button w-full flex items-center justify-center gap-2 text-white text-sm font-bold py-3 px-5 rounded-2xl hover:opacity-95 transition-opacity"
         >
           <span className="material-symbols-outlined text-sm">download</span>
           CSV Raporu İndir

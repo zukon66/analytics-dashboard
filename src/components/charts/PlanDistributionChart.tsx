@@ -96,7 +96,7 @@ export default function PlanDistributionChart({ breakdown }: Props) {
                 outerRadius={80}
                 strokeWidth={2}
                 stroke="var(--bg-card)"
-                isAnimationActive={false}
+                isAnimationActive
                 activeIndex={activeIndex}
                 activeShape={ActiveShape}
                 onMouseEnter={(_: unknown, index: number) => setActiveIndex(index)}

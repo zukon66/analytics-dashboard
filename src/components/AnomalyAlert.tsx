@@ -47,29 +47,29 @@ export default function AnomalyAlert({ daily }: { daily: DailyPoint[] }) {
   if (anomalies.length === 0) return null;
 
   return (
-    <div className="mb-6 bg-white rounded-xl border border-[#FDE68A] overflow-hidden">
+    <div className="kok-card mb-6 rounded-3xl overflow-hidden border-amber-300/20">
       {/* Başlık */}
-      <div className="px-6 py-4 bg-[#FFFBEB] border-b border-[#FDE68A] flex items-center gap-3">
-        <span className="material-symbols-outlined text-[#D97706]">sensors</span>
+      <div className="px-6 py-4 bg-amber-500/10 border-b border-amber-300/20 flex items-center gap-3">
+        <span className="material-symbols-outlined text-amber-300">sensors</span>
         <div>
-          <h3 className="text-sm font-bold text-[#92400E]">Anomali Tespiti</h3>
-          <p className="text-xs text-[#B45309]">
+          <h3 className="text-sm font-bold text-amber-100">Anomali Tespiti</h3>
+          <p className="text-xs text-amber-200/80">
             Bu haftaki tarama sayıları geçen haftanın ortalamasından belirgin şekilde sapıyor
           </p>
         </div>
-        <span className="ml-auto bg-[#FEF3C7] text-[#92400E] text-[10px] font-bold px-2 py-0.5 rounded-full">
+        <span className="ml-auto bg-amber-400/15 text-amber-200 text-[10px] font-bold px-2 py-0.5 rounded-full">
           {anomalies.length} anormal gün
         </span>
       </div>
 
       {/* Anomali listesi */}
-      <div className="divide-y divide-[#FEF3C7]">
+      <div className="divide-y divide-[var(--border)]">
         {anomalies.map((a) => (
-          <div key={a.date} className="px-6 py-3 flex items-center gap-4 hover:bg-[#FFFBEB] transition-colors">
+          <div key={a.date} className="px-6 py-3 flex items-center gap-4 hover:bg-white/[0.035] transition-colors">
             {/* Yön ikonu */}
             <div
               className={`p-2 rounded-lg shrink-0 ${
-                a.direction === "up" ? "bg-[#DCFCE7] text-[#15803D]" : "bg-[#FEE2E2] text-[#991B1B]"
+                a.direction === "up" ? "bg-emerald-500/10 text-emerald-300" : "bg-red-500/10 text-red-300"
               }`}
             >
               <span className="material-symbols-outlined text-sm">
@@ -79,15 +79,15 @@ export default function AnomalyAlert({ daily }: { daily: DailyPoint[] }) {
 
             {/* Tarih & açıklama */}
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-[#1F2430]">{a.label}</p>
-              <p className="text-xs text-[#9AA3B2]">
+              <p className="text-sm font-semibold text-[var(--text-1)]">{a.label}</p>
+              <p className="text-xs text-[var(--text-muted)]">
                 Beklenen ort: <span className="font-semibold">{a.baseline} tarama</span>
               </p>
             </div>
 
             {/* Gerçekleşen */}
             <div className="text-right shrink-0">
-              <p className="text-sm font-bold text-[#1F2430]">
+              <p className="text-sm font-bold text-[var(--text-1)]">
                 {a.scans.toLocaleString("tr-TR")} tarama
               </p>
               <p
@@ -104,8 +104,8 @@ export default function AnomalyAlert({ daily }: { daily: DailyPoint[] }) {
       </div>
 
       {/* Alt bilgi */}
-      <div className="px-6 py-3 bg-[#FFFBEB] border-t border-[#FDE68A]">
-        <p className="text-[10px] text-[#B45309]">
+      <div className="px-6 py-3 bg-amber-500/10 border-t border-amber-300/20">
+        <p className="text-[10px] text-amber-200/80">
           Eşik: Geçen hafta günlük ortalamasına göre ±%60 sapma · Veri: Son 14 gün
         </p>
       </div>

@@ -33,6 +33,11 @@ function daysSince(dateStr: string | null): string {
   return `${days} gün önce`;
 }
 
+function isChurnRiskStatus(status: string, dateStr: string | null): boolean {
+  if (status === "churned" || !dateStr) return false;
+  return Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000) > 14;
+}
+
 export default async function BusinessesPage({
   searchParams,
 }: {
@@ -56,11 +61,11 @@ export default async function BusinessesPage({
   };
 
   return (
-    <main className="pt-20 md:pt-24 pb-12 px-4 md:px-8 min-h-screen bg-[var(--bg-page)]">
+    <main className="kok-page kok-fade-in pt-20 md:pt-24 pb-12 px-4 md:px-8 min-h-screen">
       {/* Başlık */}
       <div className="mb-6 md:mb-8">
         <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[var(--text-1)] mb-1">{t.businesses.title}</h1>
-        <p className="text-[#6B7280] text-sm font-medium">{t.businesses.subtitle}</p>
+        <p className="text-[var(--text-2)] text-sm font-medium">{t.businesses.subtitle}</p>
       </div>
 
       {/* Durum özeti */}
@@ -69,9 +74,9 @@ export default async function BusinessesPage({
           <Link
             key={s}
             href={status === s ? "/businesses" : `/businesses?status=${s}`}
-            className={`rounded-xl px-5 py-4 border flex items-center gap-3 transition-all ${
+            className={`rounded-3xl px-5 py-4 border flex items-center gap-3 transition-all kok-card-hover ${
               status === s
-                ? "border-[#7C6CF6] bg-[#EEEAFE]"
+                ? "border-[rgba(139,124,251,0.42)] bg-[var(--accent-bg)]"
                 : "border-[var(--border)] bg-[var(--bg-card)] hover:border-[#7C6CF6]/40"
             }`}
           >
@@ -97,7 +102,7 @@ export default async function BusinessesPage({
             name="search"
             defaultValue={search}
             placeholder="İşletme, şehir veya e-posta..."
-            className="w-full bg-[var(--bg-card)] border border-[var(--border)] rounded-xl py-2.5 pl-9 pr-4 text-sm text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-[#7C6CF6]/30 focus:border-[#7C6CF6] transition-all"
+            className="w-full bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl py-2.5 pl-9 pr-4 text-sm text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-[#7C6CF6]/30 focus:border-[#7C6CF6] transition-all"
           />
         </div>
 
@@ -105,7 +110,7 @@ export default async function BusinessesPage({
         <select
           name="plan"
           defaultValue={plan}
-          className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl py-2.5 px-3 text-sm text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-[#7C6CF6]/30 focus:border-[#7C6CF6] transition-all"
+          className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl py-2.5 px-3 text-sm text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-[#7C6CF6]/30 focus:border-[#7C6CF6] transition-all"
         >
           <option value="">Tüm Planlar</option>
           <option value="trial">Trial</option>
@@ -118,7 +123,7 @@ export default async function BusinessesPage({
         <select
           name="status"
           defaultValue={status}
-          className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl py-2.5 px-3 text-sm text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-[#7C6CF6]/30 focus:border-[#7C6CF6] transition-all"
+          className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl py-2.5 px-3 text-sm text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-[#7C6CF6]/30 focus:border-[#7C6CF6] transition-all"
         >
           <option value="">Tüm Durumlar</option>
           <option value="active">Aktif</option>
@@ -129,19 +134,19 @@ export default async function BusinessesPage({
 
         <button
           type="submit"
-          className="bg-[#7C6CF6] text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-[#6D5DF0] transition-colors"
+          className="kok-gradient-button text-white px-4 py-2.5 rounded-2xl text-sm font-bold hover:opacity-95 transition-opacity"
         >
           Filtrele
         </button>
 
         {(search || status || plan) && (
-          <a
+          <Link
             href="/businesses"
             className="flex items-center gap-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-[#6B7280] bg-[var(--bg-card)] border border-[var(--border)] hover:border-[#7C6CF6]/40 transition-colors"
           >
             <span className="material-symbols-outlined text-sm">close</span>
             Temizle
-          </a>
+          </Link>
         )}
       </form>
 
@@ -149,14 +154,14 @@ export default async function BusinessesPage({
       {(search || status || plan) && (
         <p className="text-xs text-[var(--text-muted)] mb-3">
           <span className="font-bold text-[var(--text-1)]">{filtered.length}</span> sonuç bulundu
-          {search && <span> · Arama: <span className="font-semibold">"{search}"</span></span>}
+          {search && <span> · Arama: <span className="font-semibold">&quot;{search}&quot;</span></span>}
           {plan && <span> · Plan: <span className="font-semibold capitalize">{plan}</span></span>}
           {status && <span> · Durum: <span className="font-semibold">{status}</span></span>}
         </p>
       )}
 
       {/* Tablo */}
-      <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] overflow-hidden">
+      <div className="kok-card rounded-3xl overflow-hidden">
         <div className="overflow-x-auto">
         <table className="w-full text-left min-w-[640px]">
           <thead>
@@ -172,23 +177,21 @@ export default async function BusinessesPage({
           <tbody>
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-8 py-16 text-center text-[var(--text-muted)] text-sm">
+                <td colSpan={6} className="px-8 py-16 text-center text-[var(--text-muted)] text-sm kok-empty">
+                  <span className="material-symbols-outlined kok-pulse-soft text-4xl mb-2 block text-[var(--accent)]">storefront</span>
                   {t.businesses.empty}
                 </td>
               </tr>
             ) : (
               filtered.map((biz) => {
                 const scans = scanCounts[biz.id] ?? 0;
-                const isChurnRisk =
-                  biz.status !== "churned" &&
-                  biz.last_active_at &&
-                  Math.floor((Date.now() - new Date(biz.last_active_at).getTime()) / 86400000) > 14;
+                const isChurnRisk = isChurnRiskStatus(biz.status, biz.last_active_at);
 
                 return (
-                  <tr key={biz.id} className="hover:bg-[var(--bg-page)] transition-colors border-t border-[var(--border)]">
+                  <tr key={biz.id} className="hover:bg-white/[0.035] transition-colors border-t border-[var(--border)]">
                     <td className="px-8 py-5">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-[#EEEAFE] flex items-center justify-center text-[#7C6CF6] font-extrabold text-xs shrink-0">
+                        <div className="w-9 h-9 rounded-2xl kok-icon-tile flex items-center justify-center text-[var(--accent)] font-extrabold text-xs shrink-0">
                           {biz.name.charAt(0)}
                         </div>
                         <div>

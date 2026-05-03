@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import t from "@/lib/i18n";
 
 const STORAGE_KEY = "kok_settings";
@@ -34,14 +34,14 @@ const DEFAULT_SETTINGS: Settings = {
 export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
-
-  useEffect(() => {
+  const [settings, setSettings] = useState<Settings>(() => {
+    if (typeof window === "undefined") return DEFAULT_SETTINGS;
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) setSettings(JSON.parse(stored) as Settings);
+      if (stored) return JSON.parse(stored) as Settings;
     } catch {}
-  }, []);
+    return DEFAULT_SETTINGS;
+  });
 
   function handleSave() {
     setSaving(true);
@@ -70,7 +70,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <main className="pt-24 pb-12 px-4 md:px-8 min-h-screen bg-[var(--bg-page)]">
+    <main className="kok-page kok-fade-in pt-24 pb-12 px-4 md:px-8 min-h-screen">
       {/* Başlık */}
       <div className="mb-8 flex justify-between items-end">
         <div>
@@ -82,7 +82,7 @@ export default function SettingsPage() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="bg-[#7C6CF6] text-white px-5 py-2.5 rounded-full text-xs font-bold flex items-center gap-2 disabled:opacity-60 hover:bg-[#6D5DF0] transition-colors"
+          className="kok-gradient-button text-white px-5 py-2.5 rounded-full text-xs font-bold flex items-center gap-2 disabled:opacity-60 hover:opacity-95 transition-opacity"
         >
           {saved ? (
             <>
@@ -104,7 +104,7 @@ export default function SettingsPage() {
         {/* Sol kolon */}
         <div className="col-span-12 lg:col-span-7 flex flex-col gap-6">
           {/* Profil */}
-          <section className="bg-[var(--bg-card)] rounded-xl p-8 border border-[var(--border)]">
+          <section className="kok-card rounded-3xl p-8">
             <h2 className="text-base font-bold text-[var(--text-1)] mb-6">
               {t.settings.sections.profile}
             </h2>
@@ -116,7 +116,7 @@ export default function SettingsPage() {
                 <input
                   value={settings.name}
                   onChange={(e) => update("name", e.target.value)}
-                  className="w-full bg-[var(--bg-page)] border border-[var(--border)] rounded-md py-2.5 px-4 text-sm text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-[#7C6CF6]/30 focus:border-[#7C6CF6] transition-all"
+                  className="w-full bg-black/20 border border-[var(--border)] rounded-2xl py-2.5 px-4 text-sm text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-[#7C6CF6]/30 focus:border-[#7C6CF6] transition-all"
                 />
               </div>
               <div>
@@ -127,14 +127,14 @@ export default function SettingsPage() {
                   value={settings.email}
                   onChange={(e) => update("email", e.target.value)}
                   type="email"
-                  className="w-full bg-[var(--bg-page)] border border-[var(--border)] rounded-md py-2.5 px-4 text-sm text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-[#7C6CF6]/30 focus:border-[#7C6CF6] transition-all"
+                  className="w-full bg-black/20 border border-[var(--border)] rounded-2xl py-2.5 px-4 text-sm text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-[#7C6CF6]/30 focus:border-[#7C6CF6] transition-all"
                 />
               </div>
             </div>
           </section>
 
           {/* Restoran Ayarları */}
-          <section className="bg-[var(--bg-card)] rounded-xl p-8 border border-[var(--border)]">
+          <section className="kok-card rounded-3xl p-8">
             <h2 className="text-base font-bold text-[var(--text-1)] mb-6">
               {t.settings.sections.restaurant}
             </h2>
@@ -157,7 +157,7 @@ export default function SettingsPage() {
                   <input
                     value={settings.city}
                     onChange={(e) => update("city", e.target.value)}
-                    className="w-full bg-[var(--bg-page)] border border-[var(--border)] rounded-md py-2.5 px-4 text-sm text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-[#7C6CF6]/30 focus:border-[#7C6CF6] transition-all"
+                    className="w-full bg-black/20 border border-[var(--border)] rounded-2xl py-2.5 px-4 text-sm text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-[#7C6CF6]/30 focus:border-[#7C6CF6] transition-all"
                   />
                 </div>
                 <div>
@@ -167,7 +167,7 @@ export default function SettingsPage() {
                   <select
                     value={settings.timezone}
                     onChange={(e) => update("timezone", e.target.value)}
-                    className="w-full bg-[var(--bg-page)] border border-[var(--border)] rounded-md py-2.5 px-4 text-sm text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-[#7C6CF6]/30 focus:border-[#7C6CF6] transition-all"
+                    className="w-full bg-black/20 border border-[var(--border)] rounded-2xl py-2.5 px-4 text-sm text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-[#7C6CF6]/30 focus:border-[#7C6CF6] transition-all"
                   >
                     <option>Europe/Istanbul (UTC+3)</option>
                     <option>UTC</option>
@@ -181,7 +181,7 @@ export default function SettingsPage() {
         {/* Sağ kolon */}
         <div className="col-span-12 lg:col-span-5 flex flex-col gap-6">
           {/* Bildirimler */}
-          <section className="bg-[var(--bg-card)] rounded-xl p-8 border border-[var(--border)]">
+          <section className="kok-card rounded-3xl p-8">
             <h2 className="text-base font-bold text-[var(--text-1)] mb-6">
               {t.settings.sections.notifications}
             </h2>
@@ -228,9 +228,9 @@ export default function SettingsPage() {
           </section>
 
           {/* Platform Bilgi Kartı */}
-          <section className="bg-[var(--accent-bg)] rounded-xl p-8 border border-[#D4CFFE]">
+          <section className="kok-card rounded-3xl p-8">
             <div className="flex items-start gap-4">
-              <div className="p-2.5 bg-[#7C6CF6] rounded-xl">
+              <div className="kok-icon-tile p-2.5 rounded-2xl">
                 <span className="material-symbols-outlined text-white text-xl">
                   monitor_heart
                 </span>

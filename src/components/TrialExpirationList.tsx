@@ -56,7 +56,7 @@ export default function TrialExpirationList({ items }: Props) {
               {items.map((biz) => (
                 <tr
                   key={biz.id}
-                  className="hover:bg-[var(--bg-page)] transition-colors border-t border-[var(--border)]"
+                  className="hover:bg-white/[0.035] transition-colors border-t border-[var(--border)]"
                 >
                   <td className="px-6 py-4">
                     <p className="font-bold text-[var(--text-1)] text-sm">{biz.name}</p>

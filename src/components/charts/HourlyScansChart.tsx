@@ -36,10 +36,10 @@ export default function HourlyScansChart({ data, period = "today" }: Props) {
   const avgPerDay = days > 1 ? Math.round(total / days) : null;
 
   return (
-    <div className="bg-[var(--bg-card)] rounded-xl p-8 border border-[var(--border)]">
+    <div className="kok-card kok-card-hover rounded-3xl p-6 md:p-8">
       <div className="flex justify-between items-start mb-6">
         <div>
-          <span className="px-3 py-1 bg-[#EEEAFE] text-[#7C6CF6] rounded-sm text-[10px] font-bold tracking-widest uppercase mb-3 inline-block">
+          <span className="kok-soft-button px-3 py-1 text-[var(--accent)] rounded-full text-[10px] font-bold tracking-widest uppercase mb-3 inline-block">
             Saat Analizi
           </span>
           <h2 className="text-2xl font-bold text-[var(--text-1)]">Saatlik Taramalar</h2>
@@ -48,7 +48,7 @@ export default function HourlyScansChart({ data, period = "today" }: Props) {
           </p>
         </div>
         <div className="text-right">
-          <p className="text-4xl font-extrabold text-[#7C6CF6]">
+          <p className="text-4xl font-extrabold text-[var(--accent)]">
             {total.toLocaleString("tr-TR")}
           </p>
           <p className="text-[10px] font-bold text-[#9AA3B2] uppercase tracking-tighter">
@@ -76,15 +76,16 @@ export default function HourlyScansChart({ data, period = "today" }: Props) {
           <YAxis hide />
           <Tooltip
             contentStyle={{
-              background: "#FFFFFF",
-              border: "1px solid #E9E9F2",
-              borderRadius: "12px",
-              boxShadow: "0 8px 32px rgba(124,108,246,0.08)",
+              background: "rgba(13, 14, 22, 0.94)",
+              border: "1px solid rgba(139,124,251,0.28)",
+              borderRadius: "16px",
+              boxShadow: "0 18px 44px rgba(0,0,0,0.35)",
               fontSize: 12,
+              color: "#F7F7FF",
             }}
-            cursor={{ fill: "#F6F6FB" }}
+            cursor={{ fill: "rgba(139,124,251,0.08)" }}
           />
-          <Bar dataKey="scans" radius={[4, 4, 0, 0]} fill="#C4B5FD" isAnimationActive={false}>
+          <Bar dataKey="scans" radius={[10, 10, 2, 2]} fill="#C4B5FD" isAnimationActive>
             {data.map((entry, index) => (
               <Cell
                 key={index}
@@ -103,13 +104,13 @@ export default function HourlyScansChart({ data, period = "today" }: Props) {
       </div>
 
       <div className="flex gap-4 mt-4">
-        <div className="flex items-center gap-2 text-xs font-semibold text-[#6B7280]">
+        <div className="flex items-center gap-2 text-xs font-semibold text-[var(--text-2)]">
           <span className="w-3 h-3 rounded-full bg-[#7C6CF6]"></span> Zirve Saati
         </div>
-        <div className="flex items-center gap-2 text-xs font-semibold text-[#6B7280]">
+        <div className="flex items-center gap-2 text-xs font-semibold text-[var(--text-2)]">
           <span className="w-3 h-3 rounded-full bg-[#A78BFA]"></span> Yoğun Trafik
         </div>
-        <div className="flex items-center gap-2 text-xs font-semibold text-[#6B7280]">
+        <div className="flex items-center gap-2 text-xs font-semibold text-[var(--text-2)]">
           <span className="w-3 h-3 rounded-full bg-[#C4B5FD]"></span> Normal
         </div>
       </div>
