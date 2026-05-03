@@ -3,7 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 const ADMIN_COOKIE = "kokos_session";
 const DEMO_BUSINESS_COOKIE = "kokos_business_demo";
-const PUBLIC_PATHS = ["/admin", "/login", "/signup"];
+// /admin kasıtlı olarak buraya dahil edilmedi — ziyaretçi /login'e yönlenir
+const PUBLIC_PATHS = ["/x-kokos-9f4a", "/login", "/signup"];
 
 function isDemoBusinessLoginEnabled() {
   return process.env.NODE_ENV !== "production" || process.env.ENABLE_DEMO_BUSINESS_LOGIN === "true";
@@ -76,12 +77,12 @@ async function requireBusinessAuth(request: NextRequest) {
 async function requireAdminAuth(request: NextRequest) {
   const token = request.cookies.get(ADMIN_COOKIE)?.value;
   if (!token) {
-    return NextResponse.redirect(new URL("/admin", request.url));
+    return NextResponse.redirect(new URL("/x-kokos-9f4a", request.url));
   }
 
   const valid = await verifyAdminToken(token);
   if (!valid) {
-    const response = NextResponse.redirect(new URL("/admin", request.url));
+    const response = NextResponse.redirect(new URL("/x-kokos-9f4a", request.url));
     response.cookies.delete(ADMIN_COOKIE);
     return response;
   }
@@ -91,6 +92,12 @@ async function requireAdminAuth(request: NextRequest) {
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // /admin URL'ini bilen ziyaretçileri sessizce /login'e yönlendir
+  // (Gizli admin URL'ini sızdırmamak için requireAdminAuth'tan önce ele alınır)
+  if (pathname === "/admin" || pathname.startsWith("/admin/")) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
 
   if (PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`))) {
     return NextResponse.next();
