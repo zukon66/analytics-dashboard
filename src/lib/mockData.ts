@@ -393,6 +393,7 @@ export function mockGetTablePerformance(search = "", businessId?: number) {
       revenue: number;
       lastActivity: string;
       hourly: Record<number, number>;
+      pendingOrders: number;
     }
   > = {};
 
@@ -406,6 +407,7 @@ export function mockGetTablePerformance(search = "", businessId?: number) {
       revenue: 0,
       lastActivity: scan.scanned_at,
       hourly: {},
+      pendingOrders: 0,
     };
     const row = map[scan.table_id];
     row.zone = scan.zone;
@@ -426,10 +428,12 @@ export function mockGetTablePerformance(search = "", businessId?: number) {
       revenue: 0,
       lastActivity: rows[0]?.created_at ?? "2026-05-31T00:00:00",
       hourly: {},
+      pendingOrders: 0,
     };
     const row = map[tableId];
     row.orders += rows.length;
     row.revenue += rows.filter((order) => order.status !== "cancelled").reduce((sum, order) => sum + order.total_amount, 0);
+    row.pendingOrders += rows.filter((order) => order.status === "pending").length;
     for (const order of rows) {
       row.lastActivity = order.created_at > row.lastActivity ? order.created_at : row.lastActivity;
     }
@@ -449,6 +453,7 @@ export function mockGetTablePerformance(search = "", businessId?: number) {
         conversionRate: Math.round((row.orders / Math.max(row.scans, 1)) * 100),
         peakHour: peakHour ? `${peakHour.padStart(2, "0")}:00` : "--",
         lastActivity: row.lastActivity,
+        pendingOrders: row.pendingOrders,
       };
     })
     .filter((row) => !q || row.tableId.toLocaleLowerCase("tr-TR").includes(q) || row.zone.toLocaleLowerCase("tr-TR").includes(q))
@@ -494,6 +499,7 @@ export function mockGetTableDetail(tableId: string, businessId?: number) {
       conversionRate: Math.round((orderRows.length / Math.max(scanRows.length, 1)) * 100),
       peakHour: hourly.sort((a, b) => b.scans - a.scans)[0]?.hour ?? "--",
       lastActivity: scanRows[0]?.scanned_at ?? orderRows[0]?.created_at ?? "2026-05-31T00:00:00",
+      pendingOrders: orderRows.filter((o) => o.status === "pending").length,
     },
     hourly: hourly.sort((a, b) => b.scans + b.orders - (a.scans + a.orders)).slice(0, 8),
     statusBreakdown,

@@ -652,6 +652,7 @@ export type TablePerformance = {
   conversionRate: number;
   peakHour: string;
   lastActivity: string;
+  pendingOrders: number;
 };
 
 export type TableDetail = {
@@ -697,6 +698,7 @@ export async function getTablePerformance(
         revenue: number;
         lastActivity: string;
         hourly: Record<number, number>;
+        pendingOrders: number;
       }
     > = {};
 
@@ -710,6 +712,7 @@ export async function getTablePerformance(
         revenue: 0,
         lastActivity: scan.scanned_at,
         hourly: {},
+        pendingOrders: 0,
       };
       const row = map[scan.table_id];
       row.zone = scan.zone;
@@ -730,12 +733,14 @@ export async function getTablePerformance(
         revenue: 0,
         lastActivity: order.created_at,
         hourly: {},
+        pendingOrders: 0,
       };
       const row = map[order.table_id];
       row.zone = order.zone;
       row.orders += 1;
       row.revenue += order.status === "cancelled" ? 0 : Number(order.total_amount ?? 0);
       row.lastActivity = order.created_at > row.lastActivity ? order.created_at : row.lastActivity;
+      if (order.status === "pending") row.pendingOrders += 1;
     });
 
     const rows = Object.values(map)
@@ -752,6 +757,7 @@ export async function getTablePerformance(
           conversionRate: Math.round((row.orders / Math.max(row.scans, 1)) * 100),
           peakHour: peakHour ? `${peakHour.padStart(2, "0")}:00` : "--",
           lastActivity: row.lastActivity,
+          pendingOrders: row.pendingOrders,
         };
       })
       .sort((a, b) => b.revenue - a.revenue);
@@ -814,6 +820,7 @@ export async function getTableDetail(
       conversionRate: Math.round((orders.length / Math.max(scans.length, 1)) * 100),
       peakHour: hourly[0]?.hour ?? "--",
       lastActivity: scans[0]?.scanned_at ?? orders[0]?.created_at ?? new Date().toISOString(),
+      pendingOrders: orders.filter((o) => o.status === "pending").length,
     };
 
     const rows: TableDetail = {
