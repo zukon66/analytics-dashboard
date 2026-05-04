@@ -17,7 +17,13 @@ import CityMapChart from "@/components/charts/CityMapChart";
 import ZoneChart from "@/components/charts/ZoneChart";
 import DateFilterBar from "@/components/DateFilterBar";
 import PlatformComparisonBadge from "@/components/PlatformComparisonBadge";
-import { extendBusinessTrial } from "@/app/actions/admin-business";
+import {
+  extendBusinessTrial,
+  updateBusinessPlan,
+  updateBusinessStatus,
+  updateBusinessTrialEnd,
+} from "@/app/actions/admin-business";
+import { getAdminBusinessOperations } from "@/lib/admin-business";
 import t from "@/lib/i18n";
 
 export const revalidate = 60;
@@ -37,6 +43,20 @@ const STATUS_COLORS: Record<string, string> = {
   inactive: "bg-[#FEF3C7] text-[#92400E]",
   churned:  "bg-[#FEE2E2] text-[#991B1B]",
   trial:    "bg-[#F3F4F6] text-[#6B7280]",
+};
+
+const PLAN_LABELS: Record<string, string> = {
+  trial: "Trial",
+  starter: "Starter",
+  pro: "Pro",
+  enterprise: "Enterprise",
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  active: "Aktif",
+  inactive: "Pasif",
+  trial: "Trial",
+  churned: "Ayrıldı",
 };
 
 function DeltaBadge({ current, previous }: { current: number; previous: number }) {
@@ -69,12 +89,38 @@ function trialDaysLeft(value?: string | null): string {
   return `${days} gün kaldı`;
 }
 
+function formatAdminDate(value?: string | null): string {
+  if (!value) return "—";
+  return new Date(value).toLocaleString("tr-TR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function formatDateTimeLocal(value?: string | null): string {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const offsetMs = date.getTimezoneOffset() * 60000;
+  return new Date(date.getTime() - offsetMs).toISOString().slice(0, 16);
+}
+
 export default async function BusinessDetailPage({
   params,
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ period?: string; date?: string; trial?: string; trial_error?: string }>;
+  searchParams: Promise<{
+    period?: string;
+    date?: string;
+    trial?: string;
+    trial_error?: string;
+    operation?: string;
+    operation_error?: string;
+  }>;
 }) {
   const { id } = await params;
   const businessId = Number(id);
@@ -101,6 +147,7 @@ export default async function BusinessDetailPage({
       getCustomerStats(businessId),
       getPlatformAverages(activePeriod),
     ]);
+  const adminOps = await getAdminBusinessOperations(businessId);
   const platformAvg = platformAvgRes.data;
 
   const kpis = kpisRes.data;
@@ -161,6 +208,20 @@ export default async function BusinessDetailPage({
         </div>
       )}
 
+      {(pageParams.operation || pageParams.operation_error) && (
+        <div
+          className={`mb-6 rounded-2xl border px-4 py-3 text-sm font-semibold ${
+            pageParams.operation
+              ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-300"
+              : "border-amber-400/20 bg-amber-500/10 text-amber-300"
+          }`}
+        >
+          {pageParams.operation
+            ? "Admin işlemi başarıyla uygulandı."
+            : "Admin işlemi uygulanamadı. Supabase service role env değerlerini ve bağlantıyı kontrol edin."}
+        </div>
+      )}
+
       <section className="kok-card rounded-3xl p-5 md:p-6 mb-8">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
@@ -192,6 +253,185 @@ export default async function BusinessDetailPage({
               </button>
             ))}
           </form>
+        </div>
+      </section>
+
+      <section className="grid grid-cols-1 xl:grid-cols-3 gap-5 mb-8">
+        <div className="kok-card rounded-3xl p-5 md:p-6 xl:col-span-2">
+          <div className="flex items-center gap-2 mb-5">
+            <span className="material-symbols-outlined text-[var(--accent)]">admin_panel_settings</span>
+            <h2 className="text-base font-bold text-[var(--text-1)]">Admin Operasyonları</h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <form action={updateBusinessPlan} className="rounded-2xl border border-[var(--border)] bg-white/[0.025] p-4">
+              <input type="hidden" name="businessId" value={business.id} />
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-2">
+                Plan değiştir
+              </label>
+              <select
+                name="plan"
+                defaultValue={business.plan_code ?? business.plan}
+                className="w-full rounded-xl border border-[var(--border)] bg-black/20 px-3 py-2 text-sm text-[var(--text-1)]"
+              >
+                {Object.entries(PLAN_LABELS).map(([value, label]) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
+              </select>
+              <button className="kok-gradient-button mt-3 w-full rounded-xl px-3 py-2 text-xs font-bold text-white">
+                Planı Kaydet
+              </button>
+            </form>
+
+            <form action={updateBusinessStatus} className="rounded-2xl border border-[var(--border)] bg-white/[0.025] p-4">
+              <input type="hidden" name="businessId" value={business.id} />
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-2">
+                İşletme durumu
+              </label>
+              <select
+                name="status"
+                defaultValue={business.status}
+                className="w-full rounded-xl border border-[var(--border)] bg-black/20 px-3 py-2 text-sm text-[var(--text-1)]"
+              >
+                {Object.entries(STATUS_LABELS).map(([value, label]) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
+              </select>
+              <button className="kok-gradient-button mt-3 w-full rounded-xl px-3 py-2 text-xs font-bold text-white">
+                Durumu Kaydet
+              </button>
+            </form>
+
+            <form action={updateBusinessTrialEnd} className="rounded-2xl border border-[var(--border)] bg-white/[0.025] p-4">
+              <input type="hidden" name="businessId" value={business.id} />
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-2">
+                Trial bitiş tarihi
+              </label>
+              <input
+                name="trialEndsAt"
+                type="datetime-local"
+                defaultValue={formatDateTimeLocal(business.trial_ends_at)}
+                className="w-full rounded-xl border border-[var(--border)] bg-black/20 px-3 py-2 text-sm text-[var(--text-1)]"
+              />
+              <button className="kok-gradient-button mt-3 w-full rounded-xl px-3 py-2 text-xs font-bold text-white">
+                Tarihi Kaydet
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <aside className="kok-card rounded-3xl p-5 md:p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="material-symbols-outlined text-[var(--accent)]">link</span>
+            <h2 className="text-base font-bold text-[var(--text-1)]">Kullanıcı Eşleşmesi</h2>
+          </div>
+          <div className="space-y-3 text-sm">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Owner e-posta</p>
+              <p className="mt-1 break-all text-[var(--text-1)]">{business.owner_email ?? "—"}</p>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Auth user id</p>
+              <p className="mt-1 break-all text-[var(--text-2)]">{business.auth_user_id ?? "Eşleşme yok"}</p>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Ana proje user id</p>
+              <p className="mt-1 break-all text-[var(--text-2)]">{business.external_project_user_id ?? "Henüz bağlı değil"}</p>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section className="grid grid-cols-1 xl:grid-cols-2 gap-5 mb-8">
+        <div className="kok-card rounded-3xl overflow-hidden">
+          <div className="px-6 py-5 border-b border-[var(--border)]">
+            <h2 className="text-base font-bold text-[var(--text-1)]">Business Üyeleri</h2>
+            <p className="text-xs text-[var(--text-muted)] mt-1">Supabase Auth kullanıcıları ile işletme eşleşmesi</p>
+          </div>
+          {adminOps.error ? (
+            <div className="px-6 py-8 text-sm text-amber-300">
+              Admin veri bağlantısı okunamadı: {adminOps.error}
+            </div>
+          ) : adminOps.members.length === 0 ? (
+            <div className="px-6 py-8 text-sm text-[var(--text-muted)]">Bu işletmeye bağlı kullanıcı yok.</div>
+          ) : (
+            <div className="divide-y divide-[var(--border)]">
+              {adminOps.members.map((member) => (
+                <div key={member.id} className="px-6 py-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="break-all text-sm font-bold text-[var(--text-1)]">{member.auth_user_id}</p>
+                    <span className="rounded-full border border-[var(--border)] px-2.5 py-1 text-[10px] font-bold uppercase text-[var(--accent)]">
+                      {member.role} · {member.status}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs text-[var(--text-muted)]">Bağlantı: {formatAdminDate(member.created_at)}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="kok-card rounded-3xl overflow-hidden">
+          <div className="px-6 py-5 border-b border-[var(--border)]">
+            <h2 className="text-base font-bold text-[var(--text-1)]">Ödeme ve Abonelik</h2>
+            <p className="text-xs text-[var(--text-muted)] mt-1">Plan, ödeme durumu ve son ödeme tarihleri</p>
+          </div>
+          {adminOps.error ? (
+            <div className="px-6 py-8 text-sm text-amber-300">
+              Ödeme verileri okunamadı: {adminOps.error}
+            </div>
+          ) : (
+            <div className="p-6 space-y-5">
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] mb-3">Abonelikler</h3>
+                {adminOps.subscriptions.length === 0 ? (
+                  <p className="text-sm text-[var(--text-muted)]">Abonelik kaydı yok.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {adminOps.subscriptions.map((subscription) => (
+                      <div key={subscription.id} className="rounded-2xl border border-[var(--border)] bg-white/[0.025] p-4">
+                        <div className="flex items-center justify-between gap-2">
+                          <strong className="text-sm text-[var(--text-1)]">{PLAN_LABELS[subscription.plan_code]}</strong>
+                          <span className="text-xs font-bold text-[var(--accent)]">{subscription.status}</span>
+                        </div>
+                        <p className="mt-2 text-xs text-[var(--text-muted)]">
+                          Dönem: {formatAdminDate(subscription.current_period_started_at)} → {formatAdminDate(subscription.current_period_ends_at)}
+                        </p>
+                        <p className="mt-1 text-xs text-[var(--text-muted)]">
+                          Trial: {formatAdminDate(subscription.trial_started_at)} → {formatAdminDate(subscription.trial_ends_at)}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] mb-3">Ödemeler</h3>
+                {adminOps.payments.length === 0 ? (
+                  <p className="text-sm text-[var(--text-muted)]">Ödeme kaydı yok.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {adminOps.payments.map((payment) => (
+                      <div key={payment.id} className="flex items-center justify-between gap-3 rounded-2xl border border-[var(--border)] bg-white/[0.025] p-4">
+                        <div>
+                          <p className="text-sm font-bold text-[var(--text-1)]">
+                            {Number(payment.amount).toLocaleString("tr-TR")} {payment.currency}
+                          </p>
+                          <p className="text-xs text-[var(--text-muted)]">
+                            {payment.provider ?? "provider yok"} · {formatAdminDate(payment.paid_at ?? payment.created_at)}
+                          </p>
+                        </div>
+                        <span className="rounded-full border border-[var(--border)] px-2.5 py-1 text-[10px] font-bold uppercase text-[var(--accent)]">
+                          {payment.status}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </section>
 

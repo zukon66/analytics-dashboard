@@ -77,8 +77,11 @@ export type Business = {
   name: string;
   city: string;
   plan: "trial" | "starter" | "pro" | "enterprise";
+  plan_code?: "trial" | "starter" | "pro" | "enterprise" | null;
   status: "active" | "inactive" | "churned" | "trial";
   owner_email: string | null;
+  auth_user_id?: string | null;
+  external_project_user_id?: string | null;
   created_at: string;
   last_active_at: string | null;
   trial_started_at?: string | null;
